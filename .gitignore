@@ -1,0 +1,5 @@
+/target
+
+# ignore all folders with `target` as name
+**/target
+
