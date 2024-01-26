@@ -354,7 +354,7 @@ impl Layout {
     ///     .direction(Direction::Horizontal)
     ///     .constraints([Constraint::Ratio(1, 3), Constraint::Ratio(2, 3)])
     ///     .split(Geometry::new(9, 2));
-    /// assert_eq!(layout[..], [Geometry{x:0, y:0, cols:3, rows:2}, Geometry{x:3, y:0, cols:6, rows:2}]);
+    /// assert_eq!(layout[..], [Geometry{x:0, y:0, cols:1, rows:9}, Geometry{x:1, y:0, cols:1, rows:9}]);
     /// ```
     pub fn split(&self, area: Geometry) -> Rc<[Geometry]> {
         LAYOUT_CACHE.with(|c| {

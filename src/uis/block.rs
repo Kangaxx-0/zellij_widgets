@@ -5,18 +5,14 @@
 //!
 //! In its simplest form, a `Block` is a [border](Borders) around another widget. It can have a
 //! [title](Block::title) and [padding](Block::padding).
-
-#[path = "../title.rs"]
-pub mod title;
-
 use strum::{Display, EnumString};
 
-pub use self::title::{Position, Title};
 use crate::{
     buffer::Buffer,
     layout::{Alignment, Geometry},
     styles::{Style, Styled},
     symbols::border,
+    title::{Position, Title},
     widget::{Borders, Widget},
 };
 
