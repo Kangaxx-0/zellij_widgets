@@ -17,7 +17,7 @@ use crate::styles::{Style, Styled};
 /// any type convertible to [`Cow<str>`].
 ///
 /// ```rust
-/// use widgets::prelude::*;
+/// use zellij_widgets::prelude::*;
 ///
 /// let span = Span::raw("test content");
 /// let span = Span::raw(String::from("test content"));
@@ -31,7 +31,7 @@ use crate::styles::{Style, Styled};
 /// the [`Stylize`] trait.
 ///
 /// ```rust
-/// use widgets::prelude::*;
+/// use zellij_widgets::prelude::*;
 ///
 /// let span = Span::styled("test content", Style::new().green());
 /// let span = Span::styled(String::from("test content"), Style::new().green());
@@ -43,7 +43,7 @@ use crate::styles::{Style, Styled};
 /// applied are additive.
 ///
 /// ```rust
-/// use widgets::prelude::*;
+/// use zellij_widgets::prelude::*;
 ///
 /// let span = Span::raw("test content").green().on_yellow().italic();
 /// let span = Span::raw(String::from("test content")).green().on_yellow().italic();
@@ -66,7 +66,7 @@ impl<'a> Span<'a> {
     /// # Examples
     ///
     /// ```rust
-    /// # use widgets::prelude::*;
+    /// # use zellij_widgets::prelude::*;
     /// Span::raw("test content");
     /// Span::raw(String::from("test content"));
     /// ```
@@ -85,7 +85,7 @@ impl<'a> Span<'a> {
     /// # Examples
     ///
     /// ```rust
-    /// # use widgets::prelude::*;
+    /// # use zellij_widgets::prelude::*;
     /// let style = Style::new().yellow().on_green().italic();
     /// Span::styled("test content", style);
     /// Span::styled(String::from("test content"), style);
@@ -114,7 +114,7 @@ impl<'a> Span<'a> {
     ///
     /// ```rust
     /// use std::iter::Iterator;
-    /// use widgets::{prelude::*, text::StyledGrapheme};
+    /// use zellij_widgets::{prelude::*, text::StyledGrapheme};
     ///
     /// let span = Span::styled("Test", Style::new().green().italic());
     /// let style = Style::new().red().on_yellow();
@@ -147,7 +147,7 @@ impl<'a> Span<'a> {
     /// # Example
     ///
     /// ```rust
-    /// # use widgets::prelude::*;
+    /// # use zellij_widgets::prelude::*;
     /// let mut span = Span::styled("test content", Style::new().green().italic());
     /// span.patch_style(Style::new().red().on_yellow().bold());
     /// assert_eq!(span.style, Style::new().red().on_yellow().italic().bold());
@@ -163,7 +163,7 @@ impl<'a> Span<'a> {
     /// # Example
     ///
     /// ```rust
-    /// # use widgets::prelude::*;
+    /// # use zellij_widgets::prelude::*;
     /// let mut span = Span::styled("Test Content", Style::new().green().on_yellow().italic());
     /// span.reset_style();
     /// assert_eq!(span.style, Style::reset());

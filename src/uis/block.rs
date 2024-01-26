@@ -121,7 +121,7 @@ impl BorderType {
 /// # Example
 ///
 /// ```
-/// use widgets::{prelude::*, widgets::*};
+/// # use zellij_widgets::prelude::*;
 ///
 /// Padding::uniform(1);
 /// Padding::horizontal(2);
@@ -205,7 +205,8 @@ impl Padding {
 /// # Examples
 ///
 /// ```
-/// use widgets::{prelude::*, widgets::*};
+/// # use zellij_widgets::prelude::*;
+///   use zellij_widgets::core::style::Color;
 ///
 /// Block::default()
 ///     .title("Block")
@@ -217,7 +218,7 @@ impl Padding {
 ///
 /// You may also use multiple titles like in the following:
 /// ```
-/// use widgets::{prelude::*, widgets::{*, block::*}};
+/// use zellij_widgets::prelude::*;
 ///
 /// Block::default()
 ///     .title("Title 1")
@@ -298,7 +299,7 @@ impl<'a> Block<'a> {
     /// the leftover space)
     /// - Two titles with the same alignment (notice the left titles are separated)
     /// ```
-    /// use widgets::{prelude::*, widgets::{*, block::*}};
+    /// use zellij_widgets::prelude::*;
     ///
     /// Block::default()
     ///     .title("Title") // By default in the top left corner
@@ -340,7 +341,7 @@ impl<'a> Block<'a> {
     /// This example aligns all titles in the center except the "right" title which explicitly sets
     /// [`Alignment::Right`].
     /// ```
-    /// use widgets::{prelude::*, widgets::{*, block::*}};
+    /// use zellij_widgets::prelude::*;
     ///
     /// Block::default()
     ///     // This title won't be aligned in the center
@@ -369,7 +370,7 @@ impl<'a> Block<'a> {
     /// This example positions all titles on the bottom except the "top" title which explicitly sets
     /// [`Position::Top`].
     /// ```
-    /// use widgets::{prelude::*, widgets::{*, block::*}};
+    /// use zellij_widgets::prelude::*;
     ///
     /// Block::default()
     ///     // This title won't be aligned in the center
@@ -391,7 +392,7 @@ impl<'a> Block<'a> {
     ///
     /// This example shows a `Block` with blue borders.
     /// ```
-    /// # use widgets::{prelude::*, widgets::*};
+    /// use zellij_widgets::prelude::*;
     /// Block::default()
     ///     .borders(Borders::ALL)
     ///     .border_style(Style::new().blue());
@@ -421,13 +422,13 @@ impl<'a> Block<'a> {
     ///
     /// Simply show all borders.
     /// ```
-    /// # use widgets::{prelude::*, widgets::*};
+    /// # use zellij_widgets::prelude::*;
     /// Block::default().borders(Borders::ALL);
     /// ```
     ///
     /// Display left and right borders.
     /// ```
-    /// # use widgets::{prelude::*, widgets::*};
+    /// # use zellij_widgets::prelude::*;
     /// Block::default().borders(Borders::LEFT | Borders::RIGHT);
     /// ```
     pub const fn borders(mut self, flag: Borders) -> Block<'a> {
@@ -445,7 +446,7 @@ impl<'a> Block<'a> {
     /// # Examples
     ///
     /// ```
-    /// # use widgets::{prelude::*, widgets::*};
+    /// # use zellij_widgets::prelude::*;
     /// Block::default().title("Block").borders(Borders::ALL).border_type(BorderType::Rounded);
     /// // Renders
     /// // ╭Block╮
@@ -464,7 +465,7 @@ impl<'a> Block<'a> {
     /// # Examples
     ///
     /// ```
-    /// # use widgets::{prelude::*, widgets::*};
+    /// # use zellij_widgets::prelude::*;
     /// Block::default().title("Block").borders(Borders::ALL).border_set(symbols::border::DOUBLE);
     /// // Renders
     /// // ╔Block╗
@@ -481,7 +482,7 @@ impl<'a> Block<'a> {
     ///
     /// Draw a block nested within another block
     /// ```
-    /// # use widgets::{prelude::*, widgets::*};
+    /// # use zellij_widgets::prelude::*;
     /// # fn render_nested_block(frame: &mut Frame) {
     /// let outer_block = Block::default().title("Outer").borders(Borders::ALL);
     /// let inner_block = Block::default().title("Inner").borders(Borders::ALL);
@@ -537,7 +538,7 @@ impl<'a> Block<'a> {
     ///
     /// This renders a `Block` with no padding (the default).
     /// ```
-    /// # use widgets::{prelude::*, widgets::*};
+    /// # use zellij_widgets::prelude::*;
     /// Block::default()
     ///     .borders(Borders::ALL)
     ///     .padding(Padding::zero());
@@ -550,7 +551,7 @@ impl<'a> Block<'a> {
     /// This example shows a `Block` with padding left and right ([`Padding::horizontal`]).
     /// Notice the two spaces before and after the content.
     /// ```
-    /// # use widgets::{prelude::*, widgets::*};
+    /// # use zellij_widgets::prelude::*;
     /// Block::default()
     ///     .borders(Borders::ALL)
     ///     .padding(Padding::horizontal(2));

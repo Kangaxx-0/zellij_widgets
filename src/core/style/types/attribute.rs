@@ -43,7 +43,7 @@ macro_rules! Attribute {
         /// Basic usage:
         ///
         /// ```no_run
-        /// use zellij_widgets::style::Attribute;
+        /// use zellij_widgets::core::style::Attribute;
         ///
         /// println!(
         ///     "{} Underlined {} No Underline",
@@ -55,7 +55,7 @@ macro_rules! Attribute {
         /// Style existing text:
         ///
         /// ```no_run
-        /// use zellij_widgets::style::Stylize;
+        /// use zellij_widgets::core::style::Stylize;
         ///
         /// println!("{}", "Bold text".bold());
         /// println!("{}", "Underlined text".underlined());

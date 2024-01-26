@@ -7,109 +7,6 @@
 //! [examples](https://github.com/zellij_widgets-rs/zellij_widgets/tree/master/examples) repository
 //! to demonstrate the capabilities.
 //!
-//! ## Platform-specific Notes
-//!
-//! Not all features are supported on all terminals/platforms. You should always consult
-//! platform-specific notes of the following types:
-//!
-//! * [Color](enum.Color.html#platform-specific-notes)
-//! * [Attribute](enum.Attribute.html#platform-specific-notes)
-//!
-//! ## Examples
-//!
-//! A few examples of how to use the style module.
-//!
-//! ### Colors
-//!
-//! How to change the terminal text color.
-//!
-//! Command API:
-//!
-//! Using the Command API to color text.
-//!
-//! ```no_run
-//! use std::io::{self, Write};
-//! use zellij_widgets::execute;
-//! use zellij_widgets::style::{Print, SetForegroundColor, SetBackgroundColor, ResetColor, Color, Attribute};
-//!
-//! fn main() -> io::Result<()> {
-//!     execute!(
-//!         io::stdout(),
-//!         // Blue foreground
-//!         SetForegroundColor(Color::Blue),
-//!         // Red background
-//!         SetBackgroundColor(Color::Red),
-//!         // Print text
-//!         Print("Blue text on Red.".to_string()),
-//!         // Reset to default colors
-//!         ResetColor
-//!     )
-//! }
-//! ```
-//!
-//! Functions:
-//!
-//! Using functions from [`Stylize`](crate::style::Stylize) on a `String` or `&'static str` to color
-//! it.
-//!
-//! ```no_run
-//! use zellij_widgets::style::Stylize;
-//!
-//! println!("{}", "Red foreground color & blue background.".red().on_blue());
-//! ```
-//!
-//! ### Attributes
-//!
-//! How to apply terminal attributes to text.
-//!
-//! Command API:
-//!
-//! Using the Command API to set attributes.
-//!
-//! ```no_run
-//! use std::io::{self, Write};
-//!
-//! use zellij_widgets::execute;
-//! use zellij_widgets::style::{Attribute, Print, SetAttribute};
-//!
-//! fn main() -> io::Result<()> {
-//!     execute!(
-//!         io::stdout(),
-//!         // Set to bold
-//!         SetAttribute(Attribute::Bold),
-//!         Print("Bold text here.".to_string()),
-//!         // Reset all attributes
-//!         SetAttribute(Attribute::Reset)
-//!     )
-//! }
-//! ```
-//!
-//! Functions:
-//!
-//! Using [`Stylize`](crate::style::Stylize) functions on a `String` or `&'static str` to set
-//! attributes to it.
-//!
-//! ```no_run
-//! use zellij_widgets::style::Stylize;
-//!
-//! println!("{}", "Bold".bold());
-//! println!("{}", "Underlined".underlined());
-//! println!("{}", "Negative".negative());
-//! ```
-//!
-//! Displayable:
-//!
-//! [`Attribute`](enum.Attribute.html) implements [Display](https://doc.rust-lang.org/beta/std/fmt/trait.Display.html) and therefore it can be formatted like:
-//!
-//! ```no_run
-//! use zellij_widgets::style::Attribute;
-//!
-//! println!(
-//!     "{} Underlined {} No Underline",
-//!     Attribute::Underlined,
-//!     Attribute::NoUnderline
-//! );
-//! ```
 
 use std::{
     env,
@@ -142,7 +39,7 @@ mod types;
 /// # Examples
 ///
 /// ```no_run
-/// use zellij_widgets::style::{style, Stylize, Color};
+///  use zellij_widgets::core::style::{style, Color, Stylize};
 ///
 /// let styled_content = style("Blue colored text on yellow background")
 ///     .with(Color::Blue)
@@ -186,7 +83,7 @@ pub fn force_color_output(enabled: bool) {
 ///
 /// # Notes
 ///
-/// Commands must be executed/queued for execution otherwise they do nothing.
+/// Commands must be queued for execution otherwise they do nothing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SetForegroundColor(pub Color);
 
@@ -236,7 +133,7 @@ impl Command for &SetBackgroundColor {
 ///
 /// # Notes
 ///
-/// Commands must be executed/queued for execution otherwise they do nothing.
+/// Commands must be queued for execution otherwise they do nothing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SetUnderlineColor(pub Color);
 
@@ -254,25 +151,9 @@ impl Command for &SetUnderlineColor {
 
 /// A command that optionally sets the foreground and/or background color.
 ///
-/// For example:
-/// ```no_run
-/// use std::io::{stdout, Write};
-///
-/// use zellij_widgets::execute;
-/// use zellij_widgets::style::{Color::{Green, Black}, Colors, Print, SetColors};
-///
-/// execute!(
-///     stdout(),
-///     SetColors(Colors::new(Green, Black)),
-///     Print("Hello, world!".to_string()),
-/// ).unwrap();
-/// ```
-///
-/// See [`Colors`](struct.Colors.html) for more info.
-///
 /// # Notes
 ///
-/// Commands must be executed/queued for execution otherwise they do nothing.
+/// Commands must be queued for execution otherwise they do nothing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SetColors(pub Colors);
 
@@ -306,7 +187,7 @@ impl Command for &SetColors {
 ///
 /// # Notes
 ///
-/// Commands must be executed/queued for execution otherwise they do nothing.
+/// Commands must be queued for execution otherwise they do nothing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SetAttribute(pub Attribute);
 
@@ -327,7 +208,7 @@ impl Command for &SetAttribute {
 ///
 /// # Notes
 ///
-/// Commands must be executed/queued for execution otherwise they do nothing.
+/// Commands must be queued for execution otherwise they do nothing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SetAttributes(pub Attributes);
 
@@ -356,7 +237,7 @@ impl Command for &SetAttributes {
 ///
 /// # Notes
 ///
-/// Commands must be executed/queued for execution otherwise they do nothing.
+/// Commands must be queued for execution otherwise they do nothing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SetStyle(pub ContentStyle);
 
@@ -403,7 +284,7 @@ impl Command for &SetStyle {
 ///
 /// # Notes
 ///
-/// Commands must be executed/queued for execution otherwise they do nothing.
+/// Commands must be queued for execution otherwise they do nothing.
 #[derive(Debug, Copy, Clone)]
 pub struct PrintStyledContent<D: Display>(pub StyledContent<D>);
 
@@ -504,7 +385,7 @@ impl<D: Display> Command for &PrintStyledContent<D> {
 ///
 /// # Notes
 ///
-/// Commands must be executed/queued for execution otherwise they do nothing.
+/// Commands must be queued for execution otherwise they do nothing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ResetColor;
 

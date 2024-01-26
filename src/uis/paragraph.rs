@@ -25,7 +25,7 @@ fn get_line_offset(line_width: u16, text_area_width: u16, alignment: Alignment) 
 /// # Example
 ///
 /// ```
-/// use widgets::{prelude::*, widgets::*};
+/// use zellij_widgets::{prelude::*};
 ///
 /// let text = vec![
 ///     Line::from(vec![
@@ -65,7 +65,7 @@ pub struct Paragraph<'a> {
 /// ## Examples
 ///
 /// ```
-/// use widgets::{prelude::*, widgets::*};
+/// use zellij_widgets::{prelude::*};
 ///
 /// let bullet_points = Text::from(r#"Some indented points:
 ///     - First thing goes here and is long so that it wraps
@@ -105,7 +105,8 @@ impl<'a> Paragraph<'a> {
     /// # Examples
     ///
     /// ```rust
-    /// # use widgets::{prelude::*, widgets::*};
+    /// # use zellij_widgets::{prelude::*};
+    ///
     /// let paragraph = Paragraph::new("Hello, world!");
     /// let paragraph = Paragraph::new(String::from("Hello, world!"));
     /// let paragraph = Paragraph::new(Text::raw("Hello, world!"));
@@ -133,7 +134,7 @@ impl<'a> Paragraph<'a> {
     /// # Example
     ///
     /// ```rust
-    /// # use widgets::{prelude::*, widgets::*};
+    /// # use zellij_widgets::{prelude::*};
     /// let paragraph = Paragraph::new("Hello, world!")
     ///    .block(Block::default()
     ///         .title("Paragraph")
@@ -152,7 +153,7 @@ impl<'a> Paragraph<'a> {
     /// # Example
     ///
     /// ```rust
-    /// # use widgets::{prelude::*, widgets::*};
+    /// # use zellij_widgets::prelude::*;
     /// let paragraph = Paragraph::new("Hello, world!")
     ///    .style(Style::new().red().on_white());
     /// ```
@@ -168,7 +169,8 @@ impl<'a> Paragraph<'a> {
     /// # Example
     ///
     /// ```rust
-    /// # use widgets::{prelude::*, widgets::*};
+    /// # use zellij_widgets::{prelude::*};
+    ///
     /// let paragraph = Paragraph::new("Hello, world!")
     ///   .wrap(Wrap { trim: true });
     /// ```
@@ -201,7 +203,8 @@ impl<'a> Paragraph<'a> {
     /// # Example
     ///
     /// ```rust
-    /// # use widgets::{prelude::*, widgets::*};
+    ///
+    /// # use zellij_widgets::{prelude::*};
     /// let paragraph = Paragraph::new("Hello World")
     ///     .alignment(Alignment::Center);
     /// ```

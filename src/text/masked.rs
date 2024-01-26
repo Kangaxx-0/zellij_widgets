@@ -13,9 +13,9 @@ use super::Text;
 /// # Examples
 ///
 /// ```rust
-/// use widgets::{prelude::*, widgets::*};
+/// use zellij_widgets::prelude::*;
 ///
-/// let mut buffer = Buffer::empty(Geometry::new(0, 0, 5, 1));
+/// let mut buffer = Buffer::empty(Geometry::new(1, 5));
 /// let password = Masked::new("12345", 'x');
 ///
 /// Paragraph::new(password).render(buffer.area, &mut buffer);

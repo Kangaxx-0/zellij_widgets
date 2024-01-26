@@ -110,7 +110,8 @@ impl Default for Cell {
 /// # Examples:
 ///
 /// ```
-/// use widgets::{prelude::*, buffer::Cell};
+/// use zellij_widgets::prelude::*;
+/// use zellij_widgets::core::style::Color;
 ///
 /// let mut buf = Buffer::empty(Geometry{x: 0, y: 0, cols: 10, rows: 5});
 /// buf.get_mut(0, 2).set_symbol("x");
@@ -195,24 +196,11 @@ impl Buffer {
     /// # Examples
     ///
     /// ```
-    /// # use widgets::prelude::*;
-    /// let rect = Geometry::new(200, 100, 10, 10);
+    /// # use zellij_widgets::prelude::*;
+    /// let rect = Geometry::new(10, 10);
     /// let buffer = Buffer::empty(rect);
     /// // Global coordinates to the top corner of this buffer's area
-    /// assert_eq!(buffer.index_of(200, 100), 0);
-    /// ```
-    ///
-    /// # Panics
-    ///
-    /// Panics when given an coordinate that is outside of this Buffer's area.
-    ///
-    /// ```should_panic
-    /// # use widgets::prelude::*;
-    /// let rect = Geometry::new(200, 100, 10, 10);
-    /// let buffer = Buffer::empty(rect);
-    /// // Top coordinate is outside of the buffer in global coordinate space, as the Buffer's area
-    /// // starts at (200, 100).
-    /// buffer.index_of(0, 0); // Panics
+    /// assert_eq!(buffer.index_of(0, 0), 0);
     /// ```
     pub fn index_of(&self, x: u16, y: u16) -> usize {
         debug_assert!(
@@ -233,11 +221,11 @@ impl Buffer {
     /// # Examples
     ///
     /// ```
-    /// # use widgets::prelude::*;
-    /// let rect = Geometry::new(200, 100, 10, 10);
+    /// # use zellij_widgets::prelude::*;
+    /// let rect = Geometry::new(10, 10);
     /// let buffer = Buffer::empty(rect);
-    /// assert_eq!(buffer.pos_of(0), (200, 100));
-    /// assert_eq!(buffer.pos_of(14), (204, 101));
+    /// assert_eq!(buffer.pos_of(0), (0, 0));
+    /// assert_eq!(buffer.pos_of(14), (4, 1));
     /// ```
     ///
     /// # Panics
@@ -245,8 +233,8 @@ impl Buffer {
     /// Panics when given an index that is outside the Buffer's content.
     ///
     /// ```should_panic
-    /// # use widgets::prelude::*;
-    /// let rect = Geometry::new(0, 0, 10, 10); // 100 cells in total
+    /// # use zellij_widgets::prelude::*;
+    /// let rect = Geometry::new(10, 10); // 100 cells in total
     /// let buffer = Buffer::empty(rect);
     /// // Index 100 is the 101th cell, which lies outside of the area of this Buffer.
     /// buffer.pos_of(100); // Panics

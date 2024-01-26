@@ -25,7 +25,7 @@ pub enum Constraint {
     /// Converts the given percentage to a f32, and then converts it back, trimming off the decimal
     /// point (effectively rounding down)
     /// ```
-    /// # use widgets::prelude::*;
+    /// # use zellij_widgets::prelude::*;
     /// assert_eq!(0, Constraint::Percentage(50).apply(0));
     /// assert_eq!(2, Constraint::Percentage(50).apply(4));
     /// assert_eq!(5, Constraint::Percentage(50).apply(10));
@@ -37,7 +37,7 @@ pub enum Constraint {
     /// Converts the given numbers to a f32, and then converts it back, trimming off the decimal
     /// point (effectively rounding down)
     /// ```
-    /// # use widgets::prelude::*;
+    /// # use zellij_widgets::prelude::*;
     /// assert_eq!(0, Constraint::Ratio(4, 3).apply(0));
     /// assert_eq!(4, Constraint::Ratio(4, 3).apply(4));
     /// assert_eq!(10, Constraint::Ratio(4, 3).apply(10));
@@ -52,7 +52,7 @@ pub enum Constraint {
     /// Apply no more than the given amount (currently roughly equal to [Constraint::Max], but less
     /// consistent)
     /// ```
-    /// # use widgets::prelude::*;
+    /// # use zellij_widgets::prelude::*;
     /// assert_eq!(0, Constraint::Length(4).apply(0));
     /// assert_eq!(4, Constraint::Length(4).apply(4));
     /// assert_eq!(4, Constraint::Length(4).apply(10));
@@ -62,7 +62,7 @@ pub enum Constraint {
     ///
     /// also see [std::cmp::min]
     /// ```
-    /// # use widgets::prelude::*;
+    /// # use zellij_widgets::prelude::*;
     /// assert_eq!(0, Constraint::Max(4).apply(0));
     /// assert_eq!(4, Constraint::Max(4).apply(4));
     /// assert_eq!(4, Constraint::Max(4).apply(10));
@@ -72,7 +72,7 @@ pub enum Constraint {
     ///
     /// also see [std::cmp::max]
     /// ```
-    /// # use widgets::prelude::*;
+    /// # use zellij_widgets::prelude::*;
     /// assert_eq!(4, Constraint::Min(4).apply(0));
     /// assert_eq!(4, Constraint::Min(4).apply(4));
     /// assert_eq!(10, Constraint::Min(4).apply(10));
@@ -208,7 +208,7 @@ impl Layout {
     /// # Examples
     ///
     /// ```rust
-    /// # use widgets::prelude::*;
+    /// # use zellij_widgets::prelude::*;
     /// let layout = Layout::default()
     ///     .constraints([
     ///         Constraint::Percentage(20),
@@ -217,14 +217,43 @@ impl Layout {
     ///         Constraint::Min(2),
     ///         Constraint::Max(2),
     ///     ])
-    ///     .split(Geometry::new(0, 0, 10, 10));
-    /// assert_eq!(layout[..], [
-    ///     Geometry::new(0, 0, 10, 2),
-    ///     Geometry::new(0, 2, 10, 2),
-    ///     Geometry::new(0, 4, 10, 2),
-    ///     Geometry::new(0, 6, 10, 2),
-    ///     Geometry::new(0, 8, 10, 2),
-    /// ]);
+    ///     .split(Geometry::new(10, 10));
+    ///    assert_eq!(
+    ///     layout[..],
+    ///     [
+    ///         Geometry {
+    ///             x: 0,
+    ///             y: 0,
+    ///             cols: 10,
+    ///             rows: 2,
+    ///         },
+    ///         Geometry {
+    ///             x: 0,
+    ///             y: 2,
+    ///             cols: 10,
+    ///             rows: 2,
+    ///         },
+    ///         Geometry {
+    ///             x: 0,
+    ///             y: 4,
+    ///             cols: 10,
+    ///             rows: 2,
+    ///         },
+    ///         Geometry {
+    ///             x: 0,
+    ///             y: 6,
+    ///             cols: 10,
+    ///             rows: 2,
+    ///         },
+    ///         Geometry {
+    ///             x: 0,
+    ///             y: 8,
+    ///             cols: 10,
+    ///             rows: 2,
+    ///         },
+    ///     ]
+    /// );
+    ///
     /// ```
     pub fn constraints<C: AsRef<[Constraint]>>(mut self, constraints: C) -> Layout {
         self.constraints = constraints.as_ref().to_vec();
@@ -236,12 +265,12 @@ impl Layout {
     /// # Examples
     ///
     /// ```rust
-    /// # use widgets::prelude::*;
+    /// # use zellij_widgets::prelude::*;
     /// let layout = Layout::default()
     ///     .constraints([Constraint::Min(0)])
     ///     .margin(2)
-    ///     .split(Geometry::new(0, 0, 10, 10));
-    /// assert_eq!(layout[..], [Geometry::new(2, 2, 6, 6)]);
+    ///     .split(Geometry::new(10, 10));
+    /// assert_eq!(layout[..], [Geometry{x:2, y:2, cols:6, rows:0}]);
     /// ```
     pub const fn margin(mut self, margin: u16) -> Layout {
         self.margin = Margin {
@@ -256,12 +285,12 @@ impl Layout {
     /// # Examples
     ///
     /// ```rust
-    /// # use widgets::prelude::*;
+    /// # use zellij_widgets::prelude::*;
     /// let layout = Layout::default()
     ///     .constraints([Constraint::Min(0)])
     ///     .horizontal_margin(2)
-    ///     .split(Geometry::new(0, 0, 10, 10));
-    /// assert_eq!(layout[..], [Geometry::new(2, 0, 6, 10)]);
+    ///     .split(Geometry::new(10, 10));
+    /// assert_eq!(layout[..], [Geometry{x:2, y:0, cols:6, rows:0}]);
     /// ```
     pub const fn horizontal_margin(mut self, horizontal: u16) -> Layout {
         self.margin.horizontal = horizontal;
@@ -273,12 +302,12 @@ impl Layout {
     /// # Examples
     ///
     /// ```rust
-    /// # use widgets::prelude::*;
+    /// # use zellij_widgets::prelude::*;
     /// let layout = Layout::default()
     ///     .constraints([Constraint::Min(0)])
     ///     .vertical_margin(2)
-    ///     .split(Geometry::new(0, 0, 10, 10));
-    /// assert_eq!(layout[..], [Geometry::new(0, 2, 10, 6)]);
+    ///     .split(Geometry::new(10, 10));
+    /// assert_eq!(layout[..], [Geometry{ x:0, y:2, cols:10, rows:0}]);
     /// ```
     pub const fn vertical_margin(mut self, vertical: u16) -> Layout {
         self.margin.vertical = vertical;
@@ -290,18 +319,18 @@ impl Layout {
     /// # Examples
     ///
     /// ```rust
-    /// # use widgets::prelude::*;
+    /// # use zellij_widgets::prelude::*;
     /// let layout = Layout::default()
     ///     .direction(Direction::Horizontal)
     ///     .constraints([Constraint::Length(5), Constraint::Min(0)])
-    ///     .split(Geometry::new(0, 0, 10, 10));
-    /// assert_eq!(layout[..], [Geometry::new(0, 0, 5, 10), Geometry::new(5, 0, 5, 10)]);
+    ///     .split(Geometry::new(10, 10));
+    /// assert_eq!(layout[..], [Geometry{ x:0, y:0, cols:5, rows:10}, Geometry{x:5, y:0, cols:0, rows:10}]);
     ///
     /// let layout = Layout::default()
     ///     .direction(Direction::Vertical)
     ///     .constraints([Constraint::Length(5), Constraint::Min(0)])
-    ///     .split(Geometry::new(0, 0, 10, 10));
-    /// assert_eq!(layout[..], [Geometry::new(0, 0, 10, 5), Geometry::new(0, 5, 10, 5)]);
+    ///     .split(Geometry::new(10, 10));
+    /// assert_eq!(layout[..], [Geometry{x:0, y:0, cols:10, rows:5}, Geometry{x:0, y:5, cols:10, rows:0}]);
     /// ```
     pub const fn direction(mut self, direction: Direction) -> Layout {
         self.direction = direction;
@@ -319,18 +348,13 @@ impl Layout {
     /// # Examples
     ///
     /// ```
-    /// # use widgets::prelude::*;
-    /// let layout = Layout::default()
-    ///     .direction(Direction::Vertical)
-    ///     .constraints([Constraint::Length(5), Constraint::Min(0)])
-    ///     .split(Geometry::new(2, 2, 10, 10));
-    /// assert_eq!(layout[..], [Geometry::new(2, 2, 10, 5), Geometry::new(2, 7, 10, 5)]);
+    /// # use zellij_widgets::prelude::*;
     ///
     /// let layout = Layout::default()
     ///     .direction(Direction::Horizontal)
     ///     .constraints([Constraint::Ratio(1, 3), Constraint::Ratio(2, 3)])
-    ///     .split(Geometry::new(0, 0, 9, 2));
-    /// assert_eq!(layout[..], [Geometry::new(0, 0, 3, 2), Geometry::new(3, 0, 6, 2)]);
+    ///     .split(Geometry::new(9, 2));
+    /// assert_eq!(layout[..], [Geometry{x:0, y:0, cols:3, rows:2}, Geometry{x:3, y:0, cols:6, rows:2}]);
     /// ```
     pub fn split(&self, area: Geometry) -> Rc<[Geometry]> {
         LAYOUT_CACHE.with(|c| {

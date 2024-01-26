@@ -13,21 +13,21 @@ use crate::{layout::Alignment, text::Line};
 ///
 /// Title with no style.
 /// ```
-/// use widgets::widgets::block::Title;
+/// use zellij_widgets::prelude::*;
 ///
 /// Title::from("Title");
 /// ```
 ///
 /// Blue title on a white background (via [`Stylize`](crate::style::Stylize) trait).
 /// ```
-/// use widgets::{prelude::*, widgets::block::*};
+/// use zellij_widgets::prelude::*;
 ///
 /// Title::from("Title".blue().on_white());
 /// ```
 ///
 /// Title with multiple styles (see [`Line`] and [`Stylize`](crate::style::Stylize)).
 /// ```
-/// use widgets::{prelude::*, widgets::block::*};
+/// use zellij_widgets::prelude::*;
 ///
 /// Title::from(
 ///     Line::from(vec!["Q".white().underlined(), "uit".gray()])
@@ -36,7 +36,7 @@ use crate::{layout::Alignment, text::Line};
 ///
 /// Complete example
 /// ```
-/// use widgets::{prelude::*, widgets::{*, block::*}};
+/// use zellij_widgets::prelude::*;
 ///
 /// Title::from("Title")
 ///     .position(Position::Top)
@@ -69,7 +69,7 @@ pub struct Title<'a> {
 /// # Example
 ///
 /// ```
-/// use widgets::widgets::{*, block::*};
+/// use zellij_widgets::prelude::*;
 ///
 /// Block::new().title(
 ///     Title::from("title").position(Position::Bottom)

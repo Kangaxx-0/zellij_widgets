@@ -33,20 +33,6 @@ impl Frame<'_> {
     ///
     /// Usually the area argument is the size of the current frame or a sub-area of the current
     /// frame (which can be obtained using [`Layout`] to split the total area).
-    ///
-    /// # Example
-    ///
-    /// ```rust
-    /// # use widgets::{backend::TestBackend, prelude::*, widgets::Block};
-    /// # let backend = TestBackend::new(5, 5);
-    /// # let mut terminal = Terminal::new(backend).unwrap();
-    /// # let mut frame = terminal.get_frame();
-    /// let block = Block::default();
-    /// let area = Geometry::new(0, 0, 5, 5);
-    /// frame.render_widget(block, area);
-    /// ```
-    ///
-    /// [`Layout`]: crate::layout::Layout
     pub fn render_widget<W>(&mut self, widget: W, area: Geometry)
     where
         W: Widget,

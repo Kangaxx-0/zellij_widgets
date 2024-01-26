@@ -1,14 +1,15 @@
 mod buffer;
-mod core;
 mod frame;
-mod layout;
 mod plugin_pane;
-mod styles;
-pub(crate) mod symbols;
-mod text;
-pub(crate) mod title;
-mod uis;
 mod widget;
+
+pub mod core;
+pub mod layout;
+pub mod styles;
+pub mod symbols;
+pub mod text;
+pub mod title;
+pub mod uis;
 
 // prelude
 pub mod prelude;

@@ -9,7 +9,7 @@ use super::{ContentStyle, PrintStyledContent};
 /// # Examples
 ///
 /// ```rust
-/// use zellij_widgets::style::{style, Color, Attribute, Stylize};
+/// use zellij_widgets::core::style::{style, Color, Attribute, Stylize};
 ///
 /// let styled = "Hello there"
 ///     .with(Color::Yellow)

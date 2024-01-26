@@ -14,7 +14,7 @@ bitflags! {
     /// ## Examples
     ///
     /// ```rust
-    /// use widgets::{prelude::*};
+    /// use zellij_widgets::prelude::*;
     ///
     /// let m = Modifier::BOLD | Modifier::ITALIC;
     /// ```
@@ -49,7 +49,8 @@ impl fmt::Debug for Modifier {
 /// Style lets you control the main characteristics of the displayed elements.
 ///
 /// ```rust
-/// use widgets::{prelude::*};
+/// use zellij_widgets::{prelude::*};
+/// use zellij_widgets::core::style::Color;
 ///
 /// Style::default()
 ///     .fg(Color::Black)
@@ -60,7 +61,7 @@ impl fmt::Debug for Modifier {
 /// Styles can also be created with a [shorthand notation](crate::style#using-style-shorthands).
 ///
 /// ```rust
-/// # use widgets::prelude::*;
+/// # use zellij_widgets::prelude::*;
 /// Style::new().black().on_green().italic().bold();
 /// ```
 ///
@@ -71,16 +72,15 @@ impl fmt::Debug for Modifier {
 /// just S3.
 ///
 /// ```rust
-/// use widgets::{prelude::*};
+/// use zellij_widgets::{prelude::*};
+/// use zellij_widgets::core::style::Color;
 ///
 /// let styles = [
 ///     Style::default().fg(Color::Blue).add_modifier(Modifier::BOLD | Modifier::ITALIC),
 ///     Style::default().bg(Color::Red).add_modifier(Modifier::UNDERLINED),
-///     #[cfg(feature = "underline-color")]
-///     Style::default().underline_color(Color::Green),
 ///     Style::default().fg(Color::Yellow).remove_modifier(Modifier::ITALIC),
 /// ];
-/// let mut buffer = Buffer::empty(Geometry::new(0, 0));
+/// let mut buffer = Buffer::empty(Geometry::new(10, 10));
 /// for style in &styles {
 ///   buffer.get_mut(0, 0).set_style(*style);
 /// }
@@ -88,8 +88,6 @@ impl fmt::Debug for Modifier {
 ///     Style {
 ///         fg: Some(Color::Yellow),
 ///         bg: Some(Color::Red),
-///         #[cfg(feature = "underline-color")]
-///         underline_color: Some(Color::Green),
 ///         add_modifier: Modifier::BOLD | Modifier::UNDERLINED,
 ///         sub_modifier: Modifier::empty(),
 ///     },
@@ -101,13 +99,14 @@ impl fmt::Debug for Modifier {
 /// reset all properties until that point use [`Style::reset`].
 ///
 /// ```
-/// use widgets::{prelude::*};
+/// use zellij_widgets::prelude::*;
+/// use zellij_widgets::core::style::Color;
 ///
 /// let styles = [
 ///     Style::default().fg(Color::Blue).add_modifier(Modifier::BOLD | Modifier::ITALIC),
 ///     Style::reset().fg(Color::Yellow),
 /// ];
-/// let mut buffer = Buffer::empty(Geometry::new(0, 0));
+/// let mut buffer = Buffer::empty(Geometry::new(10, 10));
 /// for style in &styles {
 ///   buffer.get_mut(0, 0).set_style(*style);
 /// }
@@ -115,8 +114,6 @@ impl fmt::Debug for Modifier {
 ///     Style {
 ///         fg: Some(Color::Yellow),
 ///         bg: Some(Color::Reset),
-///         #[cfg(feature = "underline-color")]
-///         underline_color: Some(Color::Reset),
 ///         add_modifier: Modifier::empty(),
 ///         sub_modifier: Modifier::empty(),
 ///     },
@@ -251,7 +248,8 @@ macro_rules! modifier {
 ///
 /// # Examples
 /// ```
-/// use widgets::{prelude::*, widgets::*};
+/// use zellij_widgets::prelude::*;
+/// use zellij_widgets::core::style::Color;
 ///
 /// let span = "hello".red().on_blue().bold();
 /// let line = Line::from(vec![
@@ -385,7 +383,9 @@ impl Style {
     /// ## Examples
     ///
     /// ```rust
-    /// # use widgets::prelude::*;
+    /// # use zellij_widgets::prelude::*;
+    /// use zellij_widgets::core::style::Color;
+    ///
     /// let style = Style::default().fg(Color::Blue);
     /// let diff = Style::default().fg(Color::Red);
     /// assert_eq!(style.patch(diff), Style::default().fg(Color::Red));
@@ -401,7 +401,9 @@ impl Style {
     /// ## Examples
     ///
     /// ```rust
-    /// # use widgets::prelude::*;
+    /// # use zellij_widgets::prelude::*;
+    /// use zellij_widgets::core::style::Color;
+    ///
     /// let style = Style::default().bg(Color::Blue);
     /// let diff = Style::default().bg(Color::Red);
     /// assert_eq!(style.patch(diff), Style::default().bg(Color::Red));
@@ -419,7 +421,9 @@ impl Style {
     /// ## Examples
     ///
     /// ```rust
-    /// # use widgets::prelude::*;
+    /// # use zellij_widgets::prelude::*;
+    /// use zellij_widgets::core::style::Color;
+    ///
     /// let style = Style::default().add_modifier(Modifier::BOLD);
     /// let diff = Style::default().add_modifier(Modifier::ITALIC);
     /// let patched = style.patch(diff);
@@ -440,7 +444,9 @@ impl Style {
     /// ## Examples
     ///
     /// ```rust
-    /// # use widgets::prelude::*;
+    /// # use zellij_widgets::prelude::*;
+    /// use zellij_widgets::core::style::Color;
+    ///
     /// let style = Style::default().add_modifier(Modifier::BOLD | Modifier::ITALIC);
     /// let diff = Style::default().remove_modifier(Modifier::ITALIC);
     /// let patched = style.patch(diff);
@@ -459,7 +465,9 @@ impl Style {
     ///
     /// ## Examples
     /// ```
-    /// # use widgets::prelude::*;
+    /// # use zellij_widgets::prelude::*;
+    /// use zellij_widgets::core::style::Color;
+    ///
     /// let style_1 = Style::default().fg(Color::Yellow);
     /// let style_2 = Style::default().bg(Color::Red);
     /// let combined = style_1.patch(style_2);
@@ -534,10 +542,12 @@ mod tests {
             Modifier::CROSSED_OUT,
         ];
 
-        let mut buffer = Buffer::empty(Geometry::new(0, 0));
+        let mut buffer = Buffer::empty(Geometry::new(37, 240));
 
         for m in &mods {
+            println!("try to get mut");
             buffer.get_mut(0, 0).set_style(Style::reset());
+            println!("set reset");
             buffer
                 .get_mut(0, 0)
                 .set_style(Style::default().add_modifier(*m));

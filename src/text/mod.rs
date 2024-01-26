@@ -8,6 +8,7 @@ use std::borrow::Cow;
 use crate::styles::Style;
 pub use grapheme::StyledGrapheme;
 pub use line::Line;
+pub use masked::Masked;
 pub use span::Span;
 
 /// A string split over multiple lines where each line is composed of several clusters, each with
@@ -18,7 +19,8 @@ pub use span::Span;
 /// [`core::iter::Extend`] which enables the concatenation of several [`Text`] blocks.
 ///
 /// ```rust
-/// use widgets::prelude::*;
+/// use zellij_widgets::prelude::*;
+/// use zellij_widgets::core::style::Color;
 ///
 /// let style = Style::default().fg(Color::Yellow).add_modifier(Modifier::ITALIC);
 ///
@@ -45,7 +47,7 @@ impl<'a> Text<'a> {
     /// ## Examples
     ///
     /// ```rust
-    /// # use widgets::prelude::*;
+    /// # use zellij_widgets::prelude::*;
     /// Text::raw("The first line\nThe second line");
     /// Text::raw(String::from("The first line\nThe second line"));
     /// ```
@@ -68,7 +70,9 @@ impl<'a> Text<'a> {
     /// # Examples
     ///
     /// ```rust
-    /// # use widgets::prelude::*;
+    /// # use zellij_widgets::prelude::*;
+    /// use zellij_widgets::core::style::Color;
+    ///
     /// let style = Style::default().fg(Color::Yellow).add_modifier(Modifier::ITALIC);
     /// Text::styled("The first line\nThe second line", style);
     /// Text::styled(String::from("The first line\nThe second line"), style);
@@ -87,7 +91,7 @@ impl<'a> Text<'a> {
     /// ## Examples
     ///
     /// ```rust
-    /// # use widgets::prelude::*;
+    /// # use zellij_widgets::prelude::*;
     /// let text = Text::from("The first line\nThe second line");
     /// assert_eq!(15, text.width());
     /// ```
@@ -100,7 +104,7 @@ impl<'a> Text<'a> {
     /// ## Examples
     ///
     /// ```rust
-    /// # use widgets::prelude::*;
+    /// # use zellij_widgets::prelude::*;
     /// let text = Text::from("The first line\nThe second line");
     /// assert_eq!(2, text.height());
     /// ```
@@ -113,7 +117,9 @@ impl<'a> Text<'a> {
     /// # Examples
     ///
     /// ```rust
-    /// # use widgets::prelude::*;
+    /// # use zellij_widgets::prelude::*;
+    /// use zellij_widgets::core::style::Color;
+    ///
     /// let style = Style::default().fg(Color::Yellow).add_modifier(Modifier::ITALIC);
     /// let mut raw_text = Text::raw("The first line\nThe second line");
     /// let styled_text = Text::styled(String::from("The first line\nThe second line"), style);
@@ -134,7 +140,9 @@ impl<'a> Text<'a> {
     /// ## Examples
     ///
     /// ```rust
-    /// # use widgets::prelude::*;
+    /// # use zellij_widgets::prelude::*;
+    /// use zellij_widgets::core::style::Color;
+    ///
     /// let style = Style::default().fg(Color::Yellow).add_modifier(Modifier::ITALIC);
     /// let mut text = Text::styled("The first line\nThe second line", style);
     ///

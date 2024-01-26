@@ -63,7 +63,7 @@ macro_rules! stylize_method {
 /// # Examples
 ///
 /// ```no_run
-/// use zellij_widgets::style::Stylize;
+/// use zellij_widgets::core::style::Stylize;
 ///
 /// println!("{}", "Bold text".bold());
 /// println!("{}", "Underlined text".underlined());
