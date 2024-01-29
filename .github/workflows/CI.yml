@@ -21,7 +21,7 @@ env:
   # don't install husky hooks during CI as they are only needed for for pre-push
   CARGO_HUSKY_DONT_INSTALL_HOOKS: true
 
-
+jobs:
   clippy:
     runs-on: ubuntu-latest
     steps:
