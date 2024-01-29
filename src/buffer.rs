@@ -352,60 +352,6 @@ impl Buffer {
     }
 }
 
-// /// Assert that two buffers are equal by comparing their areas and content.
-// ///
-// /// On panic, displays the areas or the content and a diff of the contents.
-// #[macro_export]
-// macro_rules! assert_buffer_eq {
-//     ($actual_expr:expr, $expected_expr:expr) => {
-//         match (&$actual_expr, &$expected_expr) {
-//             (actual, expected) => {
-//                 if actual.area != expected.area {
-//                     panic!(
-//                         indoc::indoc!(
-//                             "
-//                             buffer areas not equal
-//                             expected:  {:?}
-//                             actual:    {:?}"
-//                         ),
-//                         expected, actual
-//                     );
-//                 }
-//                 let diff = expected.diff(&actual);
-//                 if !diff.is_empty() {
-//                     let nice_diff = diff
-//                         .iter()
-//                         .enumerate()
-//                         .map(|(i, (x, y, cell))| {
-//                             let expected_cell = expected.get(*x, *y);
-//                             indoc::formatdoc! {"
-//                                 {i}: at ({x}, {y})
-//                                   expected: {expected_cell:?}
-//                                   actual:   {cell:?}
-//                             "}
-//                         })
-//                         .collect::<Vec<String>>()
-//                         .join("\n");
-//                     panic!(
-//                         indoc::indoc!(
-//                             "
-//                             buffer contents not equal
-//                             expected: {:?}
-//                             actual: {:?}
-//                             diff:
-//                             {}"
-//                         ),
-//                         expected, actual, nice_diff
-//                     );
-//                 }
-//                 // shouldn't get here, but this guards against future behavior
-//                 // that changes equality but not area or content
-//                 assert_eq!(actual, expected, "buffers not equal");
-//             }
-//         }
-//     };
-// }
-
 impl Debug for Buffer {
     /// Writes a debug representation of the buffer to the given formatter.
     ///
@@ -459,413 +405,88 @@ impl Debug for Buffer {
     }
 }
 
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
-//
-//     fn cell(s: &str) -> Cell {
-//         let mut cell = Cell::default();
-//         cell.set_symbol(s);
-//         cell
-//     }
-//
-//     #[test]
-//     fn it_implements_debug() {
-//         let mut buf = Buffer::empty(Geometry::new(12, 2));
-//         buf.set_string(0, 0, "Hello World!", Style::default());
-//         buf.set_string(
-//             0,
-//             1,
-//             "G'day World!",
-//             Style::default()
-//                 .fg(Color::Green)
-//                 .bg(Color::Yellow)
-//                 .add_modifier(Modifier::BOLD),
-//         );
-//         assert_eq!(
-//             format!("{buf:?}"),
-//             indoc::indoc!(
-//                 "
-//                 Buffer {
-//                     area: Geometry { x: 0, y: 0, cols: 12, rows: 2 },
-//                     content: [
-//                         \"Hello World!\",
-//                         \"G'day World!\",
-//                     ],
-//                     styles: [
-//                         x: 0, y: 0, fg: Reset, bg: Reset, modifier: NONE,
-//                         x: 0, y: 1, fg: Green, bg: Yellow, modifier: BOLD,
-//                     ]
-//                 }"
-//             )
-//         );
-//     }
-//
-//
-//     #[test]
-//     fn it_translates_to_and_from_coordinates() {
-//         let rect = Geometry::new(200, 100, 50, 80);
-//         let buf = Buffer::empty(rect);
-//
-//         // First cell is at the upper left corner.
-//         assert_eq!(buf.pos_of(0), (200, 100));
-//         assert_eq!(buf.index_of(200, 100), 0);
-//
-//         // Last cell is in the lower right.
-//         assert_eq!(buf.pos_of(buf.content.len() - 1), (249, 179));
-//         assert_eq!(buf.index_of(249, 179), buf.content.len() - 1);
-//     }
-//
-//     #[test]
-//     #[should_panic(expected = "outside the buffer")]
-//     fn pos_of_panics_on_out_of_bounds() {
-//         let rect = Geometry::new(0, 0, 10, 10);
-//         let buf = Buffer::empty(rect);
-//
-//         // There are a total of 100 cells; zero-indexed means that 100 would be the 101st cell.
-//         buf.pos_of(100);
-//     }
-//
-//     #[test]
-//     #[should_panic(expected = "outside the buffer")]
-//     fn index_of_panics_on_out_of_bounds() {
-//         let rect = Geometry::new(0, 0, 10, 10);
-//         let buf = Buffer::empty(rect);
-//
-//         // cols is 10; zero-indexed means that 10 would be the 11th cell.
-//         buf.index_of(10, 0);
-//     }
-//
-//     #[test]
-//     fn buffer_set_string() {
-//         let area = Geometry::new(0, 0, 5, 1);
-//         let mut buffer = Buffer::empty(area);
-//
-//         // Zero-cols
-//         buffer.set_stringn(0, 0, "aaa", 0, Style::default());
-//         assert_buffer_eq!(buffer, Buffer::with_lines(vec!["     "]));
-//
-//         buffer.set_string(0, 0, "aaa", Style::default());
-//         assert_buffer_eq!(buffer, Buffer::with_lines(vec!["aaa  "]));
-//
-//         // cols limit:
-//         buffer.set_stringn(0, 0, "bbbbbbbbbbbbbb", 4, Style::default());
-//         assert_buffer_eq!(buffer, Buffer::with_lines(vec!["bbbb "]));
-//
-//         buffer.set_string(0, 0, "12345", Style::default());
-//         assert_buffer_eq!(buffer, Buffer::with_lines(vec!["12345"]));
-//
-//         // cols truncation:
-//         buffer.set_string(0, 0, "123456", Style::default());
-//         assert_buffer_eq!(buffer, Buffer::with_lines(vec!["12345"]));
-//
-//         // multi-line
-//         buffer = Buffer::empty(Geometry::new(0, 0, 5, 2));
-//         buffer.set_string(0, 0, "12345", Style::default());
-//         buffer.set_string(0, 1, "67890", Style::default());
-//         assert_buffer_eq!(buffer, Buffer::with_lines(vec!["12345", "67890"]));
-//     }
-//
-//     #[test]
-//     fn buffer_set_string_multi_cols_overwrite() {
-//         let area = Geometry::new(0, 0, 5, 1);
-//         let mut buffer = Buffer::empty(area);
-//
-//         // multi-cols overwrite
-//         buffer.set_string(0, 0, "aaaaa", Style::default());
-//         buffer.set_string(0, 0, "称号", Style::default());
-//         assert_buffer_eq!(buffer, Buffer::with_lines(vec!["称号a"]));
-//     }
-//
-//     #[test]
-//     fn buffer_set_string_zero_cols() {
-//         let area = Geometry::new(0, 0, 1, 1);
-//         let mut buffer = Buffer::empty(area);
-//
-//         // Leading grapheme with zero cols
-//         let s = "\u{1}a";
-//         buffer.set_stringn(0, 0, s, 1, Style::default());
-//         assert_buffer_eq!(buffer, Buffer::with_lines(vec!["a"]));
-//
-//         // Trailing grapheme with zero with
-//         let s = "a\u{1}";
-//         buffer.set_stringn(0, 0, s, 1, Style::default());
-//         assert_buffer_eq!(buffer, Buffer::with_lines(vec!["a"]));
-//     }
-//
-//     #[test]
-//     fn buffer_set_string_double_cols() {
-//         let area = Geometry::new(0, 0, 5, 1);
-//         let mut buffer = Buffer::empty(area);
-//         buffer.set_string(0, 0, "コン", Style::default());
-//         assert_buffer_eq!(buffer, Buffer::with_lines(vec!["コン "]));
-//
-//         // Only 1 space left.
-//         buffer.set_string(0, 0, "コンピ", Style::default());
-//         assert_buffer_eq!(buffer, Buffer::with_lines(vec!["コン "]));
-//     }
-//
-//     #[test]
-//     fn buffer_with_lines() {
-//         let buffer =
-//             Buffer::with_lines(vec!["┌────────┐", "│コンピュ│", "│ーa 上で│", "└────────┘"]);
-//         assert_eq!(buffer.area.x, 0);
-//         assert_eq!(buffer.area.y, 0);
-//         assert_eq!(buffer.area.cols, 10);
-//         assert_eq!(buffer.area.rows, 4);
-//     }
-//
-//     #[test]
-//     fn buffer_diffing_empty_empty() {
-//         let area = Geometry::new(0, 0, 40, 40);
-//         let prev = Buffer::empty(area);
-//         let next = Buffer::empty(area);
-//         let diff = prev.diff(&next);
-//         assert_eq!(diff, vec![]);
-//     }
-//
-//     #[test]
-//     fn buffer_diffing_empty_filled() {
-//         let area = Geometry::new(0, 0, 40, 40);
-//         let prev = Buffer::empty(area);
-//         let next = Buffer::filled(area, Cell::default().set_symbol("a"));
-//         let diff = prev.diff(&next);
-//         assert_eq!(diff.len(), 40 * 40);
-//     }
-//
-//     #[test]
-//     fn buffer_diffing_filled_filled() {
-//         let area = Geometry::new(0, 0, 40, 40);
-//         let prev = Buffer::filled(area, Cell::default().set_symbol("a"));
-//         let next = Buffer::filled(area, Cell::default().set_symbol("a"));
-//         let diff = prev.diff(&next);
-//         assert_eq!(diff, vec![]);
-//     }
-//
-//     #[test]
-//     fn buffer_diffing_single_cols() {
-//         let prev = Buffer::with_lines(vec![
-//             "          ",
-//             "┌Title─┐  ",
-//             "│      │  ",
-//             "│      │  ",
-//             "└──────┘  ",
-//         ]);
-//         let next = Buffer::with_lines(vec![
-//             "          ",
-//             "┌TITLE─┐  ",
-//             "│      │  ",
-//             "│      │  ",
-//             "└──────┘  ",
-//         ]);
-//         let diff = prev.diff(&next);
-//         assert_eq!(
-//             diff,
-//             vec![
-//                 (2, 1, &cell("I")),
-//                 (3, 1, &cell("T")),
-//                 (4, 1, &cell("L")),
-//                 (5, 1, &cell("E")),
-//             ]
-//         );
-//     }
-//
-//     #[test]
-//     #[rustfmt::skip]
-//     fn buffer_diffing_multi_cols() {
-//         let prev = Buffer::with_lines(vec![
-//             "┌Title─┐  ",
-//             "└──────┘  ",
-//         ]);
-//         let next = Buffer::with_lines(vec![
-//             "┌称号──┐  ",
-//             "└──────┘  ",
-//         ]);
-//         let diff = prev.diff(&next);
-//         assert_eq!(
-//             diff,
-//             vec![
-//                 (1, 0, &cell("称")),
-//                 // Skipped "i"
-//                 (3, 0, &cell("号")),
-//                 // Skipped "l"
-//                 (5, 0, &cell("─")),
-//             ]
-//         );
-//     }
-//
-//     #[test]
-//     fn buffer_diffing_multi_cols_offset() {
-//         let prev = Buffer::with_lines(vec!["┌称号──┐"]);
-//         let next = Buffer::with_lines(vec!["┌─称号─┐"]);
-//
-//         let diff = prev.diff(&next);
-//         assert_eq!(
-//             diff,
-//             vec![(1, 0, &cell("─")), (2, 0, &cell("称")), (4, 0, &cell("号")),]
-//         );
-//     }
-//
-//     #[test]
-//     fn buffer_diffing_skip() {
-//         let prev = Buffer::with_lines(vec!["123"]);
-//         let mut next = Buffer::with_lines(vec!["456"]);
-//         for i in 1..3 {
-//             next.content[i].set_skip(true);
-//         }
-//
-//         let diff = prev.diff(&next);
-//         assert_eq!(diff, vec![(0, 0, &cell("4"))],);
-//     }
-//
-//     #[test]
-//     fn buffer_merge() {
-//         let mut one = Buffer::filled(
-//             Geometry {
-//                 x: 0,
-//                 y: 0,
-//                 cols: 2,
-//                 rows: 2,
-//             },
-//             Cell::default().set_symbol("1"),
-//         );
-//         let two = Buffer::filled(
-//             Geometry {
-//                 x: 0,
-//                 y: 2,
-//                 cols: 2,
-//                 rows: 2,
-//             },
-//             Cell::default().set_symbol("2"),
-//         );
-//         one.merge(&two);
-//         assert_buffer_eq!(one, Buffer::with_lines(vec!["11", "11", "22", "22"]));
-//     }
-//
-//     #[test]
-//     fn buffer_merge2() {
-//         let mut one = Buffer::filled(
-//             Geometry {
-//                 x: 2,
-//                 y: 2,
-//                 cols: 2,
-//                 rows: 2,
-//             },
-//             Cell::default().set_symbol("1"),
-//         );
-//         let two = Buffer::filled(
-//             Geometry {
-//                 x: 0,
-//                 y: 0,
-//                 cols: 2,
-//                 rows: 2,
-//             },
-//             Cell::default().set_symbol("2"),
-//         );
-//         one.merge(&two);
-//         assert_buffer_eq!(
-//             one,
-//             Buffer::with_lines(vec!["22  ", "22  ", "  11", "  11"])
-//         );
-//     }
-//
-//     #[test]
-//     fn buffer_merge3() {
-//         let mut one = Buffer::filled(
-//             Geometry {
-//                 x: 3,
-//                 y: 3,
-//                 cols: 2,
-//                 rows: 2,
-//             },
-//             Cell::default().set_symbol("1"),
-//         );
-//         let two = Buffer::filled(
-//             Geometry {
-//                 x: 1,
-//                 y: 1,
-//                 cols: 3,
-//                 rows: 4,
-//             },
-//             Cell::default().set_symbol("2"),
-//         );
-//         one.merge(&two);
-//         let mut merged = Buffer::with_lines(vec!["222 ", "222 ", "2221", "2221"]);
-//         merged.area = Geometry {
-//             x: 1,
-//             y: 1,
-//             cols: 4,
-//             rows: 4,
-//         };
-//         assert_buffer_eq!(one, merged);
-//     }
-//
-//     #[test]
-//     fn buffer_merge_skip() {
-//         let mut one = Buffer::filled(
-//             Geometry {
-//                 x: 0,
-//                 y: 0,
-//                 cols: 2,
-//                 rows: 2,
-//             },
-//             Cell::default().set_symbol("1"),
-//         );
-//         let two = Buffer::filled(
-//             Geometry {
-//                 x: 0,
-//                 y: 1,
-//                 cols: 2,
-//                 rows: 2,
-//             },
-//             Cell::default().set_symbol("2").set_skip(true),
-//         );
-//         one.merge(&two);
-//         let skipped: Vec<bool> = one.content().iter().map(|c| c.skip).collect();
-//         assert_eq!(skipped, vec![false, false, true, true, true, true]);
-//     }
-//
-//     #[test]
-//     fn buffer_merge_skip2() {
-//         let mut one = Buffer::filled(
-//             Geometry {
-//                 x: 0,
-//                 y: 0,
-//                 cols: 2,
-//                 rows: 2,
-//             },
-//             Cell::default().set_symbol("1").set_skip(true),
-//         );
-//         let two = Buffer::filled(
-//             Geometry {
-//                 x: 0,
-//                 y: 1,
-//                 cols: 2,
-//                 rows: 2,
-//             },
-//             Cell::default().set_symbol("2"),
-//         );
-//         one.merge(&two);
-//         let skipped: Vec<bool> = one.content().iter().map(|c| c.skip).collect();
-//         assert_eq!(skipped, vec![true, true, false, false, false, false]);
-//     }
-//
-//     #[test]
-//     fn with_lines_accepts_into_lines() {
-//         use crate::style::Stylize;
-//         let mut buf = Buffer::empty(Geometry::new(0, 0, 3, 2));
-//         buf.set_string(0, 0, "foo", Style::new().red());
-//         buf.set_string(0, 1, "bar", Style::new().blue());
-//         assert_eq!(buf, Buffer::with_lines(vec!["foo".red(), "bar".blue()]));
-//     }
-//
-//     #[test]
-//     fn cell_symbol_field() {
-//         let mut cell = Cell::default();
-//         assert_eq!(cell.symbol(), " ");
-//         cell.set_symbol("あ"); // Multi-byte character
-//         assert_eq!(cell.symbol(), "あ");
-//         cell.set_symbol("👨‍👩‍👧‍👦"); // Multiple code units combined with ZWJ
-//         assert_eq!(cell.symbol(), "👨‍👩‍👧‍👦");
-//     }
-// }
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn cell(s: &str) -> Cell {
+        let mut cell = Cell::default();
+        cell.set_symbol(s);
+        cell
+    }
+
+    #[test]
+    fn it_implements_debug() {
+        let mut buf = Buffer::empty(Geometry::new(2, 12));
+        buf.set_string(0, 0, "Hello World!", Style::default());
+        buf.set_string(
+            0,
+            1,
+            "G'day World!",
+            Style::default()
+                .fg(Color::Green)
+                .bg(Color::Yellow)
+                .add_modifier(Modifier::BOLD),
+        );
+        assert_eq!(
+            format!("{buf:?}"),
+            indoc::indoc!(
+                "
+                Buffer {
+                    area: Geometry { x: 0, y: 0, rows: 2, cols: 12 },
+                    content: [
+                        \"Hello World!\",
+                        \"G'day World!\",
+                    ],
+                    styles: [
+                        x: 0, y: 0, fg: Reset, bg: Reset, modifier: NONE,
+                        x: 0, y: 1, fg: Green, bg: Yellow, modifier: BOLD,
+                    ]
+                }"
+            )
+        );
+    }
+
+    #[test]
+    fn it_translates_to_and_from_coordinates() {
+        let rect = Geometry::new(50, 80);
+        let buf = Buffer::empty(rect);
+
+        // First cell is at the upper left corner.
+        assert_eq!(buf.pos_of(0), (0, 0));
+        assert_eq!(buf.index_of(0, 0), 0);
+
+        // Last cell is in the lower right.
+        assert_eq!(buf.pos_of(buf.content.len() - 1), (79, 49));
+    }
+
+    #[test]
+    #[should_panic(expected = "outside the buffer")]
+    fn pos_of_panics_on_out_of_bounds() {
+        let rect = Geometry::new(10, 10);
+        let buf = Buffer::empty(rect);
+
+        // There are a total of 100 cells; zero-indexed means that 100 would be the 101st cell.
+        buf.pos_of(100);
+    }
+
+    #[test]
+    #[should_panic(expected = "outside the buffer")]
+    fn index_of_panics_on_out_of_bounds() {
+        let rect = Geometry::new(10, 10);
+        let buf = Buffer::empty(rect);
+
+        // cols is 10; zero-indexed means that 10 would be the 11th cell.
+        buf.index_of(10, 0);
+    }
+
+    #[test]
+    fn cell_symbol_field() {
+        let mut cell = Cell::default();
+        assert_eq!(cell.symbol(), " ");
+        cell.set_symbol("あ"); // Multi-byte character
+        assert_eq!(cell.symbol(), "あ");
+        cell.set_symbol("👨‍👩‍👧‍👦"); // Multiple code units combined with ZWJ
+        assert_eq!(cell.symbol(), "👨‍👩‍👧‍👦");
+    }
+}
