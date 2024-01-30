@@ -160,7 +160,7 @@ impl Buffer {
         let lines = lines.into_iter().map(Into::into).collect::<Vec<_>>();
         let rows = lines.len() as u16;
         let cols = lines.iter().map(Line::width).max().unwrap_or_default() as u16;
-        let mut buffer = Buffer::empty(Geometry::new(rows, cols));
+        let mut buffer = Buffer::empty(Geometry::new(cols, rows));
         for (y, line) in lines.iter().enumerate() {
             buffer.set_line(0, y as u16, line, cols);
         }
@@ -407,6 +407,8 @@ impl Debug for Buffer {
 
 #[cfg(test)]
 mod tests {
+    use crate::assert_buffer_eq;
+
     use super::*;
 
     fn cell(s: &str) -> Cell {
@@ -488,5 +490,35 @@ mod tests {
         assert_eq!(cell.symbol(), "あ");
         cell.set_symbol("👨‍👩‍👧‍👦"); // Multiple code units combined with ZWJ
         assert_eq!(cell.symbol(), "👨‍👩‍👧‍👦");
+    }
+
+    #[test]
+    fn set_string() {
+        let area = Geometry::new(5, 1);
+        let mut buffer = Buffer::empty(area);
+
+        // Zero-width
+        buffer.set_stringn(0, 0, "aaa", 0, Style::default());
+        assert_buffer_eq!(buffer, Buffer::with_lines(vec!["     "]));
+
+        buffer.set_string(0, 0, "aaa", Style::default());
+        assert_buffer_eq!(buffer, Buffer::with_lines(vec!["aaa  "]));
+
+        // Width limit:
+        buffer.set_stringn(0, 0, "bbbbbbbbbbbbbb", 4, Style::default());
+        assert_buffer_eq!(buffer, Buffer::with_lines(vec!["bbbb "]));
+
+        buffer.set_string(0, 0, "12345", Style::default());
+        assert_buffer_eq!(buffer, Buffer::with_lines(vec!["12345"]));
+
+        // Width truncation:
+        buffer.set_string(0, 0, "123456", Style::default());
+        assert_buffer_eq!(buffer, Buffer::with_lines(vec!["12345"]));
+
+        // multi-line
+        buffer = Buffer::empty(Geometry::new(5, 2));
+        buffer.set_string(0, 0, "12345", Style::default());
+        buffer.set_string(0, 1, "67890", Style::default());
+        assert_buffer_eq!(buffer, Buffer::with_lines(vec!["12345", "67890"]));
     }
 }
