@@ -765,523 +765,393 @@ impl<'a> Styled for Block<'a> {
     }
 }
 
-// #[cfg(test)]
-// mod tests {
-//     use strum::ParseError;
-//
-//     use super::*;
-//     use crate::{
-//         assert_buffer_eq,
-//         layout::Geometry,
-//         style::{Color, Modifier, Stylize},
-//     };
-//
-//     #[test]
-//     fn inner_takes_into_account_the_borders() {
-//         // No borders
-//         assert_eq!(
-//             Block::default().inner(Geometry::default()),
-//             Geometry::new(0, 0, 0, 0),
-//             "no borders, cols=0, rows=0"
-//         );
-//         assert_eq!(
-//             Block::default().inner(Geometry::new(0, 0, 1, 1)),
-//             Geometry::new(0, 0, 1, 1),
-//             "no borders, cols=1, rows=1"
-//         );
-//
-//         // Left border
-//         assert_eq!(
-//             Block::default()
-//                 .borders(Borders::LEFT)
-//                 .inner(Geometry::new(0, 0, 0, 1)),
-//             Geometry::new(0, 0, 0, 1),
-//             "left, cols=0"
-//         );
-//         assert_eq!(
-//             Block::default()
-//                 .borders(Borders::LEFT)
-//                 .inner(Geometry::new(0, 0, 1, 1)),
-//             Geometry::new(1, 0, 0, 1),
-//             "left, cols=1"
-//         );
-//         assert_eq!(
-//             Block::default()
-//                 .borders(Borders::LEFT)
-//                 .inner(Geometry::new(0, 0, 2, 1)),
-//             Geometry::new(1, 0, 1, 1),
-//             "left, cols=2"
-//         );
-//
-//         // Top border
-//         assert_eq!(
-//             Block::default()
-//                 .borders(Borders::TOP)
-//                 .inner(Geometry::new(0, 0, 1, 0)),
-//             Geometry::new(0, 0, 1, 0),
-//             "top, rows=0"
-//         );
-//         assert_eq!(
-//             Block::default()
-//                 .borders(Borders::TOP)
-//                 .inner(Geometry::new(0, 0, 1, 1)),
-//             Geometry::new(0, 1, 1, 0),
-//             "top, rows=1"
-//         );
-//         assert_eq!(
-//             Block::default()
-//                 .borders(Borders::TOP)
-//                 .inner(Geometry::new(0, 0, 1, 2)),
-//             Geometry::new(0, 1, 1, 1),
-//             "top, rows=2"
-//         );
-//
-//         // Right border
-//         assert_eq!(
-//             Block::default()
-//                 .borders(Borders::RIGHT)
-//                 .inner(Geometry::new(0, 0, 0, 1)),
-//             Geometry::new(0, 0, 0, 1),
-//             "right, cols=0"
-//         );
-//         assert_eq!(
-//             Block::default()
-//                 .borders(Borders::RIGHT)
-//                 .inner(Geometry::new(0, 0, 1, 1)),
-//             Geometry::new(0, 0, 0, 1),
-//             "right, cols=1"
-//         );
-//         assert_eq!(
-//             Block::default()
-//                 .borders(Borders::RIGHT)
-//                 .inner(Geometry::new(0, 0, 2, 1)),
-//             Geometry::new(0, 0, 1, 1),
-//             "right, cols=2"
-//         );
-//
-//         // Bottom border
-//         assert_eq!(
-//             Block::default()
-//                 .borders(Borders::BOTTOM)
-//                 .inner(Geometry::new(0, 0, 1, 0)),
-//             Geometry::new(0, 0, 1, 0),
-//             "bottom, rows=0"
-//         );
-//         assert_eq!(
-//             Block::default()
-//                 .borders(Borders::BOTTOM)
-//                 .inner(Geometry::new(0, 0, 1, 1)),
-//             Geometry::new(0, 0, 1, 0),
-//             "bottom, rows=1"
-//         );
-//         assert_eq!(
-//             Block::default()
-//                 .borders(Borders::BOTTOM)
-//                 .inner(Geometry::new(0, 0, 1, 2)),
-//             Geometry::new(0, 0, 1, 1),
-//             "bottom, rows=2"
-//         );
-//
-//         // All borders
-//         assert_eq!(
-//             Block::default()
-//                 .borders(Borders::ALL)
-//                 .inner(Geometry::default()),
-//             Geometry::new(0, 0, 0, 0),
-//             "all borders, cols=0, rows=0"
-//         );
-//         assert_eq!(
-//             Block::default()
-//                 .borders(Borders::ALL)
-//                 .inner(Geometry::new(0, 0, 1, 1)),
-//             Geometry::new(1, 1, 0, 0),
-//             "all borders, cols=1, rows=1"
-//         );
-//         assert_eq!(
-//             Block::default()
-//                 .borders(Borders::ALL)
-//                 .inner(Geometry::new(0, 0, 2, 2)),
-//             Geometry::new(1, 1, 0, 0),
-//             "all borders, cols=2, rows=2"
-//         );
-//         assert_eq!(
-//             Block::default()
-//                 .borders(Borders::ALL)
-//                 .inner(Geometry::new(0, 0, 3, 3)),
-//             Geometry::new(1, 1, 1, 1),
-//             "all borders, cols=3, rows=3"
-//         );
-//     }
-//
-//     #[test]
-//     fn inner_takes_into_account_the_title() {
-//         assert_eq!(
-//             Block::default()
-//                 .title("Test")
-//                 .inner(Geometry::new(0, 0, 0, 1)),
-//             Geometry::new(0, 1, 0, 0),
-//         );
-//         assert_eq!(
-//             Block::default()
-//                 .title(Title::from("Test").alignment(Alignment::Center))
-//                 .inner(Geometry::new(0, 0, 0, 1)),
-//             Geometry::new(0, 1, 0, 0),
-//         );
-//         assert_eq!(
-//             Block::default()
-//                 .title(Title::from("Test").alignment(Alignment::Right))
-//                 .inner(Geometry::new(0, 0, 0, 1)),
-//             Geometry::new(0, 1, 0, 0),
-//         );
-//     }
-//
-//     #[test]
-//     fn border_type_can_be_const() {
-//         const _PLAIN: border::Set = BorderType::border_symbols(BorderType::Plain);
-//     }
-//
-//     #[test]
-//     fn padding_new() {
-//         assert_eq!(
-//             Padding::new(1, 2, 3, 4),
-//             Padding {
-//                 left: 1,
-//                 right: 2,
-//                 top: 3,
-//                 bottom: 4
-//             }
-//         )
-//     }
-//
-//     #[test]
-//     fn padding_constructors() {
-//         assert_eq!(Padding::zero(), Padding::new(0, 0, 0, 0));
-//         assert_eq!(Padding::horizontal(1), Padding::new(1, 1, 0, 0));
-//         assert_eq!(Padding::vertical(1), Padding::new(0, 0, 1, 1));
-//         assert_eq!(Padding::uniform(1), Padding::new(1, 1, 1, 1));
-//     }
-//
-//     #[test]
-//     fn padding_can_be_const() {
-//         const _PADDING: Padding = Padding::new(1, 1, 1, 1);
-//         const _UNI_PADDING: Padding = Padding::uniform(1);
-//         const _NO_PADDING: Padding = Padding::zero();
-//         const _HORIZONTAL: Padding = Padding::horizontal(1);
-//         const _VERTICAL: Padding = Padding::vertical(1);
-//     }
-//
-//     #[test]
-//     fn block_new() {
-//         assert_eq!(
-//             Block::new(),
-//             Block {
-//                 titles: Vec::new(),
-//                 titles_style: Style::new(),
-//                 titles_alignment: Alignment::Left,
-//                 titles_position: Position::Top,
-//                 borders: Borders::NONE,
-//                 border_style: Style::new(),
-//                 border_set: BorderType::Plain.to_border_set(),
-//                 style: Style::new(),
-//                 padding: Padding::zero(),
-//             }
-//         )
-//     }
-//
-//     #[test]
-//     fn block_can_be_const() {
-//         const _DEFAULT_STYLE: Style = Style::new();
-//         const _DEFAULT_PADDING: Padding = Padding::uniform(1);
-//         const _DEFAULT_BLOCK: Block = Block::new()
-//             .title_style(_DEFAULT_STYLE)
-//             .title_alignment(Alignment::Left)
-//             .title_position(Position::Top)
-//             .borders(Borders::ALL)
-//             .border_style(_DEFAULT_STYLE)
-//             .style(_DEFAULT_STYLE)
-//             .padding(_DEFAULT_PADDING);
-//     }
-//
-//     #[test]
-//     fn can_be_stylized() {
-//         let block = Block::default().black().on_white().bold().not_dim();
-//         assert_eq!(
-//             block.style,
-//             Style::default()
-//                 .fg(Color::Black)
-//                 .bg(Color::White)
-//                 .add_modifier(Modifier::BOLD)
-//                 .remove_modifier(Modifier::DIM)
-//         )
-//     }
-//
-//     #[test]
-//     fn title_alignment() {
-//         let tests = vec![
-//             (Alignment::Left, "test    "),
-//             (Alignment::Center, "  test  "),
-//             (Alignment::Right, "    test"),
-//         ];
-//         for (alignment, expected) in tests {
-//             let mut buffer = Buffer::empty(Geometry::new(0, 0, 8, 1));
-//             Block::default()
-//                 .title("test")
-//                 .title_alignment(alignment)
-//                 .render(buffer.area, &mut buffer);
-//             assert_buffer_eq!(buffer, Buffer::with_lines(vec![expected]));
-//         }
-//     }
-//
-//     #[test]
-//     fn title_alignment_overrides_block_title_alignment() {
-//         let tests = vec![
-//             (Alignment::Right, Alignment::Left, "test    "),
-//             (Alignment::Left, Alignment::Center, "  test  "),
-//             (Alignment::Center, Alignment::Right, "    test"),
-//         ];
-//         for (block_title_alignment, alignment, expected) in tests {
-//             let mut buffer = Buffer::empty(Geometry::new(0, 0, 8, 1));
-//             Block::default()
-//                 .title(Title::from("test").alignment(alignment))
-//                 .title_alignment(block_title_alignment)
-//                 .render(buffer.area, &mut buffer);
-//             assert_buffer_eq!(buffer, Buffer::with_lines(vec![expected]));
-//         }
-//     }
-//
-//     #[test]
-//     fn title_on_bottom() {
-//         let mut buffer = Buffer::empty(Geometry::new(0, 0, 4, 2));
-//         #[allow(deprecated)]
-//         Block::default()
-//             .title("test")
-//             .title_on_bottom()
-//             .render(buffer.area, &mut buffer);
-//         assert_buffer_eq!(buffer, Buffer::with_lines(vec!["    ", "test"]));
-//     }
-//
-//     #[test]
-//     fn title_position() {
-//         let mut buffer = Buffer::empty(Geometry::new(0, 0, 4, 2));
-//         Block::default()
-//             .title("test")
-//             .title_position(Position::Bottom)
-//             .render(buffer.area, &mut buffer);
-//         assert_buffer_eq!(buffer, Buffer::with_lines(vec!["    ", "test"]));
-//     }
-//
-//     #[test]
-//     fn title_content_style() {
-//         for alignment in [Alignment::Left, Alignment::Center, Alignment::Right] {
-//             let mut buffer = Buffer::empty(Geometry::new(0, 0, 4, 1));
-//             Block::default()
-//                 .title("test".yellow())
-//                 .title_alignment(alignment)
-//                 .render(buffer.area, &mut buffer);
-//
-//             let mut expected_buffer = Buffer::with_lines(vec!["test"]);
-//             expected_buffer.set_style(Geometry::new(0, 0, 4, 1), Style::new().yellow());
-//
-//             assert_buffer_eq!(buffer, expected_buffer);
-//         }
-//     }
-//
-//     #[test]
-//     fn block_title_style() {
-//         for alignment in [Alignment::Left, Alignment::Center, Alignment::Right] {
-//             let mut buffer = Buffer::empty(Geometry::new(0, 0, 4, 1));
-//             Block::default()
-//                 .title("test")
-//                 .title_style(Style::new().yellow())
-//                 .title_alignment(alignment)
-//                 .render(buffer.area, &mut buffer);
-//
-//             let mut expected_buffer = Buffer::with_lines(vec!["test"]);
-//             expected_buffer.set_style(Geometry::new(0, 0, 4, 1), Style::new().yellow());
-//
-//             assert_buffer_eq!(buffer, expected_buffer);
-//         }
-//     }
-//
-//     #[test]
-//     fn title_style_overrides_block_title_style() {
-//         for alignment in [Alignment::Left, Alignment::Center, Alignment::Right] {
-//             let mut buffer = Buffer::empty(Geometry::new(0, 0, 4, 1));
-//             Block::default()
-//                 .title("test".yellow())
-//                 .title_style(Style::new().green().on_red())
-//                 .title_alignment(alignment)
-//                 .render(buffer.area, &mut buffer);
-//
-//             let mut expected_buffer = Buffer::with_lines(vec!["test"]);
-//             expected_buffer.set_style(Geometry::new(0, 0, 4, 1), Style::new().yellow().on_red());
-//
-//             assert_buffer_eq!(buffer, expected_buffer);
-//         }
-//     }
-//
-//     #[test]
-//     fn title_border_style() {
-//         let mut buffer = Buffer::empty(Geometry::new(0, 0, 15, 3));
-//         Block::default()
-//             .title("test")
-//             .borders(Borders::ALL)
-//             .border_style(Style::new().yellow())
-//             .render(buffer.area, &mut buffer);
-//
-//         let mut expected_buffer = Buffer::with_lines(vec![
-//             "┌test─────────┐",
-//             "│             │",
-//             "└─────────────┘",
-//         ]);
-//         expected_buffer.set_style(Geometry::new(0, 0, 15, 3), Style::new().yellow());
-//         expected_buffer.set_style(Geometry::new(1, 1, 13, 1), Style::reset());
-//
-//         assert_buffer_eq!(buffer, expected_buffer);
-//     }
-//
-//     #[test]
-//     fn border_type_to_string() {
-//         assert_eq!(format!("{}", BorderType::Plain), "Plain");
-//         assert_eq!(format!("{}", BorderType::Rounded), "Rounded");
-//         assert_eq!(format!("{}", BorderType::Double), "Double");
-//         assert_eq!(format!("{}", BorderType::Thick), "Thick");
-//     }
-//
-//     #[test]
-//     fn border_type_from_str() {
-//         assert_eq!("Plain".parse(), Ok(BorderType::Plain));
-//         assert_eq!("Rounded".parse(), Ok(BorderType::Rounded));
-//         assert_eq!("Double".parse(), Ok(BorderType::Double));
-//         assert_eq!("Thick".parse(), Ok(BorderType::Thick));
-//         assert_eq!("".parse::<BorderType>(), Err(ParseError::VariantNotFound));
-//     }
-//
-//     #[test]
-//     fn render_plain_border() {
-//         let mut buffer = Buffer::empty(Geometry::new(0, 0, 15, 3));
-//         Block::default()
-//             .borders(Borders::ALL)
-//             .border_type(BorderType::Plain)
-//             .render(buffer.area, &mut buffer);
-//         assert_buffer_eq!(
-//             buffer,
-//             Buffer::with_lines(vec![
-//                 "┌─────────────┐",
-//                 "│             │",
-//                 "└─────────────┘"
-//             ])
-//         );
-//     }
-//
-//     #[test]
-//     fn render_rounded_border() {
-//         let mut buffer = Buffer::empty(Geometry::new(0, 0, 15, 3));
-//         Block::default()
-//             .borders(Borders::ALL)
-//             .border_type(BorderType::Rounded)
-//             .render(buffer.area, &mut buffer);
-//         assert_buffer_eq!(
-//             buffer,
-//             Buffer::with_lines(vec![
-//                 "╭─────────────╮",
-//                 "│             │",
-//                 "╰─────────────╯"
-//             ])
-//         );
-//     }
-//
-//     #[test]
-//     fn render_double_border() {
-//         let mut buffer = Buffer::empty(Geometry::new(0, 0, 15, 3));
-//         Block::default()
-//             .borders(Borders::ALL)
-//             .border_type(BorderType::Double)
-//             .render(buffer.area, &mut buffer);
-//         assert_buffer_eq!(
-//             buffer,
-//             Buffer::with_lines(vec![
-//                 "╔═════════════╗",
-//                 "║             ║",
-//                 "╚═════════════╝"
-//             ])
-//         );
-//     }
-//
-//     #[test]
-//     fn render_quadrant_inside() {
-//         let mut buffer = Buffer::empty(Geometry::new(0, 0, 15, 3));
-//         Block::default()
-//             .borders(Borders::ALL)
-//             .border_type(BorderType::QuadrantInside)
-//             .render(buffer.area, &mut buffer);
-//         assert_buffer_eq!(
-//             buffer,
-//             Buffer::with_lines(vec![
-//                 "▗▄▄▄▄▄▄▄▄▄▄▄▄▄▖",
-//                 "▐             ▌",
-//                 "▝▀▀▀▀▀▀▀▀▀▀▀▀▀▘",
-//             ])
-//         );
-//     }
-//
-//     #[test]
-//     fn render_border_quadrant_outside() {
-//         let mut buffer = Buffer::empty(Geometry::new(0, 0, 15, 3));
-//         Block::default()
-//             .borders(Borders::ALL)
-//             .border_type(BorderType::QuadrantOutside)
-//             .render(buffer.area, &mut buffer);
-//         assert_buffer_eq!(
-//             buffer,
-//             Buffer::with_lines(vec![
-//                 "▛▀▀▀▀▀▀▀▀▀▀▀▀▀▜",
-//                 "▌             ▐",
-//                 "▙▄▄▄▄▄▄▄▄▄▄▄▄▄▟",
-//             ])
-//         );
-//     }
-//
-//     #[test]
-//     fn render_solid_border() {
-//         let mut buffer = Buffer::empty(Geometry::new(0, 0, 15, 3));
-//         Block::default()
-//             .borders(Borders::ALL)
-//             .border_type(BorderType::Thick)
-//             .render(buffer.area, &mut buffer);
-//         assert_buffer_eq!(
-//             buffer,
-//             Buffer::with_lines(vec![
-//                 "┏━━━━━━━━━━━━━┓",
-//                 "┃             ┃",
-//                 "┗━━━━━━━━━━━━━┛"
-//             ])
-//         );
-//     }
-//
-//     #[test]
-//     fn render_custom_border_set() {
-//         let mut buffer = Buffer::empty(Geometry::new(0, 0, 15, 3));
-//         Block::default()
-//             .borders(Borders::ALL)
-//             .border_set(border::Set {
-//                 top_left: "1",
-//                 top_right: "2",
-//                 bottom_left: "3",
-//                 bottom_right: "4",
-//                 vertical_left: "L",
-//                 vertical_right: "R",
-//                 horizontal_top: "T",
-//                 horizontal_bottom: "B",
-//             })
-//             .render(buffer.area, &mut buffer);
-//         assert_buffer_eq!(
-//             buffer,
-//             Buffer::with_lines(vec![
-//                 "1TTTTTTTTTTTTT2",
-//                 "L             R",
-//                 "3BBBBBBBBBBBBB4",
-//             ])
-//         );
-//     }
-// }
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{
+        core::style::Color,
+        layout::Geometry,
+        styles::{Modifier, Stylize},
+    };
+
+    #[test]
+    fn inner_takes_into_account_the_borders() {
+        // No borders
+        assert_eq!(
+            Block::default().inner(Geometry::default()),
+            Geometry::new(0, 0),
+            "no borders, cols=0, rows=0"
+        );
+        assert_eq!(
+            Block::default().inner(Geometry::new(1, 1)),
+            Geometry::new(1, 1),
+            "no borders, cols=1, rows=1"
+        );
+
+        // Left border
+        assert_eq!(
+            Block::default()
+                .borders(Borders::LEFT)
+                .inner(Geometry::new(10, 10)),
+            Geometry {
+                x: 1,
+                y: 0,
+                cols: 9,
+                rows: 10,
+            },
+            "left, cols=0"
+        );
+        assert_eq!(
+            Block::default()
+                .borders(Borders::LEFT)
+                .inner(Geometry::new(10, 10)),
+            Geometry {
+                x: 1,
+                y: 0,
+                cols: 9,
+                rows: 10,
+            },
+            "left, cols=1"
+        );
+        assert_eq!(
+            Block::default().borders(Borders::LEFT).inner(Geometry {
+                x: 0,
+                y: 0,
+                rows: 2,
+                cols: 1
+            }),
+            Geometry {
+                x: 1,
+                y: 0,
+                cols: 0,
+                rows: 2,
+            },
+            "left, cols=2"
+        );
+
+        // Top border
+        assert_eq!(
+            Block::default().borders(Borders::TOP).inner(Geometry {
+                x: 0,
+                y: 0,
+                cols: 1,
+                rows: 0
+            }),
+            Geometry {
+                x: 0,
+                y: 0,
+                cols: 1,
+                rows: 0,
+            },
+            "top, rows=0"
+        );
+        assert_eq!(
+            Block::default().borders(Borders::TOP).inner(Geometry {
+                x: 0,
+                y: 0,
+                cols: 1,
+                rows: 1
+            }),
+            Geometry {
+                x: 0,
+                y: 1,
+                cols: 1,
+                rows: 0,
+            },
+            "top, rows=1"
+        );
+        assert_eq!(
+            Block::default().borders(Borders::TOP).inner(Geometry {
+                x: 0,
+                y: 0,
+                cols: 1,
+                rows: 2
+            }),
+            Geometry {
+                x: 0,
+                y: 1,
+                cols: 1,
+                rows: 1,
+            },
+            "top, rows=2"
+        );
+
+        // Right border
+        assert_eq!(
+            Block::default().borders(Borders::RIGHT).inner(Geometry {
+                x: 0,
+                y: 0,
+                cols: 0,
+                rows: 1
+            }),
+            Geometry {
+                x: 0,
+                y: 0,
+                cols: 0,
+                rows: 1,
+            },
+            "right, cols=0"
+        );
+        assert_eq!(
+            Block::default().borders(Borders::RIGHT).inner(Geometry {
+                x: 0,
+                y: 0,
+                cols: 1,
+                rows: 1
+            }),
+            Geometry {
+                x: 0,
+                y: 0,
+                cols: 0,
+                rows: 1,
+            },
+            "right, cols=1"
+        );
+        assert_eq!(
+            Block::default().borders(Borders::RIGHT).inner(Geometry {
+                x: 0,
+                y: 0,
+                cols: 2,
+                rows: 1
+            }),
+            Geometry {
+                x: 0,
+                y: 0,
+                cols: 1,
+                rows: 1
+            },
+            "right, cols=2"
+        );
+
+        // Bottom border
+        assert_eq!(
+            Block::default().borders(Borders::BOTTOM).inner(Geometry {
+                x: 0,
+                y: 0,
+                cols: 1,
+                rows: 0
+            }),
+            Geometry {
+                x: 0,
+                y: 0,
+                cols: 1,
+                rows: 0,
+            },
+            "bottom, rows=0"
+        );
+        assert_eq!(
+            Block::default().borders(Borders::BOTTOM).inner(Geometry {
+                x: 0,
+                y: 0,
+                cols: 1,
+                rows: 1
+            }),
+            Geometry {
+                x: 0,
+                y: 0,
+                cols: 1,
+                rows: 0,
+            },
+            "bottom, rows=1"
+        );
+        assert_eq!(
+            Block::default().borders(Borders::BOTTOM).inner(Geometry {
+                x: 0,
+                y: 0,
+                cols: 1,
+                rows: 2
+            }),
+            Geometry {
+                x: 0,
+                y: 0,
+                cols: 1,
+                rows: 1,
+            },
+            "bottom, rows=2"
+        );
+
+        // All borders
+        assert_eq!(
+            Block::default()
+                .borders(Borders::ALL)
+                .inner(Geometry::default()),
+            Geometry::new(0, 0),
+            "all borders, cols=0, rows=0"
+        );
+        assert_eq!(
+            Block::default().borders(Borders::ALL).inner(Geometry {
+                x: 0,
+                y: 0,
+                cols: 1,
+                rows: 1
+            }),
+            Geometry {
+                x: 1,
+                y: 1,
+                cols: 0,
+                rows: 0
+            },
+            "all borders, cols=1, rows=1"
+        );
+        assert_eq!(
+            Block::default().borders(Borders::ALL).inner(Geometry {
+                x: 0,
+                y: 0,
+                cols: 2,
+                rows: 2
+            }),
+            Geometry {
+                x: 1,
+                y: 1,
+                cols: 0,
+                rows: 0
+            },
+            "all borders, cols=2, rows=2"
+        );
+        assert_eq!(
+            Block::default().borders(Borders::ALL).inner(Geometry {
+                x: 0,
+                y: 0,
+                cols: 3,
+                rows: 3
+            }),
+            Geometry {
+                x: 1,
+                y: 1,
+                cols: 1,
+                rows: 1
+            },
+            "all borders, cols=3, rows=3"
+        );
+    }
+    //
+    #[test]
+    fn inner_takes_into_account_the_title() {
+        assert_eq!(
+            Block::default().title("Test").inner(Geometry {
+                x: 0,
+                y: 0,
+                cols: 0,
+                rows: 1
+            }),
+            Geometry {
+                x: 0,
+                y: 1,
+                cols: 0,
+                rows: 0
+            },
+        );
+        assert_eq!(
+            Block::default()
+                .title(Title::from("Test").alignment(Alignment::Center))
+                .inner(Geometry {
+                    x: 0,
+                    y: 0,
+                    cols: 0,
+                    rows: 1
+                }),
+            Geometry {
+                x: 0,
+                y: 1,
+                cols: 0,
+                rows: 0
+            },
+        );
+        assert_eq!(
+            Block::default()
+                .title(Title::from("Test").alignment(Alignment::Right))
+                .inner(Geometry {
+                    x: 0,
+                    y: 0,
+                    cols: 0,
+                    rows: 1
+                }),
+            Geometry {
+                x: 0,
+                y: 1,
+                cols: 0,
+                rows: 0
+            },
+        );
+    }
+
+    #[test]
+    fn border_type_can_be_const() {
+        const _PLAIN: border::Set = BorderType::border_symbols(BorderType::Plain);
+    }
+
+    #[test]
+    fn padding_new() {
+        assert_eq!(
+            Padding::new(1, 2, 3, 4),
+            Padding {
+                left: 1,
+                right: 2,
+                top: 3,
+                bottom: 4
+            }
+        )
+    }
+
+    #[test]
+    fn padding_constructors() {
+        assert_eq!(Padding::zero(), Padding::new(0, 0, 0, 0));
+        assert_eq!(Padding::horizontal(1), Padding::new(1, 1, 0, 0));
+        assert_eq!(Padding::vertical(1), Padding::new(0, 0, 1, 1));
+        assert_eq!(Padding::uniform(1), Padding::new(1, 1, 1, 1));
+    }
+
+    #[test]
+    fn padding_can_be_const() {
+        const _PADDING: Padding = Padding::new(1, 1, 1, 1);
+        const _UNI_PADDING: Padding = Padding::uniform(1);
+        const _NO_PADDING: Padding = Padding::zero();
+        const _HORIZONTAL: Padding = Padding::horizontal(1);
+        const _VERTICAL: Padding = Padding::vertical(1);
+    }
+
+    #[test]
+    fn block_new() {
+        assert_eq!(
+            Block::new(),
+            Block {
+                titles: Vec::new(),
+                titles_style: Style::new(),
+                titles_alignment: Alignment::Left,
+                titles_position: Position::Top,
+                borders: Borders::NONE,
+                border_style: Style::new(),
+                border_set: BorderType::Plain.to_border_set(),
+                style: Style::new(),
+                padding: Padding::zero(),
+            }
+        )
+    }
+
+    #[test]
+    fn block_can_be_const() {
+        const _DEFAULT_STYLE: Style = Style::new();
+        const _DEFAULT_PADDING: Padding = Padding::uniform(1);
+        const _DEFAULT_BLOCK: Block = Block::new()
+            .title_style(_DEFAULT_STYLE)
+            .title_alignment(Alignment::Left)
+            .title_position(Position::Top)
+            .borders(Borders::ALL)
+            .border_style(_DEFAULT_STYLE)
+            .style(_DEFAULT_STYLE)
+            .padding(_DEFAULT_PADDING);
+    }
+
+    #[test]
+    fn can_be_stylized() {
+        let block = Block::default().black().on_white().bold().not_dim();
+        assert_eq!(
+            block.style,
+            Style::default()
+                .fg(Color::Black)
+                .bg(Color::White)
+                .add_modifier(Modifier::BOLD)
+                .remove_modifier(Modifier::DIM)
+        )
+    }
+}
