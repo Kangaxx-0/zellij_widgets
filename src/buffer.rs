@@ -409,6 +409,8 @@ impl Debug for Buffer {
 mod tests {
     use super::*;
 
+    use crate::assert_buffer_eq;
+
     fn cell(s: &str) -> Cell {
         let mut cell = Cell::default();
         cell.set_symbol(s);
@@ -488,5 +490,63 @@ mod tests {
         assert_eq!(cell.symbol(), "あ");
         cell.set_symbol("👨‍👩‍👧‍👦"); // Multiple code units combined with ZWJ
         assert_eq!(cell.symbol(), "👨‍👩‍👧‍👦");
+    }
+
+    #[test]
+    fn with_lines_accepts_into_lines() {
+        use crate::styles::Stylize;
+        let mut buf = Buffer::empty(Geometry::new(2, 3));
+        buf.set_string(0, 0, "foo", Style::new().red());
+        buf.set_string(0, 1, "bar", Style::new().blue());
+        assert_eq!(buf, Buffer::with_lines(vec!["foo".red(), "bar".blue()]));
+    }
+
+    #[test]
+    fn buffer_set_string_multi_width_overwrite() {
+        let area = Geometry::new(1, 5);
+        let mut buffer = Buffer::empty(area);
+
+        // multi-width overwrite
+        buffer.set_string(0, 0, "aaaaa", Style::default());
+        buffer.set_string(0, 0, "称号", Style::default());
+        assert_buffer_eq!(buffer, Buffer::with_lines(vec!["称号a"]));
+    }
+
+    #[test]
+    fn buffer_set_string_zero_width() {
+        let area = Geometry::new(1, 1);
+        let mut buffer = Buffer::empty(area);
+
+        // Leading grapheme with zero width
+        let s = "\u{1}a";
+        buffer.set_stringn(0, 0, s, 1, Style::default());
+        assert_buffer_eq!(buffer, Buffer::with_lines(vec!["a"]));
+
+        // Trailing grapheme with zero with
+        let s = "a\u{1}";
+        buffer.set_stringn(0, 0, s, 1, Style::default());
+        assert_buffer_eq!(buffer, Buffer::with_lines(vec!["a"]));
+    }
+
+    #[test]
+    fn buffer_set_string_double_width() {
+        let area = Geometry::new(1, 5);
+        let mut buffer = Buffer::empty(area);
+        buffer.set_string(0, 0, "コン", Style::default());
+        assert_buffer_eq!(buffer, Buffer::with_lines(vec!["コン "]));
+
+        // Only 1 space left.
+        buffer.set_string(0, 0, "コンピ", Style::default());
+        assert_buffer_eq!(buffer, Buffer::with_lines(vec!["コン "]));
+    }
+
+    #[test]
+    fn buffer_with_lines() {
+        let buffer =
+            Buffer::with_lines(vec!["┌────────┐", "│コンピュ│", "│ーa 上で│", "└────────┘"]);
+        assert_eq!(buffer.area.x, 0);
+        assert_eq!(buffer.area.y, 0);
+        assert_eq!(buffer.area.cols, 10);
+        assert_eq!(buffer.area.rows, 4);
     }
 }

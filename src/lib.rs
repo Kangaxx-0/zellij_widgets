@@ -11,5 +11,7 @@ pub mod text;
 pub mod title;
 pub mod uis;
 
+pub(crate) mod test_util;
+
 // prelude
 pub mod prelude;
