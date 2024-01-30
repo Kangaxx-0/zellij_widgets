@@ -495,7 +495,7 @@ mod tests {
     #[test]
     fn with_lines_accepts_into_lines() {
         use crate::styles::Stylize;
-        let mut buf = Buffer::empty(Geometry::new(3, 2));
+        let mut buf = Buffer::empty(Geometry::new(2, 3));
         buf.set_string(0, 0, "foo", Style::new().red());
         buf.set_string(0, 1, "bar", Style::new().blue());
         assert_eq!(buf, Buffer::with_lines(vec!["foo".red(), "bar".blue()]));
@@ -503,7 +503,7 @@ mod tests {
 
     #[test]
     fn buffer_set_string_multi_width_overwrite() {
-        let area = Geometry::new(5, 1);
+        let area = Geometry::new(1, 5);
         let mut buffer = Buffer::empty(area);
 
         // multi-width overwrite
@@ -530,7 +530,7 @@ mod tests {
 
     #[test]
     fn buffer_set_string_double_width() {
-        let area = Geometry::new(5, 1);
+        let area = Geometry::new(1, 5);
         let mut buffer = Buffer::empty(area);
         buffer.set_string(0, 0, "コン", Style::default());
         assert_buffer_eq!(buffer, Buffer::with_lines(vec!["コン "]));
