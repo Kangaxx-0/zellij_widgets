@@ -160,7 +160,7 @@ impl Buffer {
         let lines = lines.into_iter().map(Into::into).collect::<Vec<_>>();
         let rows = lines.len() as u16;
         let cols = lines.iter().map(Line::width).max().unwrap_or_default() as u16;
-        let mut buffer = Buffer::empty(Geometry::new(cols, rows));
+        let mut buffer = Buffer::empty(Geometry::new(rows, cols));
         for (y, line) in lines.iter().enumerate() {
             buffer.set_line(0, y as u16, line, cols);
         }
@@ -407,9 +407,9 @@ impl Debug for Buffer {
 
 #[cfg(test)]
 mod tests {
-    use crate::assert_buffer_eq;
-
     use super::*;
+
+    use crate::assert_buffer_eq;
 
     fn cell(s: &str) -> Cell {
         let mut cell = Cell::default();
@@ -493,32 +493,60 @@ mod tests {
     }
 
     #[test]
-    fn set_string() {
+    fn with_lines_accepts_into_lines() {
+        use crate::styles::Stylize;
+        let mut buf = Buffer::empty(Geometry::new(3, 2));
+        buf.set_string(0, 0, "foo", Style::new().red());
+        buf.set_string(0, 1, "bar", Style::new().blue());
+        assert_eq!(buf, Buffer::with_lines(vec!["foo".red(), "bar".blue()]));
+    }
+
+    #[test]
+    fn buffer_set_string_multi_width_overwrite() {
         let area = Geometry::new(5, 1);
         let mut buffer = Buffer::empty(area);
 
-        // Zero-width
-        buffer.set_stringn(0, 0, "aaa", 0, Style::default());
-        assert_buffer_eq!(buffer, Buffer::with_lines(vec!["     "]));
+        // multi-width overwrite
+        buffer.set_string(0, 0, "aaaaa", Style::default());
+        buffer.set_string(0, 0, "称号", Style::default());
+        assert_buffer_eq!(buffer, Buffer::with_lines(vec!["称号a"]));
+    }
 
-        buffer.set_string(0, 0, "aaa", Style::default());
-        assert_buffer_eq!(buffer, Buffer::with_lines(vec!["aaa  "]));
+    #[test]
+    fn buffer_set_string_zero_width() {
+        let area = Geometry::new(1, 1);
+        let mut buffer = Buffer::empty(area);
 
-        // Width limit:
-        buffer.set_stringn(0, 0, "bbbbbbbbbbbbbb", 4, Style::default());
-        assert_buffer_eq!(buffer, Buffer::with_lines(vec!["bbbb "]));
+        // Leading grapheme with zero width
+        let s = "\u{1}a";
+        buffer.set_stringn(0, 0, s, 1, Style::default());
+        assert_buffer_eq!(buffer, Buffer::with_lines(vec!["a"]));
 
-        buffer.set_string(0, 0, "12345", Style::default());
-        assert_buffer_eq!(buffer, Buffer::with_lines(vec!["12345"]));
+        // Trailing grapheme with zero with
+        let s = "a\u{1}";
+        buffer.set_stringn(0, 0, s, 1, Style::default());
+        assert_buffer_eq!(buffer, Buffer::with_lines(vec!["a"]));
+    }
 
-        // Width truncation:
-        buffer.set_string(0, 0, "123456", Style::default());
-        assert_buffer_eq!(buffer, Buffer::with_lines(vec!["12345"]));
+    #[test]
+    fn buffer_set_string_double_width() {
+        let area = Geometry::new(5, 1);
+        let mut buffer = Buffer::empty(area);
+        buffer.set_string(0, 0, "コン", Style::default());
+        assert_buffer_eq!(buffer, Buffer::with_lines(vec!["コン "]));
 
-        // multi-line
-        buffer = Buffer::empty(Geometry::new(5, 2));
-        buffer.set_string(0, 0, "12345", Style::default());
-        buffer.set_string(0, 1, "67890", Style::default());
-        assert_buffer_eq!(buffer, Buffer::with_lines(vec!["12345", "67890"]));
+        // Only 1 space left.
+        buffer.set_string(0, 0, "コンピ", Style::default());
+        assert_buffer_eq!(buffer, Buffer::with_lines(vec!["コン "]));
+    }
+
+    #[test]
+    fn buffer_with_lines() {
+        let buffer =
+            Buffer::with_lines(vec!["┌────────┐", "│コンピュ│", "│ーa 上で│", "└────────┘"]);
+        assert_eq!(buffer.area.x, 0);
+        assert_eq!(buffer.area.y, 0);
+        assert_eq!(buffer.area.cols, 10);
+        assert_eq!(buffer.area.rows, 4);
     }
 }
