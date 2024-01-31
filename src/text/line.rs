@@ -39,7 +39,6 @@ impl<'a> Line<'a> {
     ///
     /// ```rust
     /// # use zellij_widgets::prelude::*;
-    /// use zellij_widgets::core::style::Color;
     ///
     /// let style = Style::default().fg(Color::Yellow).add_modifier(Modifier::ITALIC);
     /// Line::styled("My text", style);
@@ -58,7 +57,6 @@ impl<'a> Line<'a> {
     ///
     /// ```rust
     /// # use zellij_widgets::prelude::*;
-    /// use zellij_widgets::core::style::Color;
     ///
     /// let line = Line::from(vec![
     ///     Span::styled("My", Style::default().fg(Color::Yellow)),
@@ -80,7 +78,6 @@ impl<'a> Line<'a> {
     /// ```rust
     /// use std::iter::Iterator;
     /// use zellij_widgets::prelude::*;
-    /// use zellij_widgets::core::style::Color;
     ///
     /// let line = Line::styled("Text", Style::default().fg(Color::Yellow));
     /// let style = Style::default().fg(Color::Green).bg(Color::Black);
@@ -109,7 +106,7 @@ impl<'a> Line<'a> {
     ///
     /// ```rust
     /// # use zellij_widgets::prelude::*;
-    /// use zellij_widgets::core::style::Color;
+    ///
     /// let style = Style::default().fg(Color::Yellow).add_modifier(Modifier::ITALIC);
     /// let mut raw_line = Line::from(vec![
     ///     Span::raw("My"),
@@ -138,7 +135,6 @@ impl<'a> Line<'a> {
     ///
     /// ```rust
     /// # use zellij_widgets::prelude::*;
-    /// use zellij_widgets::core::style::Color;
     ///
     /// let mut line = Line::from(vec![
     ///     Span::styled("My", Style::default().fg(Color::Yellow)),
@@ -162,6 +158,7 @@ impl<'a> Line<'a> {
     ///
     /// ```rust
     /// # use zellij_widgets::prelude::*;
+    ///
     /// let mut line = Line::from("Hi, what's up?");
     /// assert_eq!(None, line.alignment);
     /// assert_eq!(Some(Alignment::Right), line.alignment(Alignment::Right).alignment)

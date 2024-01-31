@@ -20,7 +20,6 @@ pub use span::Span;
 ///
 /// ```rust
 /// use zellij_widgets::prelude::*;
-/// use zellij_widgets::core::style::Color;
 ///
 /// let style = Style::default().fg(Color::Yellow).add_modifier(Modifier::ITALIC);
 ///
@@ -71,7 +70,6 @@ impl<'a> Text<'a> {
     ///
     /// ```rust
     /// # use zellij_widgets::prelude::*;
-    /// use zellij_widgets::core::style::Color;
     ///
     /// let style = Style::default().fg(Color::Yellow).add_modifier(Modifier::ITALIC);
     /// Text::styled("The first line\nThe second line", style);
@@ -92,6 +90,7 @@ impl<'a> Text<'a> {
     ///
     /// ```rust
     /// # use zellij_widgets::prelude::*;
+    ///
     /// let text = Text::from("The first line\nThe second line");
     /// assert_eq!(15, text.width());
     /// ```
@@ -105,6 +104,7 @@ impl<'a> Text<'a> {
     ///
     /// ```rust
     /// # use zellij_widgets::prelude::*;
+    ///
     /// let text = Text::from("The first line\nThe second line");
     /// assert_eq!(2, text.height());
     /// ```
@@ -118,7 +118,6 @@ impl<'a> Text<'a> {
     ///
     /// ```rust
     /// # use zellij_widgets::prelude::*;
-    /// use zellij_widgets::core::style::Color;
     ///
     /// let style = Style::default().fg(Color::Yellow).add_modifier(Modifier::ITALIC);
     /// let mut raw_text = Text::raw("The first line\nThe second line");
@@ -141,7 +140,6 @@ impl<'a> Text<'a> {
     ///
     /// ```rust
     /// # use zellij_widgets::prelude::*;
-    /// use zellij_widgets::core::style::Color;
     ///
     /// let style = Style::default().fg(Color::Yellow).add_modifier(Modifier::ITALIC);
     /// let mut text = Text::styled("The first line\nThe second line", style);

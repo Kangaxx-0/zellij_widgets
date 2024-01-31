@@ -1,10 +1,8 @@
 use bitflags::bitflags;
 use paste::paste;
 
-use crate::core::style::Color;
+use crate::{core::style::Color, text::Span};
 use std::fmt::{self, Debug};
-
-use crate::text::Span;
 
 bitflags! {
     /// Modifier changes the way a piece of text is displayed.
@@ -49,8 +47,7 @@ impl fmt::Debug for Modifier {
 /// Style lets you control the main characteristics of the displayed elements.
 ///
 /// ```rust
-/// use zellij_widgets::{prelude::*};
-/// use zellij_widgets::core::style::Color;
+/// use zellij_widgets::prelude::*;
 ///
 /// Style::default()
 ///     .fg(Color::Black)
@@ -72,8 +69,7 @@ impl fmt::Debug for Modifier {
 /// just S3.
 ///
 /// ```rust
-/// use zellij_widgets::{prelude::*};
-/// use zellij_widgets::core::style::Color;
+/// use zellij_widgets::prelude::*;
 ///
 /// let styles = [
 ///     Style::default().fg(Color::Blue).add_modifier(Modifier::BOLD | Modifier::ITALIC),
@@ -100,7 +96,6 @@ impl fmt::Debug for Modifier {
 ///
 /// ```
 /// use zellij_widgets::prelude::*;
-/// use zellij_widgets::core::style::Color;
 ///
 /// let styles = [
 ///     Style::default().fg(Color::Blue).add_modifier(Modifier::BOLD | Modifier::ITALIC),
@@ -131,6 +126,41 @@ pub struct Style {
 impl Default for Style {
     fn default() -> Style {
         Style::new()
+    }
+}
+
+impl From<Color> for Style {
+    /// Creates a new `Style` with the given foreground color.
+    fn from(color: Color) -> Style {
+        Style::default().fg(color)
+    }
+}
+
+impl From<(Color, Color)> for Style {
+    /// Creates a new `Style` with the given foreground and background colors.
+    fn from((fg, bg): (Color, Color)) -> Style {
+        Style::default().fg(fg).bg(bg)
+    }
+}
+
+impl From<Modifier> for Style {
+    /// Creates a new `Style` with the given modifier.
+    fn from(modifier: Modifier) -> Style {
+        Style::default().add_modifier(modifier)
+    }
+}
+
+impl From<(Color, Modifier)> for Style {
+    /// Creates a new `Style` with the given foreground color and modifier.
+    fn from((fg, modifier): (Color, Modifier)) -> Style {
+        Style::default().fg(fg).add_modifier(modifier)
+    }
+}
+
+impl From<(Color, Color, Modifier)> for Style {
+    /// Creates a new `Style` with the given foreground and background colors and modifier.
+    fn from((fg, bg, modifier): (Color, Color, Modifier)) -> Style {
+        Style::default().fg(fg).bg(bg).add_modifier(modifier)
     }
 }
 
@@ -249,7 +279,6 @@ macro_rules! modifier {
 /// # Examples
 /// ```
 /// use zellij_widgets::prelude::*;
-/// use zellij_widgets::core::style::Color;
 ///
 /// let span = "hello".red().on_blue().bold();
 /// let line = Line::from(vec![
@@ -384,7 +413,6 @@ impl Style {
     ///
     /// ```rust
     /// # use zellij_widgets::prelude::*;
-    /// use zellij_widgets::core::style::Color;
     ///
     /// let style = Style::default().fg(Color::Blue);
     /// let diff = Style::default().fg(Color::Red);
@@ -402,7 +430,6 @@ impl Style {
     ///
     /// ```rust
     /// # use zellij_widgets::prelude::*;
-    /// use zellij_widgets::core::style::Color;
     ///
     /// let style = Style::default().bg(Color::Blue);
     /// let diff = Style::default().bg(Color::Red);
@@ -422,7 +449,6 @@ impl Style {
     ///
     /// ```rust
     /// # use zellij_widgets::prelude::*;
-    /// use zellij_widgets::core::style::Color;
     ///
     /// let style = Style::default().add_modifier(Modifier::BOLD);
     /// let diff = Style::default().add_modifier(Modifier::ITALIC);
@@ -445,7 +471,6 @@ impl Style {
     ///
     /// ```rust
     /// # use zellij_widgets::prelude::*;
-    /// use zellij_widgets::core::style::Color;
     ///
     /// let style = Style::default().add_modifier(Modifier::BOLD | Modifier::ITALIC);
     /// let diff = Style::default().remove_modifier(Modifier::ITALIC);
@@ -466,7 +491,6 @@ impl Style {
     /// ## Examples
     /// ```
     /// # use zellij_widgets::prelude::*;
-    /// use zellij_widgets::core::style::Color;
     ///
     /// let style_1 = Style::default().fg(Color::Yellow);
     /// let style_2 = Style::default().bg(Color::Red);

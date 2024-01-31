@@ -1,5 +1,6 @@
 pub use crate::{
     buffer::Buffer,
+    core::style::Color,
     frame::Frame,
     layout::Layout,
     layout::{self, Alignment, Constraint, Direction, Geometry},

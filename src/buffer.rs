@@ -3,13 +3,15 @@ use std::{
     fmt::{Debug, Formatter, Result},
 };
 
-use crate::core::style::Color;
 use unicode_segmentation::UnicodeSegmentation;
 use unicode_width::UnicodeWidthStr;
 
-use crate::layout::Geometry;
-use crate::styles::{Modifier, Style};
-use crate::text::{Line, Span};
+use crate::{
+    core::style::Color,
+    layout::Geometry,
+    styles::{Modifier, Style},
+    text::{Line, Span},
+};
 
 /// A buffer cell
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
@@ -111,7 +113,6 @@ impl Default for Cell {
 ///
 /// ```
 /// use zellij_widgets::prelude::*;
-/// use zellij_widgets::core::style::Color;
 ///
 /// let mut buf = Buffer::empty(Geometry{x: 0, y: 0, cols: 10, rows: 5});
 /// buf.get_mut(0, 2).set_symbol("x");
