@@ -8,7 +8,7 @@ use std::{cell::RefCell, collections::HashMap, fmt, num::NonZeroUsize, rc::Rc, s
 use strum::{Display, EnumString};
 
 #[derive(Debug, Default, Display, EnumString, Clone, Copy, Eq, PartialEq, Hash)]
-pub enum Direction {
+pub enum Orientation {
     Horizontal,
     #[default]
     Vertical,
@@ -156,14 +156,14 @@ thread_local! {
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Layout {
-    direction: Direction,
+    direction: Orientation,
     margin: Margin,
     constraints: Vec<Constraint>,
 }
 
 impl Default for Layout {
     fn default() -> Layout {
-        Layout::new(Direction::Vertical, [])
+        Layout::new(Orientation::Vertical, [])
     }
 }
 
@@ -173,7 +173,7 @@ impl Layout {
     ///
     /// - margin: 0, 0
     /// - segment_size: SegmentSize::LastTakesRemainder
-    pub fn new<C: AsRef<[Constraint]>>(direction: Direction, constraints: C) -> Layout {
+    pub fn new<C: AsRef<[Constraint]>>(direction: Orientation, constraints: C) -> Layout {
         Layout {
             direction,
             margin: Margin::new(0, 0),
@@ -332,7 +332,7 @@ impl Layout {
     ///     .split(Geometry::new(10, 10));
     /// assert_eq!(layout[..], [Geometry{x:0, y:0, cols:10, rows:5}, Geometry{x:0, y:5, cols:10, rows:0}]);
     /// ```
-    pub const fn direction(mut self, direction: Direction) -> Layout {
+    pub const fn direction(mut self, direction: Orientation) -> Layout {
         self.direction = direction;
         self
     }
@@ -399,8 +399,8 @@ fn try_split(area: Geometry, layout: &Layout) -> Result<Rc<[Geometry]>, AddConst
     let inner = area.inner(&layout.margin);
 
     let (area_start, area_end) = match layout.direction {
-        Direction::Horizontal => (f64::from(inner.x), f64::from(inner.right())),
-        Direction::Vertical => (f64::from(inner.y), f64::from(inner.bottom())),
+        Orientation::Horizontal => (f64::from(inner.x), f64::from(inner.right())),
+        Orientation::Vertical => (f64::from(inner.y), f64::from(inner.bottom())),
     };
     let area_size = area_end - area_start;
 
@@ -479,13 +479,13 @@ fn try_split(area: Geometry, layout: &Layout) -> Result<Rc<[Geometry]>, AddConst
             let end = changes.get(&element.end).unwrap_or(&0.0).round() as u16;
             let size = end - start;
             match layout.direction {
-                Direction::Horizontal => Geometry {
+                Orientation::Horizontal => Geometry {
                     x: start,
                     y: inner.y,
                     cols: size,
                     rows: inner.rows,
                 },
-                Direction::Vertical => Geometry {
+                Orientation::Vertical => Geometry {
                     x: inner.x,
                     y: start,
                     cols: inner.cols,
