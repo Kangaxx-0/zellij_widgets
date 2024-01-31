@@ -202,7 +202,6 @@ impl Padding {
 ///
 /// ```
 /// # use zellij_widgets::prelude::*;
-///   use zellij_widgets::core::style::Color;
 ///
 /// Block::default()
 ///     .title("Block")
@@ -393,7 +392,7 @@ impl<'a> Block<'a> {
     ///     .borders(Borders::ALL)
     ///     .border_style(Style::new().blue());
     /// ```
-    pub const fn border_style(mut self, style: Style) -> Block<'a> {
+    pub fn border_style(mut self, style: Style) -> Block<'a> {
         self.border_style = style;
         self
     }
@@ -405,8 +404,9 @@ impl<'a> Block<'a> {
     /// [`Block::border_style`].
     ///
     /// This will also apply to the widget inside that block, unless the inner widget is styled.
-    pub const fn style(mut self, style: Style) -> Block<'a> {
-        self.style = style;
+    #[must_use = "method moves the value of self and returns the modified value"]
+    pub fn style<S: Into<Style>>(mut self, style: S) -> Block<'a> {
+        self.style = style.into();
         self
     }
 
@@ -1137,8 +1137,6 @@ mod tests {
             .title_alignment(Alignment::Left)
             .title_position(Position::Top)
             .borders(Borders::ALL)
-            .border_style(_DEFAULT_STYLE)
-            .style(_DEFAULT_STYLE)
             .padding(_DEFAULT_PADDING);
     }
 
@@ -1153,5 +1151,32 @@ mod tests {
                 .add_modifier(Modifier::BOLD)
                 .remove_modifier(Modifier::DIM)
         )
+    }
+
+    #[test]
+    fn block_style() {
+        // nominal style
+        let block = Block::default().style(Style::new().red());
+        assert_eq!(block.style, Style::new().red());
+
+        // auto-convert from Color
+        let block = Block::default().style(Color::Red);
+        assert_eq!(block.style, Style::new().red());
+
+        // auto-convert from (Color, Color)
+        let block = Block::default().style((Color::Red, Color::Blue));
+        assert_eq!(block.style, Style::new().red().on_blue());
+
+        // auto-convert from Modifier
+        let block = Block::default().style(Modifier::BOLD | Modifier::ITALIC);
+        assert_eq!(block.style, Style::new().bold().italic());
+
+        // auto-convert from (Color, Modifier)
+        let block = Block::default().style((Color::Red, Modifier::BOLD));
+        assert_eq!(block.style, Style::new().red().bold());
+
+        // auto-convert from (Color, Color, Modifier)
+        let block = Block::default().style((Color::Red, Color::Blue, Modifier::BOLD));
+        assert_eq!(block.style, Style::new().red().on_blue().bold());
     }
 }

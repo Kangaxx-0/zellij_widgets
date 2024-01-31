@@ -6,8 +6,7 @@
 
 use std::fmt;
 
-use crate::core::command::Command;
-use crate::{csi, impl_display};
+use crate::{core::command::Command, csi, impl_display};
 
 /// A command that moves the terminal cursor to the given position (column, row).
 ///

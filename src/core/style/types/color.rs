@@ -97,7 +97,7 @@ impl Color {
     /// # Examples
     ///
     /// ```
-    /// use zellij_widgets::core::style::Color;
+    /// use zellij_widgets::prelude::*;
     ///
     /// assert_eq!(Color::parse_ansi("5;0"), Some(Color::Black));
     /// assert_eq!(Color::parse_ansi("5;26"), Some(Color::AnsiValue(26)));

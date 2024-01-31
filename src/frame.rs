@@ -1,6 +1,4 @@
-use crate::buffer::Buffer;
-use crate::layout::Geometry;
-use crate::widget::Widget;
+use crate::{buffer::Buffer, layout::Geometry, widget::Widget};
 
 /// A consistent view into the terminal state for rendering a single frame.
 ///

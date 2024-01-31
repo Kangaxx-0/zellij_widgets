@@ -13,8 +13,10 @@ use std::{
     fmt::{self, Display},
 };
 
-use crate::core::command::{execute_fmt, Command};
-use crate::{csi, impl_display};
+use crate::{
+    core::command::{execute_fmt, Command},
+    csi, impl_display,
+};
 
 pub use self::{
     attributes::Attributes,

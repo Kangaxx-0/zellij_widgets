@@ -1,13 +1,15 @@
 use crate::{
+    buffer::Buffer,
     core::cursor::MoveTo,
     core::style::{
         Attribute as CAttribute, Color, Print, SetAttribute, SetBackgroundColor,
         SetForegroundColor, SetUnderlineColor,
     },
+    frame::Frame,
+    layout::Geometry,
     queue,
 };
 
-use crate::{buffer::Buffer, frame::Frame, layout::Geometry};
 use std::io::{self, Write};
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
