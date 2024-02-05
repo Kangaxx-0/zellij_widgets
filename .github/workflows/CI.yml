@@ -22,6 +22,39 @@ env:
   CARGO_HUSKY_DONT_INSTALL_HOOKS: true
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        if: github.event_name != 'pull_request'
+        uses: actions/checkout@v4
+      - name: Checkout
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Install Rust nightly
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rustfmt
+      - name: Install cargo-make
+        uses: taiki-e/install-action@cargo-make
+      - name: Cache Cargo dependencies
+        uses: Swatinem/rust-cache@v2
+      - name: Check formatting
+        run: cargo make lint-format
+      - name: Check documentation
+        run: cargo make lint-docs
+      - name: Check conventional commits
+        uses: crate-ci/committed@master
+        with:
+          args: "-vv"
+          commits: HEAD
+      - name: Check typos
+        uses: crate-ci/typos@master
+      - name: Lint dependencies
+        uses: EmbarkStudios/cargo-deny-action@v1
+
   clippy:
     runs-on: ubuntu-latest
     steps:
