@@ -321,13 +321,13 @@ impl Layout {
     /// ```rust
     /// # use zellij_widgets::prelude::*;
     /// let layout = Layout::default()
-    ///     .direction(Direction::Horizontal)
+    ///     .direction(Orientation::Horizontal)
     ///     .constraints([Constraint::Length(5), Constraint::Min(0)])
     ///     .split(Geometry::new(10, 10));
     /// assert_eq!(layout[..], [Geometry{ x:0, y:0, cols:5, rows:10}, Geometry{x:5, y:0, cols:0, rows:10}]);
     ///
     /// let layout = Layout::default()
-    ///     .direction(Direction::Vertical)
+    ///     .direction(Orientation::Vertical)
     ///     .constraints([Constraint::Length(5), Constraint::Min(0)])
     ///     .split(Geometry::new(10, 10));
     /// assert_eq!(layout[..], [Geometry{x:0, y:0, cols:10, rows:5}, Geometry{x:0, y:5, cols:10, rows:0}]);
@@ -351,7 +351,7 @@ impl Layout {
     /// # use zellij_widgets::prelude::*;
     ///
     /// let layout = Layout::default()
-    ///     .direction(Direction::Horizontal)
+    ///     .direction(Orientation::Horizontal)
     ///     .constraints([Constraint::Ratio(1, 3), Constraint::Ratio(2, 3)])
     ///     .split(Geometry::new(9, 2));
     /// assert_eq!(layout[..], [Geometry{x:0, y:0, cols:1, rows:9}, Geometry{x:1, y:0, cols:1, rows:9}]);
