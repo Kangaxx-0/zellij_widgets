@@ -1,3 +1,4 @@
+#![allow(unused_imports)]
 use cassowary::{
     strength::{MEDIUM, REQUIRED, STRONG, WEAK},
     AddConstraintError, Expression, Solver, Variable,

@@ -1,4 +1,4 @@
-#![allow(unused_imports)]
+#![allow(unused_imports, dead_code)]
 use crate::{buffer::Buffer, layout::Geometry, layout::Layout, widget::Widget};
 
 /// A consistent view into the terminal state for rendering a single frame.

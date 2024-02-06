@@ -8,8 +8,6 @@ macro_rules! csi {
 #[macro_export]
 macro_rules! queue {
     ($writer:expr $(, $command:expr)* $(,)?) => {{
-        use ::std::io::Write;
-
         // This allows the macro to take both mut impl Write and &mut impl Write.
         Ok($writer.by_ref())
             $(.and_then(|writer| $crate::core::QueueableCommand::queue(writer, $command)))*

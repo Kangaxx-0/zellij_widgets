@@ -71,26 +71,24 @@ where
             }
             last_pos = Some((x, y));
             if cell.fg != fg {
-                let color = Color::from(cell.fg);
-                queue!(self.writer, SetForegroundColor(color))?;
+                queue!(self.writer, SetForegroundColor(cell.fg))?;
                 fg = cell.fg;
             }
             if cell.bg != bg {
-                let color = Color::from(cell.bg);
-                queue!(self.writer, SetBackgroundColor(color))?;
+                queue!(self.writer, SetBackgroundColor(cell.bg))?;
                 bg = cell.bg;
             }
 
             queue!(self.writer, Print(cell.symbol()))?;
         }
 
-        return queue!(
+        queue!(
             self.writer,
             SetForegroundColor(Color::Reset),
             SetBackgroundColor(Color::Reset),
             SetUnderlineColor(Color::Reset),
             SetAttribute(CAttribute::Reset),
-        );
+        )
     }
 
     pub fn draw<F>(&mut self, f: F) -> io::Result<CompletedFrame>
