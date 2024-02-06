@@ -3,7 +3,7 @@ pub use crate::{
     core::style::Color,
     frame::Frame,
     layout::Layout,
-    layout::{self, Alignment, Constraint, Direction, Geometry},
+    layout::{self, Alignment, Constraint, Geometry, Orientation},
     plugin_pane::PluginPane,
     styles::{self, Modifier, Style, Styled, Stylize},
     symbols,
