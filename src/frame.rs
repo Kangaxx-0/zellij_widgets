@@ -1,4 +1,5 @@
-use crate::{buffer::Buffer, layout::Geometry, widget::Widget};
+#![allow(unused_imports)]
+use crate::{buffer::Buffer, layout::Geometry, layout::Layout, widget::Widget};
 
 /// A consistent view into the terminal state for rendering a single frame.
 ///

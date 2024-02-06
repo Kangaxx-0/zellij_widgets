@@ -192,7 +192,7 @@ impl Padding {
     }
 }
 
-/// Base widget to be used to display a box border around all [upper level ones](crate::widgets).
+/// Base widget to be used to display a box border around all [`Widget`]
 ///
 /// The borders can be configured with [`Block::borders`] and others. A block can have multiple
 /// [`Title`] using [`Block::title`]. It can also be [styled](Block::style) and
