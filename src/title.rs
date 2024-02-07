@@ -1,11 +1,11 @@
 //! This module holds the [`Title`] element and its related configuration types.
-//! A title is a piece of [`Block`](crate::widgets::Block) configuration.
+//! A title is a piece of [`Block`](crate::uis::Block) configuration.
 
 use strum::{Display, EnumString};
 
 use crate::{layout::Alignment, text::Line};
 
-/// A [`Block`](crate::widgets::Block) title.
+/// A [`Block`](crate::uis::Block) title.
 ///
 /// It can be aligned (see [`Alignment`]) and positioned (see [`Position`]).
 ///
@@ -18,14 +18,14 @@ use crate::{layout::Alignment, text::Line};
 /// Title::from("Title");
 /// ```
 ///
-/// Blue title on a white background (via [`Stylize`](crate::style::Stylize) trait).
+/// Blue title on a white background (via [`Stylize`](crate::styles::Stylize) trait).
 /// ```
 /// use zellij_widgets::prelude::*;
 ///
 /// Title::from("Title".blue().on_white());
 /// ```
 ///
-/// Title with multiple styles (see [`Line`] and [`Stylize`](crate::style::Stylize)).
+/// Title with multiple styles (see [`Line`] and [`Stylize`](crate::styles::Stylize)).
 /// ```
 /// use zellij_widgets::prelude::*;
 ///
@@ -49,19 +49,19 @@ pub struct Title<'a> {
     /// Title alignment
     ///
     /// If [`None`], defaults to the alignment defined with
-    /// [`Block::title_alignment`](crate::widgets::Block::title_alignment) in the associated
-    /// [`Block`](crate::widgets::Block).
+    /// [`Block::title_alignment`](crate::uis::Block::title_alignment) in the associated
+    /// [`Block`](crate::uis::Block).
     pub alignment: Option<Alignment>,
 
     /// Title position
     ///
     /// If [`None`], defaults to the position defined with
-    /// [`Block::title_position`](crate::widgets::Block::title_position) in the associated
-    /// [`Block`](crate::widgets::Block).
+    /// [`Block::title_position`](crate::uis::Block::title_position) in the associated
+    /// [`Block`](crate::uis::Block).
     pub position: Option<Position>,
 }
 
-/// Defines the [title](crate::widgets::block::Title) position.
+/// Defines the [title](crate::title::Title) position.
 ///
 /// The title can be positioned on top or at the bottom of the block.
 /// Defaults to [`Position::Top`].

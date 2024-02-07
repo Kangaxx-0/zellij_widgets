@@ -68,7 +68,7 @@ pub fn available_color_count() -> u16 {
 ///
 /// # Notes
 ///
-/// zellij_widgets supports NO_COLOR (https://no-color.org/) to disabled colored output.
+/// zellij_widgets supports [NO_COLOR](https://no-color.org/) to disabled colored output.
 ///
 /// This API allows applications to override that behavior and force colorized output
 /// even if NO_COLOR is set.

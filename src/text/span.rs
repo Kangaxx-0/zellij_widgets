@@ -50,7 +50,7 @@ use crate::styles::{Style, Styled};
 /// ```
 ///
 /// [`Line`]: crate::text::Line
-/// [`Stylize`]: crate::style::Stylize
+/// [`Stylize`]: crate::styles::Stylize
 /// [`Cow<str>`]: std::borrow::Cow
 #[derive(Debug, Default, Clone, Eq, PartialEq, Hash)]
 pub struct Span<'a> {

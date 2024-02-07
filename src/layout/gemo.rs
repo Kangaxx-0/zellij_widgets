@@ -100,10 +100,10 @@ mod tests {
     #[test]
     fn test_is_empty() {
         let empty_geometry = Geometry::new(0, 10);
-        assert_eq!(empty_geometry.is_empty(), true);
+        assert!(empty_geometry.is_empty());
 
         let non_empty_geometry = Geometry::new(10, 20);
-        assert_eq!(non_empty_geometry.is_empty(), false);
+        assert!(!non_empty_geometry.is_empty());
     }
 
     #[test]

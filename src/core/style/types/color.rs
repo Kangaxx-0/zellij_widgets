@@ -106,8 +106,6 @@ impl Color {
     /// ```
     ///
     /// Currently, 3/4 bit color values aren't supported so return `None`.
-    ///
-    /// See also: [`Colored::parse_ansi`](crate::style::Colored::parse_ansi).
     pub fn parse_ansi(ansi: &str) -> Option<Self> {
         Self::parse_ansi_iter(&mut ansi.split(';'))
     }

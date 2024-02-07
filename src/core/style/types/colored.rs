@@ -14,7 +14,7 @@ pub enum Colored {
     /// A background color.
     BackgroundColor(Color),
     /// An underline color.
-    /// Imporant: doesnt work on windows 10 or lower.
+    /// Important: doesn't work on windows 10 or lower.
     UnderlineColor(Color),
 }
 
@@ -66,7 +66,7 @@ impl Colored {
     }
 
     /// Checks whether ansi color sequences are disabled by setting of NO_COLOR
-    /// in environment as per https://no-color.org/
+    /// in environment as per [NO COLOR](https://no-color.org/)
     pub fn ansi_color_disabled() -> bool {
         !std::env::var("NO_COLOR")
             .unwrap_or("".to_string())
@@ -194,15 +194,15 @@ mod tests {
         check_format_color(colored, "38;5;255");
     }
 
-    // #[test]
-    // fn test_parse_ansi_fg() {
-    //     test_parse_ansi(Colored::ForegroundColor)
-    // }
-    //
-    // #[test]
-    // fn test_parse_ansi_bg() {
-    //     test_parse_ansi(Colored::ForegroundColor)
-    // }
+    #[test]
+    fn test_parse_ansi_fg() {
+        test_parse_ansi(Colored::ForegroundColor)
+    }
+
+    #[test]
+    fn test_parse_ansi_bg() {
+        test_parse_ansi(Colored::ForegroundColor)
+    }
 
     /// Used for test_parse_ansi_fg and test_parse_ansi_bg
     fn test_parse_ansi(bg_or_fg: impl Fn(Color) -> Colored) {

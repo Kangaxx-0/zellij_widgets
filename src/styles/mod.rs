@@ -55,8 +55,6 @@ impl fmt::Debug for Modifier {
 ///     .add_modifier(Modifier::ITALIC | Modifier::BOLD);
 /// ```
 ///
-/// Styles can also be created with a [shorthand notation](crate::style#using-style-shorthands).
-///
 /// ```rust
 /// # use zellij_widgets::prelude::*;
 /// Style::new().black().on_green().italic().bold();
