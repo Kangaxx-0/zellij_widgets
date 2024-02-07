@@ -409,14 +409,7 @@ impl Debug for Buffer {
 #[cfg(test)]
 mod tests {
     use super::*;
-
     use crate::assert_buffer_eq;
-
-    fn cell(s: &str) -> Cell {
-        let mut cell = Cell::default();
-        cell.set_symbol(s);
-        cell
-    }
 
     #[test]
     fn it_implements_debug() {
