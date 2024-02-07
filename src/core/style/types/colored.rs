@@ -194,15 +194,15 @@ mod tests {
         check_format_color(colored, "38;5;255");
     }
 
-    // #[test]
-    // fn test_parse_ansi_fg() {
-    //     test_parse_ansi(Colored::ForegroundColor)
-    // }
-    //
-    // #[test]
-    // fn test_parse_ansi_bg() {
-    //     test_parse_ansi(Colored::ForegroundColor)
-    // }
+    #[test]
+    fn test_parse_ansi_fg() {
+        test_parse_ansi(Colored::ForegroundColor)
+    }
+
+    #[test]
+    fn test_parse_ansi_bg() {
+        test_parse_ansi(Colored::ForegroundColor)
+    }
 
     /// Used for test_parse_ansi_fg and test_parse_ansi_bg
     fn test_parse_ansi(bg_or_fg: impl Fn(Color) -> Colored) {
