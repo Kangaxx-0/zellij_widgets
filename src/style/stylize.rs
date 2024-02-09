@@ -1,203 +1,177 @@
-use std::fmt::Display;
+use super::{modifier::Modifier, Color, Style, Styled};
+use paste::paste;
 
-use super::{style, Attribute, Color, ContentStyle, StyledContent};
-
-macro_rules! stylize_method {
-    ($method_name:ident Attribute::$attribute:ident) => {
-        calculated_docs! {
-            #[doc = concat!(
-                "Applies the [`",
-                stringify!($attribute),
-                "`](Attribute::",
-                stringify!($attribute),
-                ") attribute to the text.",
-            )]
-            fn $method_name(self) -> Self::Styled {
-                self.attribute(Attribute::$attribute)
-            }
-        }
-    };
-    ($method_name_fg:ident, $method_name_bg:ident, $method_name_ul:ident Color::$color:ident) => {
-        calculated_docs! {
-            #[doc = concat!(
-                "Sets the foreground color to [`",
-                stringify!($color),
-                "`](Color::",
-                stringify!($color),
-                ")."
-            )]
-            /// Sets the foreground color
-            fn $method_name_fg(self) -> Self::Styled {
-                self.with(Color::$color)
+/// Generates two methods for each color, one for setting the foreground color (`red()`, `blue()`,
+/// etc) and one for setting the background color (`on_red()`, `on_blue()`, etc.). Each method sets
+/// the color of the style to the corresponding color.
+///
+/// ```rust,ignore
+/// color!(black);
+///
+/// // generates
+///
+/// #[doc = "Sets the foreground color to [`black`](Color::Black)."]
+/// fn black(self) -> T {
+///     self.fg(Color::Black)
+/// }
+///
+/// #[doc = "Sets the background color to [`black`](Color::Black)."]
+/// fn on_black(self) -> T {
+///     self.bg(Color::Black)
+/// }
+/// ```
+macro_rules! color {
+    ( $color:ident ) => {
+        paste! {
+            #[doc = "Sets the foreground color to [`" $color "`](Color::" $color:camel ")."]
+            #[must_use = concat!("`", stringify!($color), "` returns the modified style without modifying the original")]
+            fn $color(self) -> T {
+                self.fg(Color::[<$color:camel>])
             }
 
-            #[doc = concat!(
-                "Sets the background color to [`",
-                stringify!($color),
-                "`](Color::",
-                stringify!($color),
-                ")."
-            )]
-            /// Sets the background color
-            fn $method_name_bg(self) -> Self::Styled {
-                self.on(Color::$color)
-            }
-
-            #[doc = concat!(
-                "Sets the underline color to [`",
-                stringify!($color),
-                "`](Color::",
-                stringify!($color),
-                ")."
-            )]
-            /// Sets the underline color
-            fn $method_name_ul(self) -> Self::Styled {
-                self.underline(Color::$color)
+            #[doc = "Sets the background color to [`" $color "`](Color::" $color:camel ")."]
+            #[must_use = concat!("`on_", stringify!($color), "` returns the modified style without modifying the original")]
+            fn [<on_ $color>](self) -> T {
+                self.bg(Color::[<$color:camel>])
             }
         }
     };
 }
 
-/// Provides a set of methods to set attributes and colors.
+/// Generates a method for a modifier (`bold()`, `italic()`, etc.). Each method sets the modifier
+/// of the style to the corresponding modifier.
 ///
 /// # Examples
 ///
-/// ```no_run
-/// use zellij_widgets::style::Stylize;
+/// ```rust,ignore
+/// modifier!(bold);
 ///
-/// println!("{}", "Bold text".bold());
-/// println!("{}", "Underlined text".underlined());
-/// println!("{}", "Negative text".negative());
-/// println!("{}", "Red on blue".red().on_blue());
+/// // generates
+///
+/// #[doc = "Adds the [`BOLD`](Modifier::BOLD) modifier."]
+/// fn bold(self) -> T {
+///     self.add_modifier(Modifier::BOLD)
+/// }
+///
+/// #[doc = "Removes the [`BOLD`](Modifier::BOLD) modifier."]
+/// fn not_bold(self) -> T {
+///     self.remove_modifier(Modifier::BOLD)
+/// }
 /// ```
-pub trait Stylize: Sized {
-    /// This type with styles applied.
-    type Styled: AsRef<ContentStyle> + AsMut<ContentStyle>;
-
-    /// Styles this type.
-    fn stylize(self) -> Self::Styled;
-
-    /// Sets the foreground color.
-    fn with(self, color: Color) -> Self::Styled {
-        let mut styled = self.stylize();
-        styled.as_mut().foreground_color = Some(color);
-        styled
-    }
-
-    /// Sets the background color.
-    fn on(self, color: Color) -> Self::Styled {
-        let mut styled = self.stylize();
-        styled.as_mut().background_color = Some(color);
-        styled
-    }
-
-    /// Sets the underline color.
-    fn underline(self, color: Color) -> Self::Styled {
-        let mut styled = self.stylize();
-        styled.as_mut().underline_color = Some(color);
-        styled
-    }
-
-    /// Styles the content with the attribute.
-    fn attribute(self, attr: Attribute) -> Self::Styled {
-        let mut styled = self.stylize();
-        styled.as_mut().attributes.set(attr);
-        styled
-    }
-
-    stylize_method!(reset Attribute::Reset);
-    stylize_method!(bold Attribute::Bold);
-    stylize_method!(underlined Attribute::Underlined);
-    stylize_method!(reverse Attribute::Reverse);
-    stylize_method!(dim Attribute::Dim);
-    stylize_method!(italic Attribute::Italic);
-    stylize_method!(negative Attribute::Reverse);
-    stylize_method!(slow_blink Attribute::SlowBlink);
-    stylize_method!(rapid_blink Attribute::RapidBlink);
-    stylize_method!(hidden Attribute::Hidden);
-    stylize_method!(crossed_out Attribute::CrossedOut);
-
-    stylize_method!(black, on_black, underline_black Color::Black);
-    stylize_method!(dark_grey, on_dark_grey, underline_dark_grey Color::DarkGray);
-    stylize_method!(red, on_red, underline_red Color::Red);
-    stylize_method!(dark_red, on_dark_red, underline_dark_red Color::DarkRed);
-    stylize_method!(green, on_green, underline_green Color::Green);
-    stylize_method!(dark_green, on_dark_green, underline_dark_green Color::DarkGreen);
-    stylize_method!(yellow, on_yellow, underline_yellow Color::Yellow);
-    stylize_method!(dark_yellow, on_dark_yellow, underline_dark_yellow Color::DarkYellow);
-    stylize_method!(blue, on_blue, underline_blue Color::Blue);
-    stylize_method!(dark_blue, on_dark_blue, underline_dark_blue Color::DarkBlue);
-    stylize_method!(magenta, on_magenta, underline_magenta Color::Magenta);
-    stylize_method!(dark_magenta, on_dark_magenta, underline_dark_magenta Color::DarkMagenta);
-    stylize_method!(cyan, on_cyan, underline_cyan Color::Cyan);
-    stylize_method!(dark_cyan, on_dark_cyan, underline_dark_cyan Color::DarkCyan);
-    stylize_method!(white, on_white, underline_white Color::White);
-    stylize_method!(grey, on_grey, underline_grey Color::Gray);
-}
-
-macro_rules! impl_stylize_for_display {
-    ($($t:ty),*) => { $(
-        impl Stylize for $t {
-            type Styled = StyledContent<Self>;
-            #[inline]
-            fn stylize(self) -> Self::Styled {
-                style(self)
+macro_rules! modifier {
+    ( $modifier:ident ) => {
+        paste! {
+            #[doc = "Adds the [`" $modifier:upper "`](Modifier::" $modifier:upper ") modifier."]
+            #[must_use = concat!("`", stringify!($modifier), "` returns the modified style without modifying the original")]
+            fn [<$modifier>](self) -> T {
+                self.add_modifier(Modifier::[<$modifier:upper>])
             }
         }
-    )* }
-}
-impl_stylize_for_display!(String, char, &str);
 
-impl Stylize for ContentStyle {
-    type Styled = Self;
-    #[inline]
-    fn stylize(self) -> Self::Styled {
-        self
+        paste! {
+            #[doc = "Removes the [`" $modifier:upper "`](Modifier::" $modifier:upper ") modifier."]
+            #[must_use = concat!("`not_", stringify!($modifier), "` returns the modified style without modifying the original")]
+            fn [<not_ $modifier>](self) -> T {
+                self.remove_modifier(Modifier::[<$modifier:upper>])
+            }
+        }
+    };
+}
+
+/// An extension trait for styling objects.
+///
+/// For any type that implements `Stylize`, the provided methods in this trait can be used to style
+/// the type further. This trait is automatically implemented for any type that implements the
+/// [`Styled`] trait which e.g.: [`String`], [`&str`], [`Span`], [`Style`] and many Widget types.
+///
+/// This results in much more ergonomic styling of text and widgets. For example, instead of
+/// writing:
+///
+/// ```rust,ignore
+/// let text = Span::styled("Hello", Style::default().fg(Color::Red).bg(Color::Blue));
+/// ```
+///
+/// You can write:
+///
+/// ```rust,ignore
+/// let text = "Hello".red().on_blue();
+/// ```
+///
+/// This trait implements a provided method for every color as both foreground and background
+/// (prefixed by `on_`), and all modifiers as both an additive and subtractive modifier (prefixed
+/// by `not_`). The `reset()` method is also provided to reset the style.
+///
+/// # Examples
+/// ```
+/// use zellij_widgets::prelude::*;
+///
+/// let span = "hello".red().on_blue().bold();
+/// let line = Line::from(vec![
+///     "hello".red().on_blue().bold(),
+///     "world".green().on_yellow().not_bold(),
+/// ]);
+/// let paragraph = Paragraph::new(line).italic().underlined();
+/// let block = Block::default().title("Title").borders(Borders::ALL).on_white().bold();
+/// ```
+pub trait Stylize<'a, T>: Sized {
+    #[must_use = "`bg` returns the modified style without modifying the original"]
+    fn bg(self, color: Color) -> T;
+    #[must_use = "`fg` returns the modified style without modifying the original"]
+    fn fg<S: Into<Color>>(self, color: S) -> T;
+    #[must_use = "`reset` returns the modified style without modifying the original"]
+    fn reset(self) -> T;
+    #[must_use = "`add_modifier` returns the modified style without modifying the original"]
+    fn add_modifier(self, modifier: Modifier) -> T;
+    #[must_use = "`remove_modifier` returns the modified style without modifying the original"]
+    fn remove_modifier(self, modifier: Modifier) -> T;
+
+    color!(black);
+    color!(red);
+    color!(green);
+    color!(yellow);
+    color!(blue);
+    color!(magenta);
+    color!(cyan);
+    color!(gray);
+    color!(dark_gray);
+    color!(white);
+
+    modifier!(bold);
+    modifier!(dim);
+    modifier!(italic);
+    modifier!(underlined);
+    modifier!(slow_blink);
+    modifier!(rapid_blink);
+    modifier!(reversed);
+    modifier!(hidden);
+    modifier!(crossed_out);
+}
+
+impl<'a, T, U> Stylize<'a, T> for U
+where
+    U: Styled<Item = T>,
+{
+    fn bg(self, color: Color) -> T {
+        let style = self.style().bg(color);
+        self.set_style(style)
     }
-}
-impl<D: Display> Stylize for StyledContent<D> {
-    type Styled = StyledContent<D>;
-    fn stylize(self) -> Self::Styled {
-        self
+
+    fn fg<S: Into<Color>>(self, color: S) -> T {
+        let style = self.style().fg(color.into());
+        self.set_style(style)
     }
-}
 
-// Workaround for https://github.com/rust-lang/rust/issues/78835
-macro_rules! calculated_docs {
-    ($(#[doc = $doc:expr] $item:item)*) => { $(#[doc = $doc] $item)* };
-}
-// Remove once https://github.com/rust-lang/rust-clippy/issues/7106 stabilizes.
-#[allow(clippy::single_component_path_imports)]
-#[allow(clippy::useless_attribute)]
-use calculated_docs;
+    fn add_modifier(self, modifier: Modifier) -> T {
+        let style = self.style().add_modifier(modifier);
+        self.set_style(style)
+    }
 
-#[cfg(test)]
-mod tests {
-    use super::super::{Attribute, Color, ContentStyle, Stylize};
+    fn remove_modifier(self, modifier: Modifier) -> T {
+        let style = self.style().remove_modifier(modifier);
+        self.set_style(style)
+    }
 
-    #[test]
-    fn set_fg_bg_add_attr() {
-        let style = ContentStyle::new()
-            .with(Color::Blue)
-            .on(Color::Red)
-            .attribute(Attribute::Bold);
-
-        assert_eq!(style.foreground_color, Some(Color::Blue));
-        assert_eq!(style.background_color, Some(Color::Red));
-        assert!(style.attributes.has(Attribute::Bold));
-
-        let mut styled_content = style.apply("test");
-
-        styled_content = styled_content
-            .with(Color::Green)
-            .on(Color::Magenta)
-            .attribute(Attribute::NoItalic);
-
-        let style = styled_content.style();
-
-        assert_eq!(style.foreground_color, Some(Color::Green));
-        assert_eq!(style.background_color, Some(Color::Magenta));
-        assert!(style.attributes.has(Attribute::Bold));
-        assert!(style.attributes.has(Attribute::NoItalic));
+    fn reset(self) -> T {
+        self.set_style(Style::reset())
     }
 }
