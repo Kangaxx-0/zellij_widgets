@@ -30,7 +30,7 @@ impl Colored {
     /// # Examples
     ///
     /// ```
-    /// use zellij_widgets::core::style::{Colored::{self, ForegroundColor, BackgroundColor}, Color};
+    /// use zellij_widgets::style::{Colored::{self, ForegroundColor, BackgroundColor}, Color};
     ///
     /// assert_eq!(Colored::parse_ansi("38;5;0"), Some(ForegroundColor(Color::Black)));
     /// assert_eq!(Colored::parse_ansi("38;5;26"), Some(ForegroundColor(Color::AnsiValue(26))));
@@ -150,7 +150,7 @@ impl fmt::Display for Colored {
 
 #[cfg(test)]
 mod tests {
-    use crate::core::style::{Color, Colored};
+    use crate::style::{Color, Colored};
 
     fn check_format_color(colored: Colored, expected: &str) {
         Colored::set_ansi_color_disabled(true);

@@ -209,10 +209,9 @@ impl<'a> From<Line<'a>> for String {
 
 #[cfg(test)]
 mod tests {
-    use crate::core::style::Color;
     use crate::{
         layout::Alignment,
-        styles::{Modifier, Style},
+        style::{Color, Modifier, Style},
         text::{Line, Span, StyledGrapheme},
     };
 

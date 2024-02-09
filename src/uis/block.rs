@@ -769,9 +769,8 @@ impl<'a> Styled for Block<'a> {
 mod tests {
     use super::*;
     use crate::{
-        core::style::Color,
         layout::Geometry,
-        styles::{Modifier, Stylize},
+        style::{Color, Modifier, Stylize},
     };
 
     #[test]

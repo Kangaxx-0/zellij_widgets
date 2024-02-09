@@ -50,7 +50,7 @@ use crate::style::{Style, Styled};
 /// ```
 ///
 /// [`Line`]: crate::text::Line
-/// [`Stylize`]: crate::styles::Stylize
+/// [`Stylize`]: crate::style::Stylize
 /// [`Cow<str>`]: std::borrow::Cow
 #[derive(Debug, Default, Clone, Eq, PartialEq, Hash)]
 pub struct Span<'a> {
@@ -198,7 +198,7 @@ impl<'a> Styled for Span<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::styles::Stylize;
+    use crate::style::Stylize;
 
     #[test]
     fn default() {

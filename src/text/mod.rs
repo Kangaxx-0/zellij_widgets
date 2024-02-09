@@ -218,7 +218,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::styles::Stylize;
+    use crate::style::Stylize;
 
     #[test]
     fn raw() {
