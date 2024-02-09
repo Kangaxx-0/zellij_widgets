@@ -1,4 +1,4 @@
-use crate::core::style::parse_next_u8;
+use super::super::parse_next_u8;
 use std::{
     convert::{AsRef, TryFrom},
     fmt::{Display, Formatter},

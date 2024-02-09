@@ -2,7 +2,7 @@
 
 use std::fmt::Display;
 
-use crate::core::style::{Attributes, Color, StyledContent};
+use super::{Attributes, Color, StyledContent};
 
 /// The style that can be put on content.
 #[derive(Debug, Copy, Clone, Default, PartialEq, Eq)]

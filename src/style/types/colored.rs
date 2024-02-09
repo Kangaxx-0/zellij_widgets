@@ -1,4 +1,5 @@
-use crate::core::style::{parse_next_u8, Color};
+use super::super::parse_next_u8;
+use super::Color;
 use parking_lot::Once;
 use std::fmt::{self, Formatter};
 use std::sync::atomic::{AtomicBool, Ordering};

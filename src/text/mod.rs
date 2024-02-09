@@ -5,7 +5,7 @@ pub mod span;
 
 use std::borrow::Cow;
 
-use crate::styles::Style;
+use crate::style::Style;
 pub use grapheme::StyledGrapheme;
 pub use line::Line;
 pub use masked::Masked;

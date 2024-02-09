@@ -10,7 +10,7 @@ use strum::{Display, EnumString};
 use crate::{
     buffer::Buffer,
     layout::{Alignment, Geometry},
-    styles::{Style, Styled},
+    style::{Style, Styled},
     symbols::border,
     title::{Position, Title},
     widget::{Borders, Widget},

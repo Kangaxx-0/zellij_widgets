@@ -1,4 +1,4 @@
-use crate::styles::{Style, Styled};
+use crate::style::{Style, Styled};
 
 /// A grapheme associated to a style.
 /// Note that, although `StyledGrapheme` is the smallest divisible unit of text,
