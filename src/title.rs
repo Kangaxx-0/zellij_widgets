@@ -18,14 +18,14 @@ use crate::{layout::Alignment, text::Line};
 /// Title::from("Title");
 /// ```
 ///
-/// Blue title on a white background (via [`Stylize`](crate::styles::Stylize) trait).
+/// Blue title on a white background (via [`Stylize`](crate::style::Stylize) trait).
 /// ```
 /// use zellij_widgets::prelude::*;
 ///
 /// Title::from("Title".blue().on_white());
 /// ```
 ///
-/// Title with multiple styles (see [`Line`] and [`Stylize`](crate::styles::Stylize)).
+/// Title with multiple styles (see [`Line`] and [`Stylize`](crate::style::Stylize)).
 /// ```
 /// use zellij_widgets::prelude::*;
 ///

@@ -4,7 +4,7 @@ use unicode_segmentation::UnicodeSegmentation;
 use unicode_width::UnicodeWidthStr;
 
 use super::grapheme::StyledGrapheme;
-use crate::styles::{Style, Styled};
+use crate::style::{Style, Styled};
 
 /// Represents a part of a line that is contiguous and where all characters share the same style.
 ///
@@ -50,7 +50,7 @@ use crate::styles::{Style, Styled};
 /// ```
 ///
 /// [`Line`]: crate::text::Line
-/// [`Stylize`]: crate::styles::Stylize
+/// [`Stylize`]: crate::style::Stylize
 /// [`Cow<str>`]: std::borrow::Cow
 #[derive(Debug, Default, Clone, Eq, PartialEq, Hash)]
 pub struct Span<'a> {
@@ -198,7 +198,7 @@ impl<'a> Styled for Span<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::styles::Stylize;
+    use crate::style::Stylize;
 
     #[test]
     fn default() {

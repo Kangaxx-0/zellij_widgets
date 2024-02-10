@@ -1,48 +1,26 @@
-use bitflags::bitflags;
-use paste::paste;
+use crate::text::Span;
+use std::fmt::{self, Debug, Display};
 
-use crate::{core::style::Color, text::Span};
-use std::fmt::{self, Debug};
+use crate::{
+    core::command::{execute_fmt, Command},
+    csi, impl_display,
+};
 
-bitflags! {
-    /// Modifier changes the way a piece of text is displayed.
-    ///
-    /// They are bitflags so they can easily be composed.
-    ///
-    /// ## Examples
-    ///
-    /// ```rust
-    /// use zellij_widgets::prelude::*;
-    ///
-    /// let m = Modifier::BOLD | Modifier::ITALIC;
-    /// ```
-    #[derive(Default, Clone, Copy, Eq, PartialEq, Hash)]
-    pub struct Modifier: u16 {
-        const BOLD              = 0b0000_0000_0001;
-        const DIM               = 0b0000_0000_0010;
-        const ITALIC            = 0b0000_0000_0100;
-        const UNDERLINED        = 0b0000_0000_1000;
-        const SLOW_BLINK        = 0b0000_0001_0000;
-        const RAPID_BLINK       = 0b0000_0010_0000;
-        const REVERSED          = 0b0000_0100_0000;
-        const HIDDEN            = 0b0000_1000_0000;
-        const CROSSED_OUT       = 0b0001_0000_0000;
-    }
-}
+pub use self::{
+    attributes::Attributes,
+    content_style::ContentStyle,
+    modifier::Modifier,
+    styled_content::StyledContent,
+    stylize::Stylize,
+    types::{Attribute, Color, Colored, Colors},
+};
 
-/// Implement the `Debug` trait for `Modifier` manually.
-///
-/// This will avoid printing the empty modifier as 'Borders(0x0)' and instead print it as 'NONE'.
-impl fmt::Debug for Modifier {
-    /// Format the modifier as `NONE` if the modifier is empty or as a list of flags separated by
-    /// `|` otherwise.
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if self.is_empty() {
-            return write!(f, "NONE");
-        }
-        fmt::Debug::fmt(&self.0, f)
-    }
-}
+mod attributes;
+mod content_style;
+mod modifier;
+mod styled_content;
+mod stylize;
+mod types;
 
 /// Style lets you control the main characteristics of the displayed elements.
 ///
@@ -172,181 +150,6 @@ pub trait Styled {
 
     fn style(&self) -> Style;
     fn set_style(self, style: Style) -> Self::Item;
-}
-
-/// Generates two methods for each color, one for setting the foreground color (`red()`, `blue()`,
-/// etc) and one for setting the background color (`on_red()`, `on_blue()`, etc.). Each method sets
-/// the color of the style to the corresponding color.
-///
-/// ```rust,ignore
-/// color!(black);
-///
-/// // generates
-///
-/// #[doc = "Sets the foreground color to [`black`](Color::Black)."]
-/// fn black(self) -> T {
-///     self.fg(Color::Black)
-/// }
-///
-/// #[doc = "Sets the background color to [`black`](Color::Black)."]
-/// fn on_black(self) -> T {
-///     self.bg(Color::Black)
-/// }
-/// ```
-macro_rules! color {
-    ( $color:ident ) => {
-        paste! {
-            #[doc = "Sets the foreground color to [`" $color "`](Color::" $color:camel ")."]
-            #[must_use = concat!("`", stringify!($color), "` returns the modified style without modifying the original")]
-            fn $color(self) -> T {
-                self.fg(Color::[<$color:camel>])
-            }
-
-            #[doc = "Sets the background color to [`" $color "`](Color::" $color:camel ")."]
-            #[must_use = concat!("`on_", stringify!($color), "` returns the modified style without modifying the original")]
-            fn [<on_ $color>](self) -> T {
-                self.bg(Color::[<$color:camel>])
-            }
-        }
-    };
-}
-
-/// Generates a method for a modifier (`bold()`, `italic()`, etc.). Each method sets the modifier
-/// of the style to the corresponding modifier.
-///
-/// # Examples
-///
-/// ```rust,ignore
-/// modifier!(bold);
-///
-/// // generates
-///
-/// #[doc = "Adds the [`BOLD`](Modifier::BOLD) modifier."]
-/// fn bold(self) -> T {
-///     self.add_modifier(Modifier::BOLD)
-/// }
-///
-/// #[doc = "Removes the [`BOLD`](Modifier::BOLD) modifier."]
-/// fn not_bold(self) -> T {
-///     self.remove_modifier(Modifier::BOLD)
-/// }
-/// ```
-macro_rules! modifier {
-    ( $modifier:ident ) => {
-        paste! {
-            #[doc = "Adds the [`" $modifier:upper "`](Modifier::" $modifier:upper ") modifier."]
-            #[must_use = concat!("`", stringify!($modifier), "` returns the modified style without modifying the original")]
-            fn [<$modifier>](self) -> T {
-                self.add_modifier(Modifier::[<$modifier:upper>])
-            }
-        }
-
-        paste! {
-            #[doc = "Removes the [`" $modifier:upper "`](Modifier::" $modifier:upper ") modifier."]
-            #[must_use = concat!("`not_", stringify!($modifier), "` returns the modified style without modifying the original")]
-            fn [<not_ $modifier>](self) -> T {
-                self.remove_modifier(Modifier::[<$modifier:upper>])
-            }
-        }
-    };
-}
-
-/// An extension trait for styling objects.
-///
-/// For any type that implements `Stylize`, the provided methods in this trait can be used to style
-/// the type further. This trait is automatically implemented for any type that implements the
-/// [`Styled`] trait which e.g.: [`String`], [`&str`], [`Span`], [`Style`] and many Widget types.
-///
-/// This results in much more ergonomic styling of text and widgets. For example, instead of
-/// writing:
-///
-/// ```rust,ignore
-/// let text = Span::styled("Hello", Style::default().fg(Color::Red).bg(Color::Blue));
-/// ```
-///
-/// You can write:
-///
-/// ```rust,ignore
-/// let text = "Hello".red().on_blue();
-/// ```
-///
-/// This trait implements a provided method for every color as both foreground and background
-/// (prefixed by `on_`), and all modifiers as both an additive and subtractive modifier (prefixed
-/// by `not_`). The `reset()` method is also provided to reset the style.
-///
-/// # Examples
-/// ```
-/// use zellij_widgets::prelude::*;
-///
-/// let span = "hello".red().on_blue().bold();
-/// let line = Line::from(vec![
-///     "hello".red().on_blue().bold(),
-///     "world".green().on_yellow().not_bold(),
-/// ]);
-/// let paragraph = Paragraph::new(line).italic().underlined();
-/// let block = Block::default().title("Title").borders(Borders::ALL).on_white().bold();
-/// ```
-pub trait Stylize<'a, T>: Sized {
-    #[must_use = "`bg` returns the modified style without modifying the original"]
-    fn bg(self, color: Color) -> T;
-    #[must_use = "`fg` returns the modified style without modifying the original"]
-    fn fg<S: Into<Color>>(self, color: S) -> T;
-    #[must_use = "`reset` returns the modified style without modifying the original"]
-    fn reset(self) -> T;
-    #[must_use = "`add_modifier` returns the modified style without modifying the original"]
-    fn add_modifier(self, modifier: Modifier) -> T;
-    #[must_use = "`remove_modifier` returns the modified style without modifying the original"]
-    fn remove_modifier(self, modifier: Modifier) -> T;
-
-    color!(black);
-    color!(red);
-    color!(green);
-    color!(yellow);
-    color!(blue);
-    color!(magenta);
-    color!(cyan);
-    color!(gray);
-    color!(dark_gray);
-    color!(white);
-
-    modifier!(bold);
-    modifier!(dim);
-    modifier!(italic);
-    modifier!(underlined);
-    modifier!(slow_blink);
-    modifier!(rapid_blink);
-    modifier!(reversed);
-    modifier!(hidden);
-    modifier!(crossed_out);
-}
-
-impl<'a, T, U> Stylize<'a, T> for U
-where
-    U: Styled<Item = T>,
-{
-    fn bg(self, color: Color) -> T {
-        let style = self.style().bg(color);
-        self.set_style(style)
-    }
-
-    fn fg<S: Into<Color>>(self, color: S) -> T {
-        let style = self.style().fg(color.into());
-        self.set_style(style)
-    }
-
-    fn add_modifier(self, modifier: Modifier) -> T {
-        let style = self.style().add_modifier(modifier);
-        self.set_style(style)
-    }
-
-    fn remove_modifier(self, modifier: Modifier) -> T {
-        let style = self.style().remove_modifier(modifier);
-        self.set_style(style)
-    }
-
-    fn reset(self) -> T {
-        self.set_style(Style::reset())
-    }
 }
 
 impl<'a> Styled for &'a str {
@@ -509,6 +312,366 @@ impl Style {
 
         self
     }
+}
+
+// #################################################
+
+/// A command that sets the the foreground color.
+///
+/// See [`Color`](enum.Color.html) for more info.
+///
+/// [`SetColors`](struct.SetColors.html) can also be used to set both the foreground and background
+/// color in one command.
+///
+/// # Notes
+///
+/// Commands must be queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SetForegroundColor(pub Color);
+
+impl Command for SetForegroundColor {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        write!(f, csi!("{}m"), Colored::ForegroundColor(self.0))
+    }
+}
+
+impl Command for &SetForegroundColor {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        write!(f, csi!("{}m"), Colored::ForegroundColor(self.0))
+    }
+}
+
+/// A command that sets the the background color.
+///
+/// See [`Color`](enum.Color.html) for more info.
+///
+/// [`SetColors`](struct.SetColors.html) can also be used to set both the foreground and background
+/// color with one command.
+///
+/// # Notes
+///
+/// Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SetBackgroundColor(pub Color);
+
+impl Command for SetBackgroundColor {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        write!(f, csi!("{}m"), Colored::BackgroundColor(self.0))
+    }
+}
+
+impl Command for &SetBackgroundColor {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        write!(f, csi!("{}m"), Colored::BackgroundColor(self.0))
+    }
+}
+
+/// A command that sets the the underline color.
+///
+/// See [`Color`](enum.Color.html) for more info.
+///
+/// [`SetColors`](struct.SetColors.html) can also be used to set both the foreground and background
+/// color with one command.
+///
+/// # Notes
+///
+/// Commands must be queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SetUnderlineColor(pub Color);
+
+impl Command for SetUnderlineColor {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        write!(f, csi!("{}m"), Colored::UnderlineColor(self.0))
+    }
+}
+
+impl Command for &SetUnderlineColor {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        write!(f, csi!("{}m"), Colored::UnderlineColor(self.0))
+    }
+}
+
+/// A command that optionally sets the foreground and/or background color.
+///
+/// # Notes
+///
+/// Commands must be queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SetColors(pub Colors);
+
+impl Command for SetColors {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        if let Some(color) = self.0.foreground {
+            SetForegroundColor(color).write_ansi(f)?;
+        }
+        if let Some(color) = self.0.background {
+            SetBackgroundColor(color).write_ansi(f)?;
+        }
+        Ok(())
+    }
+}
+
+impl Command for &SetColors {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        if let Some(color) = self.0.foreground {
+            SetForegroundColor(color).write_ansi(f)?;
+        }
+        if let Some(color) = self.0.background {
+            SetBackgroundColor(color).write_ansi(f)?;
+        }
+        Ok(())
+    }
+}
+
+/// A command that sets an attribute.
+///
+/// See [`Attribute`](enum.Attribute.html) for more info.
+///
+/// # Notes
+///
+/// Commands must be queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SetAttribute(pub Attribute);
+
+impl Command for SetAttribute {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        write!(f, csi!("{}m"), self.0.sgr())
+    }
+}
+impl Command for &SetAttribute {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        write!(f, csi!("{}m"), self.0.sgr())
+    }
+}
+
+/// A command that sets several attributes.
+///
+/// See [`Attributes`](struct.Attributes.html) for more info.
+///
+/// # Notes
+///
+/// Commands must be queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SetAttributes(pub Attributes);
+
+impl Command for SetAttributes {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        for attr in Attribute::iterator() {
+            if self.0.has(attr) {
+                SetAttribute(attr).write_ansi(f)?;
+            }
+        }
+        Ok(())
+    }
+}
+impl Command for &SetAttributes {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        for attr in Attribute::iterator() {
+            if self.0.has(attr) {
+                SetAttribute(attr).write_ansi(f)?;
+            }
+        }
+        Ok(())
+    }
+}
+
+/// A command that sets a style (colors and attributes).
+///
+/// # Notes
+///
+/// Commands must be queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SetStyle(pub ContentStyle);
+
+impl Command for SetStyle {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        if let Some(bg) = self.0.background_color {
+            execute_fmt(f, SetBackgroundColor(bg)).map_err(|_| fmt::Error)?;
+        }
+        if let Some(fg) = self.0.foreground_color {
+            execute_fmt(f, SetForegroundColor(fg)).map_err(|_| fmt::Error)?;
+        }
+        if let Some(ul) = self.0.underline_color {
+            execute_fmt(f, SetUnderlineColor(ul)).map_err(|_| fmt::Error)?;
+        }
+        if !self.0.attributes.is_empty() {
+            execute_fmt(f, SetAttributes(self.0.attributes)).map_err(|_| fmt::Error)?;
+        }
+
+        Ok(())
+    }
+}
+impl Command for &SetStyle {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        if let Some(bg) = self.0.background_color {
+            execute_fmt(f, SetBackgroundColor(bg)).map_err(|_| fmt::Error)?;
+        }
+        if let Some(fg) = self.0.foreground_color {
+            execute_fmt(f, SetForegroundColor(fg)).map_err(|_| fmt::Error)?;
+        }
+        if let Some(ul) = self.0.underline_color {
+            execute_fmt(f, SetUnderlineColor(ul)).map_err(|_| fmt::Error)?;
+        }
+        if !self.0.attributes.is_empty() {
+            execute_fmt(f, SetAttributes(self.0.attributes)).map_err(|_| fmt::Error)?;
+        }
+
+        Ok(())
+    }
+}
+
+/// A command that prints styled content.
+///
+/// See [`StyledContent`](struct.StyledContent.html) for more info.
+///
+/// # Notes
+///
+/// Commands must be queued for execution otherwise they do nothing.
+#[derive(Debug, Copy, Clone)]
+pub struct PrintStyledContent<D: Display>(pub StyledContent<D>);
+
+impl<D: Display> Command for PrintStyledContent<D> {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        let style = self.0.style();
+
+        let mut reset_background = false;
+        let mut reset_foreground = false;
+        let mut reset = false;
+
+        if let Some(bg) = style.background_color {
+            execute_fmt(f, SetBackgroundColor(bg)).map_err(|_| fmt::Error)?;
+            reset_background = true;
+        }
+        if let Some(fg) = style.foreground_color {
+            execute_fmt(f, SetForegroundColor(fg)).map_err(|_| fmt::Error)?;
+            reset_foreground = true;
+        }
+        if let Some(ul) = style.underline_color {
+            execute_fmt(f, SetUnderlineColor(ul)).map_err(|_| fmt::Error)?;
+            reset_foreground = true;
+        }
+
+        if !style.attributes.is_empty() {
+            execute_fmt(f, SetAttributes(style.attributes)).map_err(|_| fmt::Error)?;
+            reset = true;
+        }
+
+        write!(f, "{}", self.0.content())?;
+
+        if reset {
+            // NOTE: This will reset colors even though self has no colors, hence produce unexpected
+            // resets.
+            // TODO: reset the set attributes only.
+            execute_fmt(f, ResetColor).map_err(|_| fmt::Error)?;
+        } else {
+            // NOTE: Since the above bug, we do not need to reset colors when we reset attributes.
+            if reset_background {
+                execute_fmt(f, SetBackgroundColor(Color::Reset)).map_err(|_| fmt::Error)?;
+            }
+            if reset_foreground {
+                execute_fmt(f, SetForegroundColor(Color::Reset)).map_err(|_| fmt::Error)?;
+            }
+        }
+
+        Ok(())
+    }
+}
+impl<D: Display> Command for &PrintStyledContent<D> {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        let style = self.0.style();
+
+        let mut reset_background = false;
+        let mut reset_foreground = false;
+        let mut reset = false;
+
+        if let Some(bg) = style.background_color {
+            execute_fmt(f, SetBackgroundColor(bg)).map_err(|_| fmt::Error)?;
+            reset_background = true;
+        }
+        if let Some(fg) = style.foreground_color {
+            execute_fmt(f, SetForegroundColor(fg)).map_err(|_| fmt::Error)?;
+            reset_foreground = true;
+        }
+        if let Some(ul) = style.underline_color {
+            execute_fmt(f, SetUnderlineColor(ul)).map_err(|_| fmt::Error)?;
+            reset_foreground = true;
+        }
+
+        if !style.attributes.is_empty() {
+            execute_fmt(f, SetAttributes(style.attributes)).map_err(|_| fmt::Error)?;
+            reset = true;
+        }
+
+        write!(f, "{}", self.0.content())?;
+
+        if reset {
+            // NOTE: This will reset colors even though self has no colors, hence produce unexpected
+            // resets.
+            // TODO: reset the set attributes only.
+            execute_fmt(f, ResetColor).map_err(|_| fmt::Error)?;
+        } else {
+            // NOTE: Since the above bug, we do not need to reset colors when we reset attributes.
+            if reset_background {
+                execute_fmt(f, SetBackgroundColor(Color::Reset)).map_err(|_| fmt::Error)?;
+            }
+            if reset_foreground {
+                execute_fmt(f, SetForegroundColor(Color::Reset)).map_err(|_| fmt::Error)?;
+            }
+        }
+
+        Ok(())
+    }
+}
+
+/// A command that resets the colors back to default.
+///
+/// # Notes
+///
+/// Commands must be queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ResetColor;
+
+impl Command for ResetColor {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        f.write_str(csi!("0m"))
+    }
+}
+impl Command for &ResetColor {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        f.write_str(csi!("0m"))
+    }
+}
+
+/// A command that prints the given displayable type.
+///
+/// Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Print<T: Display>(pub T);
+
+impl<T: Display> Command for Print<T> {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl<T: Display> Display for Print<T> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.0.fmt(f)
+    }
+}
+
+impl_display!(for SetForegroundColor);
+impl_display!(for SetBackgroundColor);
+impl_display!(for SetColors);
+impl_display!(for SetAttribute);
+impl_display!(for PrintStyledContent<String>);
+impl_display!(for PrintStyledContent<&'static str>);
+impl_display!(for ResetColor);
+
+/// Utility function for ANSI parsing in Color and Colored.
+/// Gets the next element of `iter` and tries to parse it as a `u8`.
+pub fn parse_next_u8<'a>(iter: &mut impl Iterator<Item = &'a str>) -> Option<u8> {
+    iter.next().and_then(|s| s.parse().ok())
 }
 
 #[cfg(test)]

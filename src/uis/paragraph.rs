@@ -7,7 +7,7 @@ use super::{
 use crate::{
     buffer::Buffer,
     layout::{Alignment, Geometry},
-    styles::{Style, Styled},
+    style::{Style, Styled},
     text::{StyledGrapheme, Text},
     widget::Widget,
 };

@@ -1,13 +1,13 @@
 use crate::{
     buffer::Buffer,
     core::cursor::MoveTo,
-    core::style::{
-        Attribute as CAttribute, Color, Print, SetAttribute, SetBackgroundColor,
-        SetForegroundColor, SetUnderlineColor,
-    },
     frame::Frame,
     layout::Geometry,
     queue,
+    style::{
+        Attribute as CAttribute, Color, Print, SetAttribute, SetBackgroundColor,
+        SetForegroundColor, SetUnderlineColor,
+    },
 };
 
 use std::io::{self, Write};

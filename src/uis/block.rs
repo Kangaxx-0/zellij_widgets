@@ -10,7 +10,7 @@ use strum::{Display, EnumString};
 use crate::{
     buffer::Buffer,
     layout::{Alignment, Geometry},
-    styles::{Style, Styled},
+    style::{Style, Styled},
     symbols::border,
     title::{Position, Title},
     widget::{Borders, Widget},
@@ -769,9 +769,8 @@ impl<'a> Styled for Block<'a> {
 mod tests {
     use super::*;
     use crate::{
-        core::style::Color,
         layout::Geometry,
-        styles::{Modifier, Stylize},
+        style::{Color, Modifier, Stylize},
     };
 
     #[test]

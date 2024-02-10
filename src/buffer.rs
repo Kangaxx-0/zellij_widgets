@@ -7,9 +7,8 @@ use unicode_segmentation::UnicodeSegmentation;
 use unicode_width::UnicodeWidthStr;
 
 use crate::{
-    core::style::Color,
     layout::Geometry,
-    styles::{Modifier, Style},
+    style::{Color, Modifier, Style},
     text::{Line, Span},
 };
 
@@ -488,7 +487,7 @@ mod tests {
 
     #[test]
     fn with_lines_accepts_into_lines() {
-        use crate::styles::Stylize;
+        use crate::style::Stylize;
         let mut buf = Buffer::empty(Geometry::new(2, 3));
         buf.set_string(0, 0, "foo", Style::new().red());
         buf.set_string(0, 1, "bar", Style::new().blue());

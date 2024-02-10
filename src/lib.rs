@@ -5,7 +5,7 @@ mod widget;
 
 pub mod core;
 pub mod layout;
-pub mod styles;
+pub mod style;
 pub mod symbols;
 pub mod text;
 pub mod title;
