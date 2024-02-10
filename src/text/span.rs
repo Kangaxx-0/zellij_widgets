@@ -1,7 +1,4 @@
-use std::{
-    borrow::Cow,
-    fmt::{Debug, Display},
-};
+use std::{borrow::Cow, fmt::Debug};
 
 use unicode_segmentation::UnicodeSegmentation;
 use unicode_width::UnicodeWidthStr;

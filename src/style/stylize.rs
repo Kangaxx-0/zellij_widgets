@@ -1,3 +1,4 @@
+#![allow(unused_imports)]
 use super::{modifier::Modifier, Color, Style, Styled};
 use crate::text::Span;
 use paste::paste;
