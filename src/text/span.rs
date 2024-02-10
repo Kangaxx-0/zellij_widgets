@@ -1,4 +1,7 @@
-use std::{borrow::Cow, fmt::Debug};
+use std::{
+    borrow::Cow,
+    fmt::{Debug, Display},
+};
 
 use unicode_segmentation::UnicodeSegmentation;
 use unicode_width::UnicodeWidthStr;
@@ -58,6 +61,12 @@ pub struct Span<'a> {
     pub content: Cow<'a, str>,
     /// The style of the span.
     pub style: Style,
+}
+
+impl<'a> Display for Span<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        todo!()
+    }
 }
 
 impl<'a> Span<'a> {

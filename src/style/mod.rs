@@ -319,50 +319,6 @@ impl Style {
 
 // #################################################
 
-/// Creates a `StyledContent`.
-///
-/// This could be used to style any type that implements `Display` with colors and text attributes.
-///
-/// See [`StyledContent`](struct.StyledContent.html) for more info.
-///
-/// # Examples
-///
-/// ```no_run
-///  use zellij_widgets::core::style::{style, Color, Stylize};
-///
-/// let styled_content = style("Blue colored text on yellow background")
-///     .with(Color::Blue)
-///     .on(Color::Yellow);
-///
-/// println!("{}", styled_content);
-/// ```
-pub fn style<D: Display>(val: D) -> StyledContent<D> {
-    ContentStyle::new().apply(val)
-}
-
-/// Returns available color count.
-///
-/// # Notes
-///
-/// This does not always provide a good result.
-pub fn available_color_count() -> u16 {
-    env::var("TERM")
-        .map(|x| if x.contains("256color") { 256 } else { 8 })
-        .unwrap_or(8)
-}
-
-/// Forces colored output on or off globally, overriding NO_COLOR.
-///
-/// # Notes
-///
-/// zellij_widgets supports [NO_COLOR](https://no-color.org/) to disabled colored output.
-///
-/// This API allows applications to override that behavior and force colorized output
-/// even if NO_COLOR is set.
-pub fn force_color_output(enabled: bool) {
-    Colored::set_ansi_color_disabled(!enabled)
-}
-
 /// A command that sets the the foreground color.
 ///
 /// See [`Color`](enum.Color.html) for more info.

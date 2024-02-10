@@ -43,24 +43,13 @@ macro_rules! Attribute {
         /// Basic usage:
         ///
         /// ```no_run
-        /// use zellij_widgets::core::style::Attribute;
+        /// use zellij_widgets::style::Attribute;
         ///
         /// println!(
         ///     "{} Underlined {} No Underline",
         ///     Attribute::Underlined,
         ///     Attribute::NoUnderline
         /// );
-        /// ```
-        ///
-        /// Style existing text:
-        ///
-        /// ```no_run
-        /// use zellij_widgets::core::style::Stylize;
-        ///
-        /// println!("{}", "Bold text".bold());
-        /// println!("{}", "Underlined text".underlined());
-        /// println!("{}", "Negative text".negative());
-        /// ```
         #[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd, Hash)]
         #[non_exhaustive]
         pub enum Attribute {

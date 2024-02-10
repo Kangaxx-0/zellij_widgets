@@ -5,19 +5,6 @@ use std::fmt::{self, Display, Formatter};
 use super::{ContentStyle, PrintStyledContent};
 
 /// The style with the content to be styled.
-///
-/// # Examples
-///
-/// ```rust
-/// use zellij_widgets::core::style::{style, Color, Attribute, Stylize};
-///
-/// let styled = "Hello there"
-///     .with(Color::Yellow)
-///     .on(Color::Blue)
-///     .attribute(Attribute::Bold);
-///
-/// println!("{}", styled);
-/// ```
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub struct StyledContent<D: Display> {
     /// The style (colors, content attributes).
