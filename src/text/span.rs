@@ -63,12 +63,6 @@ pub struct Span<'a> {
     pub style: Style,
 }
 
-impl<'a> Display for Span<'a> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        todo!()
-    }
-}
-
 impl<'a> Span<'a> {
     /// Create a span with the default style.
     ///

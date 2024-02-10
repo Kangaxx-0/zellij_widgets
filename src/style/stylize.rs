@@ -1,4 +1,5 @@
 use super::{modifier::Modifier, Color, Style, Styled};
+use crate::text::Span;
 use paste::paste;
 
 /// Generates two methods for each color, one for setting the foreground color (`red()`, `blue()`,

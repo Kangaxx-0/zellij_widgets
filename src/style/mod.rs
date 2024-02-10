@@ -1,8 +1,5 @@
 use crate::text::Span;
-use std::{
-    env,
-    fmt::{self, Debug, Display},
-};
+use std::fmt::{self, Debug, Display};
 
 use crate::{
     core::command::{execute_fmt, Command},
