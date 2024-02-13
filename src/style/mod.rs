@@ -314,9 +314,7 @@ impl Style {
     }
 }
 
-// #################################################
-
-/// A command that sets the the foreground color.
+/// A command that sets the foreground color with ANSI code directly.
 ///
 /// See [`Color`](enum.Color.html) for more info.
 ///
@@ -341,7 +339,7 @@ impl Command for &SetForegroundColor {
     }
 }
 
-/// A command that sets the the background color.
+/// A command that sets the background color with ANSI code directly.
 ///
 /// See [`Color`](enum.Color.html) for more info.
 ///
@@ -366,7 +364,7 @@ impl Command for &SetBackgroundColor {
     }
 }
 
-/// A command that sets the the underline color.
+/// A command that sets the underline color with ANSI code directly.
 ///
 /// See [`Color`](enum.Color.html) for more info.
 ///
@@ -391,39 +389,7 @@ impl Command for &SetUnderlineColor {
     }
 }
 
-/// A command that optionally sets the foreground and/or background color.
-///
-/// # Notes
-///
-/// Commands must be queued for execution otherwise they do nothing.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct SetColors(pub Colors);
-
-impl Command for SetColors {
-    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        if let Some(color) = self.0.foreground {
-            SetForegroundColor(color).write_ansi(f)?;
-        }
-        if let Some(color) = self.0.background {
-            SetBackgroundColor(color).write_ansi(f)?;
-        }
-        Ok(())
-    }
-}
-
-impl Command for &SetColors {
-    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        if let Some(color) = self.0.foreground {
-            SetForegroundColor(color).write_ansi(f)?;
-        }
-        if let Some(color) = self.0.background {
-            SetBackgroundColor(color).write_ansi(f)?;
-        }
-        Ok(())
-    }
-}
-
-/// A command that sets an attribute.
+/// A command that sets an attribute with ANSI code directly.
 ///
 /// See [`Attribute`](enum.Attribute.html) for more info.
 ///
@@ -662,7 +628,6 @@ impl<T: Display> Display for Print<T> {
 
 impl_display!(for SetForegroundColor);
 impl_display!(for SetBackgroundColor);
-impl_display!(for SetColors);
 impl_display!(for SetAttribute);
 impl_display!(for PrintStyledContent<String>);
 impl_display!(for PrintStyledContent<&'static str>);
