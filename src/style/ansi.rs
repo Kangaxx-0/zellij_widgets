@@ -1,3 +1,8 @@
+//! This module contains commands that are used to control the terminal with ANSI escape codes, and
+//! not accessible from outside the crate.
+//!
+//! It contains commands for setting colors, attributes, and printing text.
+
 use std::fmt::{self, Debug, Display};
 
 use crate::{core::command::Command, csi};
@@ -168,5 +173,58 @@ impl<T: Display> Command for Print<T> {
 impl<T: Display> Display for Print<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         self.0.fmt(f)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_set_foreground_color() {
+        let command = SetForegroundColor(Color::Red);
+        let mut output = String::new();
+        command.write_ansi(&mut output).unwrap();
+        assert_eq!(output, "\x1b[31m");
+    }
+
+    #[test]
+    fn test_set_background_color() {
+        let command = SetBackgroundColor(Color::Blue);
+        let mut output = String::new();
+        command.write_ansi(&mut output).unwrap();
+        assert_eq!(output, "\x1b[44m");
+    }
+
+    #[test]
+    fn test_set_underline_color() {
+        let command = SetUnderlineColor(Color::Green);
+        let mut output = String::new();
+        command.write_ansi(&mut output).unwrap();
+        assert_eq!(output, "\x1b[58m");
+    }
+
+    #[test]
+    fn test_set_attribute() {
+        let command = SetAttribute(Attribute::Bold);
+        let mut output = String::new();
+        command.write_ansi(&mut output).unwrap();
+        assert_eq!(output, "\x1b[1m");
+    }
+
+    #[test]
+    fn test_reset_color() {
+        let command = ResetColor;
+        let mut output = String::new();
+        command.write_ansi(&mut output).unwrap();
+        assert_eq!(output, "\x1b[0m");
+    }
+
+    #[test]
+    fn test_print() {
+        let command = Print("Hello, world!");
+        let mut output = String::new();
+        command.write_ansi(&mut output).unwrap();
+        assert_eq!(output, "Hello, world!");
     }
 }

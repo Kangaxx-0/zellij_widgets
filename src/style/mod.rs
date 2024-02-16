@@ -3,14 +3,15 @@ use std::fmt::Debug;
 use crate::impl_display;
 
 pub use self::{
-    ansi::{
-        Print, ResetColor, SetAttribute, SetBackgroundColor, SetForegroundColor, SetUnderlineColor,
-    },
     attributes::Attributes,
     modifier::Modifier,
     styled::Styled,
     stylize::Stylize,
     types::{Attribute, Color, Colored, Colors},
+};
+
+pub(crate) use self::ansi::{
+    Print, ResetColor, SetAttribute, SetBackgroundColor, SetForegroundColor, SetUnderlineColor,
 };
 
 mod ansi;
