@@ -1,4 +1,3 @@
-use crate::text::Span;
 use std::fmt::{self, Debug, Display};
 
 use crate::{
@@ -10,6 +9,7 @@ pub use self::{
     attributes::Attributes,
     content_style::ContentStyle,
     modifier::Modifier,
+    styled::Styled,
     styled_content::StyledContent,
     stylize::Stylize,
     types::{Attribute, Color, Colored, Colors},
@@ -18,6 +18,7 @@ pub use self::{
 mod attributes;
 mod content_style;
 mod modifier;
+mod styled;
 mod styled_content;
 mod stylize;
 mod types;
@@ -137,54 +138,6 @@ impl From<(Color, Color, Modifier)> for Style {
     /// Creates a new `Style` with the given foreground and background colors and modifier.
     fn from((fg, bg, modifier): (Color, Color, Modifier)) -> Style {
         Style::default().fg(fg).bg(bg).add_modifier(modifier)
-    }
-}
-
-/// A trait for objects that have a `Style`.
-///
-/// This trait enables generic code to be written that can interact with any object that has a
-/// `Style`. This is used by the `Stylize` trait to allow generic code to be written that can
-/// interact with any object that can be styled.
-pub trait Styled {
-    type Item;
-
-    fn style(&self) -> Style;
-    fn set_style(self, style: Style) -> Self::Item;
-}
-
-impl<'a> Styled for &'a str {
-    type Item = Span<'a>;
-
-    fn style(&self) -> Style {
-        Style::default()
-    }
-
-    fn set_style(self, style: Style) -> Self::Item {
-        Span::styled(self, style)
-    }
-}
-
-impl Styled for String {
-    type Item = Span<'static>;
-
-    fn style(&self) -> Style {
-        Style::default()
-    }
-
-    fn set_style(self, style: Style) -> Self::Item {
-        Span::styled(self, style)
-    }
-}
-
-impl Styled for Style {
-    type Item = Style;
-
-    fn style(&self) -> Style {
-        *self
-    }
-
-    fn set_style(self, style: Style) -> Self::Item {
-        self.patch(style)
     }
 }
 
