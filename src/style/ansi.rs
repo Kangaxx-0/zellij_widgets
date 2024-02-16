@@ -1,5 +1,5 @@
-//! This module contains commands that are used to control the terminal with ANSI escape codes, and
-//! not accessible from outside the crate.
+//! This module contains commands that are used to control the terminal with ANSI escape codes, it
+//! is pub(crate) and should not be used directly.
 //!
 //! It contains commands for setting colors, attributes, and printing text.
 
@@ -185,7 +185,7 @@ mod tests {
         let command = SetForegroundColor(Color::Red);
         let mut output = String::new();
         command.write_ansi(&mut output).unwrap();
-        assert_eq!(output, "\x1b[31m");
+        assert_eq!(output, "\x1b[38;5;9m");
     }
 
     #[test]
@@ -193,7 +193,7 @@ mod tests {
         let command = SetBackgroundColor(Color::Blue);
         let mut output = String::new();
         command.write_ansi(&mut output).unwrap();
-        assert_eq!(output, "\x1b[44m");
+        assert_eq!(output, "\x1b[48;5;12m");
     }
 
     #[test]
@@ -201,7 +201,7 @@ mod tests {
         let command = SetUnderlineColor(Color::Green);
         let mut output = String::new();
         command.write_ansi(&mut output).unwrap();
-        assert_eq!(output, "\x1b[58m");
+        assert_eq!(output, "\x1b[58;5;10m");
     }
 
     #[test]
