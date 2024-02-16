@@ -7,7 +7,7 @@ pub use self::{
     modifier::Modifier,
     styled::Styled,
     stylize::Stylize,
-    types::{Attribute, Color, Colored, Colors},
+    types::{Attribute, Color, Colored},
 };
 
 pub(crate) use self::ansi::{
