@@ -1,9 +1,7 @@
-use zellij_widgets::prelude::*;
-
 use itertools::Itertools;
-
 use std::collections::BTreeMap;
 use zellij_tile::prelude::*;
+use zellij_widgets::prelude::*;
 
 #[derive(Default, Clone)]
 struct State {

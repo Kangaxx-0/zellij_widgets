@@ -74,7 +74,7 @@ impl Colored {
             .is_empty()
     }
 
-    pub fn ansi_color_disabled_memoized() -> bool {
+    pub fn ansi_color_disabled_memorized() -> bool {
         INITIALIZER.call_once(|| {
             ANSI_COLOR_DISABLED.store(Self::ansi_color_disabled(), Ordering::SeqCst);
         });
@@ -84,7 +84,7 @@ impl Colored {
 
     pub fn set_ansi_color_disabled(val: bool) {
         // Force the one-time initializer to run.
-        _ = Self::ansi_color_disabled_memoized();
+        _ = Self::ansi_color_disabled_memorized();
         ANSI_COLOR_DISABLED.store(val, Ordering::SeqCst);
     }
 }
@@ -93,7 +93,7 @@ impl fmt::Display for Colored {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let color;
 
-        if Self::ansi_color_disabled_memoized() {
+        if Self::ansi_color_disabled_memorized() {
             return Ok(());
         }
 
