@@ -1,5 +1,6 @@
-use super::super::SetAttribute;
 use std::fmt::Display;
+
+use super::SetAttribute;
 
 // This macro generates the Attribute enum, its iterator
 // function, and the static array containing the sgr code

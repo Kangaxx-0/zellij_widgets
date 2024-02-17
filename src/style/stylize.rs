@@ -1,7 +1,8 @@
 #![allow(unused_imports)]
+use paste::paste;
+
 use super::{modifier::Modifier, Color, Style, Styled};
 use crate::text::Span;
-use paste::paste;
 
 /// Generates two methods for each color, one for setting the foreground color (`red()`, `blue()`,
 /// etc) and one for setting the background color (`on_red()`, `on_blue()`, etc.). Each method sets
