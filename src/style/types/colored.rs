@@ -1,9 +1,10 @@
-use super::super::parse_next_u8;
-use super::Color;
-use parking_lot::Once;
 use std::fmt::{self, Formatter};
 use std::sync::atomic::{AtomicBool, Ordering};
 
+use parking_lot::Once;
+
+use super::parse_next_u8;
+use super::Color;
 /// Represents a foreground or background color.
 ///
 /// This can be converted to a [Colors](struct.Colors.html) by calling `into()` and applied

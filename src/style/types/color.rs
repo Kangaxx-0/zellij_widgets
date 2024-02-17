@@ -1,9 +1,10 @@
-use super::super::parse_next_u8;
 use std::{
     convert::{AsRef, TryFrom},
     fmt::{Display, Formatter},
     str::FromStr,
 };
+
+use super::parse_next_u8;
 
 /// Represents a color.
 ///
