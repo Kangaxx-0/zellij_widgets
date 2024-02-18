@@ -12,7 +12,6 @@ pub(crate) struct Button<'a> {
 pub(crate) enum ButtonState {
     Normal,
     Selected,
-    Active,
 }
 
 #[derive(Debug, Clone, Copy)]

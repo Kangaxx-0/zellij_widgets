@@ -1,7 +1,6 @@
-use itertools::Itertools;
 use std::collections::BTreeMap;
-use zellij_tile::prelude::*;
 
+use zellij_tile::prelude::*;
 use zellij_widgets::prelude::{Style, *};
 
 use component::{Button, ButtonState, BLUE, GREEN, RED};
@@ -12,6 +11,8 @@ mod component;
 struct State {
     is_loading: bool,
     pressed_key: char,
+    buttons: Vec<ButtonState>,
+    selected_button: usize,
 }
 
 register_plugin!(State);
@@ -28,6 +29,12 @@ impl ZellijPlugin for State {
             EventType::ModeUpdate,
         ]);
         self.is_loading = true;
+        self.buttons = vec![
+            ButtonState::Selected,
+            ButtonState::Normal,
+            ButtonState::Normal,
+        ];
+        self.selected_button = 0;
     }
 
     fn update(&mut self, event: Event) -> bool {
@@ -39,24 +46,15 @@ impl ZellijPlugin for State {
 
     fn render(&mut self, rows: usize, cols: usize) {
         // setup terminal
-        let mut stdout = std::io::stdout();
+        let stdout = std::io::stdout();
 
         // setup terminal pane
         let mut pane = PluginPane::new(stdout, rows as u16, cols as u16);
-        let mut selected_button: usize = 0;
-        let button_states = &[
-            ButtonState::Selected,
-            ButtonState::Normal,
-            ButtonState::Normal,
-        ];
 
         // draw the UI
-        match self.pressed_key {
-            'c' => {
-                // no loop for testing
-                let _ = pane.draw(|frame| ui(frame, button_states));
-            }
-            _ => {}
+        if self.pressed_key == 'c' {
+            // no loop for testing
+            let _ = pane.draw(|frame| ui(frame, &self.buttons));
         }
     }
 }
@@ -64,7 +62,18 @@ impl ZellijPlugin for State {
 impl State {
     fn handle_key(&mut self, e: Key) {
         match e {
-            Key::Char(c) => self.pressed_key = c,
+            Key::Char(c) if c == 'c' => self.pressed_key = c,
+            Key::Char('q') => hide_self(),
+            Key::Right => {
+                self.buttons[self.selected_button] = ButtonState::Normal;
+                self.selected_button = self.selected_button.saturating_add(1).min(2);
+                self.buttons[self.selected_button] = ButtonState::Selected;
+            }
+            Key::Left => {
+                self.buttons[self.selected_button] = ButtonState::Normal;
+                self.selected_button = self.selected_button.saturating_sub(1);
+                self.buttons[self.selected_button] = ButtonState::Selected;
+            }
             _ => {}
         }
     }
@@ -109,12 +118,11 @@ impl Button<'_> {
         match self.state {
             ButtonState::Normal => (theme.background, theme.text, theme.shadow, theme.highlight),
             ButtonState::Selected => (theme.highlight, theme.text, theme.shadow, theme.highlight),
-            ButtonState::Active => (theme.background, theme.text, theme.highlight, theme.shadow),
         }
     }
 }
 
-fn ui(frame: &mut Frame, states: &[ButtonState; 3]) {
+fn ui(frame: &mut Frame, states: &[ButtonState]) {
     let layout = Layout::default()
         .direction(Orientation::Vertical)
         .constraints([
@@ -135,7 +143,8 @@ fn ui(frame: &mut Frame, states: &[ButtonState; 3]) {
     );
 }
 
-fn render_buttons(frame: &mut Frame<'_>, area: Geometry, states: &[ButtonState; 3]) {
+fn render_buttons(frame: &mut Frame<'_>, area: Geometry, states: &[ButtonState]) {
+    assert!(states.len() == 3, "This example only supports 3 buttons");
     let layout = Layout::default()
         .direction(Orientation::Horizontal)
         .constraints([
@@ -152,65 +161,3 @@ fn render_buttons(frame: &mut Frame<'_>, area: Geometry, states: &[ButtonState; 
     );
     frame.render_widget(Button::new("Blue").theme(BLUE).state(states[2]), layout[2]);
 }
-
-// fn handle_key_event(
-//     key: event::KeyEvent,
-//     button_states: &mut [State; 3],
-//     selected_button: &mut usize,
-// ) -> ControlFlow<()> {
-//     match key.code {
-//         KeyCode::Char('q') => return ControlFlow::Break(()),
-//         KeyCode::Left | KeyCode::Char('h') => {
-//             button_states[*selected_button] = State::Normal;
-//             *selected_button = selected_button.saturating_sub(1);
-//             button_states[*selected_button] = State::Selected;
-//         }
-//         KeyCode::Right | KeyCode::Char('l') => {
-//             button_states[*selected_button] = State::Normal;
-//             *selected_button = selected_button.saturating_add(1).min(2);
-//             button_states[*selected_button] = State::Selected;
-//         }
-//         KeyCode::Char(' ') => {
-//             if button_states[*selected_button] == State::Active {
-//                 button_states[*selected_button] = State::Normal;
-//             } else {
-//                 button_states[*selected_button] = State::Active;
-//             }
-//         }
-//         _ => (),
-//     }
-//     ControlFlow::Continue(())
-// }
-
-// fn handle_mouse_event(
-//     mouse: MouseEvent,
-//     button_states: &mut [State; 3],
-//     selected_button: &mut usize,
-// ) {
-//     match mouse.kind {
-//         MouseEventKind::Moved => {
-//             let old_selected_button = *selected_button;
-//             *selected_button = match mouse.column {
-//                 x if x < 15 => 0,
-//                 x if x < 30 => 1,
-//                 _ => 2,
-//             };
-//             if old_selected_button != *selected_button {
-//                 if button_states[old_selected_button] != State::Active {
-//                     button_states[old_selected_button] = State::Normal;
-//                 }
-//                 if button_states[*selected_button] != State::Active {
-//                     button_states[*selected_button] = State::Selected;
-//                 }
-//             }
-//         }
-//         MouseEventKind::Down(MouseButton::Left) => {
-//             if button_states[*selected_button] == State::Active {
-//                 button_states[*selected_button] = State::Normal;
-//             } else {
-//                 button_states[*selected_button] = State::Active;
-//             }
-//         }
-//         _ => (),
-//     }
-// }
