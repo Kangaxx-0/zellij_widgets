@@ -92,6 +92,52 @@ pub const GREEN: Theme = Theme {
     },
 };
 
+pub const ORANGE: Theme = Theme {
+    text: Color::Rgb {
+        r: 48,
+        g: 32,
+        b: 16,
+    },
+    background: Color::Rgb {
+        r: 144,
+        g: 96,
+        b: 48,
+    },
+    highlight: Color::Rgb {
+        r: 192,
+        g: 128,
+        b: 64,
+    },
+    shadow: Color::Rgb {
+        r: 96,
+        g: 64,
+        b: 32,
+    },
+};
+
+pub const PURPLE: Theme = Theme {
+    text: Color::Rgb {
+        r: 48,
+        g: 16,
+        b: 48,
+    },
+    background: Color::Rgb {
+        r: 144,
+        g: 48,
+        b: 144,
+    },
+    highlight: Color::Rgb {
+        r: 192,
+        g: 64,
+        b: 192,
+    },
+    shadow: Color::Rgb {
+        r: 96,
+        g: 32,
+        b: 96,
+    },
+};
+
 /// A button with a label that can be themed.
 impl<'a> Button<'a> {
     pub fn new<T: Into<Line<'a>>>(label: T) -> Button<'a> {

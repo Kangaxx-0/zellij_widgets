@@ -3,7 +3,7 @@ use std::collections::BTreeMap;
 use zellij_tile::prelude::*;
 use zellij_widgets::prelude::{Style, *};
 
-use component::{Button, ButtonState, BLUE, GREEN, RED};
+use component::{Button, ButtonState, BLUE, GREEN, ORANGE, PURPLE, RED};
 
 mod component;
 
@@ -33,6 +33,8 @@ impl ZellijPlugin for State {
             ButtonState::Selected,
             ButtonState::Normal,
             ButtonState::Normal,
+            ButtonState::Normal,
+            ButtonState::Normal,
         ];
         self.selected_button = 0;
     }
@@ -54,7 +56,7 @@ impl ZellijPlugin for State {
         // draw the UI
         if self.pressed_key == 'c' {
             // no loop for testing
-            let _ = pane.draw(|frame| ui(frame, &self.buttons));
+            let _ = pane.draw(|frame| ui(frame, self.selected_button, &self.buttons));
         }
     }
 }
@@ -66,12 +68,14 @@ impl State {
             Key::Char('q') => hide_self(),
             Key::Right => {
                 self.buttons[self.selected_button] = ButtonState::Normal;
-                self.selected_button = self.selected_button.saturating_add(1).min(2);
+                self.selected_button = self.selected_button.saturating_add(1) % self.buttons.len();
                 self.buttons[self.selected_button] = ButtonState::Selected;
             }
             Key::Left => {
                 self.buttons[self.selected_button] = ButtonState::Normal;
-                self.selected_button = self.selected_button.saturating_sub(1);
+                self.selected_button =
+                    (self.selected_button.saturating_sub(1) + self.buttons.len() - 1)
+                        % self.buttons.len();
                 self.buttons[self.selected_button] = ButtonState::Selected;
             }
             _ => {}
@@ -122,12 +126,13 @@ impl Button<'_> {
     }
 }
 
-fn ui(frame: &mut Frame, states: &[ButtonState]) {
+fn ui(frame: &mut Frame, index: usize, states: &[ButtonState]) {
     let layout = Layout::default()
         .direction(Orientation::Vertical)
         .constraints([
             Constraint::Length(1),
-            Constraint::Max(3),
+            Constraint::Max(5),
+            Constraint::Ratio(1, 3),
             Constraint::Length(1),
             Constraint::Min(0), // ignore remaining space
         ])
@@ -137,20 +142,42 @@ fn ui(frame: &mut Frame, states: &[ButtonState]) {
         layout[0],
     );
     render_buttons(frame, layout[1], states);
+    render_block(frame, layout[2], index);
     frame.render_widget(
         Paragraph::new("←/→: select, Space: toggle, q: quit"),
-        layout[2],
+        layout[3],
     );
 }
 
+fn render_block(frame: &mut Frame<'_>, area: Geometry, index: usize) {
+    let block = Block::default()
+        .title("Block")
+        .title_alignment(Alignment::Center)
+        .borders(Borders::ALL);
+    let text = format!(
+        "The picked button is {}",
+        match index {
+            0 => "Red",
+            1 => "Green",
+            2 => "Blue",
+            3 => "Orange",
+            4 => "Purple",
+            _ => "None",
+        }
+    );
+    frame.render_widget(Paragraph::new(text).block(block), area);
+}
+
 fn render_buttons(frame: &mut Frame<'_>, area: Geometry, states: &[ButtonState]) {
-    assert!(states.len() == 3, "This example only supports 3 buttons");
+    assert!(states.len() == 5, "This example only supports 3 buttons");
     let layout = Layout::default()
         .direction(Orientation::Horizontal)
         .constraints([
-            Constraint::Length(15),
-            Constraint::Length(15),
-            Constraint::Length(15),
+            Constraint::Percentage(20),
+            Constraint::Percentage(20),
+            Constraint::Percentage(20),
+            Constraint::Percentage(20),
+            Constraint::Percentage(20),
             Constraint::Min(0), // ignore remaining space
         ])
         .split(area);
@@ -160,4 +187,12 @@ fn render_buttons(frame: &mut Frame<'_>, area: Geometry, states: &[ButtonState])
         layout[1],
     );
     frame.render_widget(Button::new("Blue").theme(BLUE).state(states[2]), layout[2]);
+    frame.render_widget(
+        Button::new("Orange").theme(ORANGE).state(states[2]),
+        layout[3],
+    );
+    frame.render_widget(
+        Button::new("Purple").theme(PURPLE).state(states[2]),
+        layout[4],
+    );
 }
