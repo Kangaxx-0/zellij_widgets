@@ -1,9 +1,12 @@
 use itertools::Itertools;
 use std::collections::BTreeMap;
 use zellij_tile::prelude::*;
-use zellij_widgets::prelude::*;
 
-use zellij_widgets::prelude::Style;
+use zellij_widgets::prelude::{Style, *};
+
+use component::{Button, ButtonState, BLUE, GREEN, RED};
+
+mod component;
 
 #[derive(Default, Clone)]
 struct State {
@@ -48,7 +51,6 @@ impl ZellijPlugin for State {
         ];
 
         // draw the UI
-
         match self.pressed_key {
             'c' => {
                 // no loop for testing
@@ -59,145 +61,12 @@ impl ZellijPlugin for State {
     }
 }
 
-// fn ui(frame: &mut Frame) {
-//     let (title_area, layout) = calculate_layout(frame.size());
-//
-//     render_title(frame, title_area);
-//
-//     //Render blocks
-//     render_borders(frame, Borders::ALL, layout[0][0]);
-//     render_borders(frame, Borders::NONE, layout[0][1]);
-//     render_borders(frame, Borders::LEFT, layout[1][0]);
-//     render_borders(frame, Borders::RIGHT, layout[1][1]);
-//     render_borders(frame, Borders::TOP, layout[2][0]);
-//     render_borders(frame, Borders::BOTTOM, layout[2][1]);
-//
-//     render_border_type(frame, BorderType::Plain, layout[3][0]);
-//     render_border_type(frame, BorderType::Thick, layout[3][1]);
-//     render_border_type(frame, BorderType::Double, layout[4][0]);
-//     render_border_type(frame, BorderType::Rounded, layout[4][1]);
-// }
-
 impl State {
     fn handle_key(&mut self, e: Key) {
         match e {
             Key::Char(c) => self.pressed_key = c,
             _ => {}
         }
-    }
-}
-
-/// A custom widget that renders a button with a label, theme and state.
-#[derive(Debug, Clone)]
-struct Button<'a> {
-    label: Line<'a>,
-    theme: Theme,
-    state: ButtonState,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum ButtonState {
-    Normal,
-    Selected,
-    Active,
-}
-
-#[derive(Debug, Clone, Copy)]
-struct Theme {
-    text: Color,
-    background: Color,
-    highlight: Color,
-    shadow: Color,
-}
-
-const BLUE: Theme = Theme {
-    text: Color::Rgb {
-        r: 16,
-        g: 48,
-        b: 48,
-    },
-    background: Color::Rgb {
-        r: 48,
-        g: 144,
-        b: 144,
-    },
-    highlight: Color::Rgb {
-        r: 64,
-        g: 192,
-        b: 192,
-    },
-    shadow: Color::Rgb {
-        r: 32,
-        g: 96,
-        b: 96,
-    },
-};
-
-const RED: Theme = Theme {
-    text: Color::Rgb {
-        r: 48,
-        g: 16,
-        b: 16,
-    },
-
-    background: Color::Rgb {
-        r: 144,
-        g: 48,
-        b: 48,
-    },
-    highlight: Color::Rgb {
-        r: 192,
-        g: 64,
-        b: 64,
-    },
-    shadow: Color::Rgb {
-        r: 96,
-        g: 32,
-        b: 32,
-    },
-};
-
-const GREEN: Theme = Theme {
-    text: Color::Rgb {
-        r: 16,
-        g: 48,
-        b: 16,
-    },
-    background: Color::Rgb {
-        r: 48,
-        g: 144,
-        b: 48,
-    },
-    highlight: Color::Rgb {
-        r: 64,
-        g: 192,
-        b: 64,
-    },
-    shadow: Color::Rgb {
-        r: 32,
-        g: 96,
-        b: 32,
-    },
-};
-
-/// A button with a label that can be themed.
-impl<'a> Button<'a> {
-    pub fn new<T: Into<Line<'a>>>(label: T) -> Button<'a> {
-        Button {
-            label: label.into(),
-            theme: BLUE,
-            state: ButtonState::Normal,
-        }
-    }
-
-    pub fn theme(mut self, theme: Theme) -> Button<'a> {
-        self.theme = theme;
-        self
-    }
-
-    pub fn state(mut self, state: ButtonState) -> Button<'a> {
-        self.state = state;
-        self
     }
 }
 
@@ -244,30 +113,6 @@ impl Button<'_> {
         }
     }
 }
-
-// fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> io::Result<()> {
-//     let mut selected_button: usize = 0;
-//     let button_states = &mut [State::Selected, State::Normal, State::Normal];
-//     loop {
-//         terminal.draw(|frame| ui(frame, button_states))?;
-//         if !event::poll(Duration::from_millis(100))? {
-//             continue;
-//         }
-//         match event::read()? {
-//             Event::Key(key) => {
-//                 if key.kind != event::KeyEventKind::Press {
-//                     continue;
-//                 }
-//                 if handle_key_event(key, button_states, &mut selected_button).is_break() {
-//                     break;
-//                 }
-//             }
-//             Event::Mouse(mouse) => handle_mouse_event(mouse, button_states, &mut selected_button),
-//             _ => (),
-//         }
-//     }
-//     Ok(())
-// }
 
 fn ui(frame: &mut Frame, states: &[ButtonState; 3]) {
     let layout = Layout::default()
