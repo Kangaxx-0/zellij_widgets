@@ -211,7 +211,7 @@ impl<'a> Widget for Button<'a> {
             buf.set_string(
                 area.x,
                 area.y,
-                "╬ô├╗├╢".repeat(area.cols as usize),
+                "▔".repeat(area.cols as usize),
                 Style::new().fg(highlight).bg(background),
             );
         }
@@ -220,7 +220,7 @@ impl<'a> Widget for Button<'a> {
             buf.set_string(
                 area.x,
                 area.y + area.rows - 1,
-                "╬ô├╗├╝".repeat(area.cols as usize),
+                "▁".repeat(area.cols as usize),
                 Style::new().fg(shadow).bg(background),
             );
         }
@@ -285,7 +285,7 @@ fn ui(frame: &mut Frame, states: &[ButtonState; 3]) {
     );
     render_buttons(frame, layout[1], states);
     frame.render_widget(
-        Paragraph::new("╬ô├Ñ├ë/╬ô├Ñ├å: select, Space: toggle, q: quit"),
+        Paragraph::new("←/→: select, Space: toggle, q: quit"),
         layout[2],
     );
 }
