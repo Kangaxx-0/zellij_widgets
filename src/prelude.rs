@@ -11,7 +11,7 @@ pub use crate::{
     uis::{
         self,
         paragraph::{Paragraph, Wrap},
-        Block, BorderType, Padding,
+        Block, BorderType, Erase, Padding,
     },
     widget::{Borders, Widget},
 };
