@@ -11,7 +11,8 @@ pub struct Geometry {
 }
 
 impl Geometry {
-    /// Initialize a Geometry with x=0
+    /// Initialize a Geometry with x=0, y=0,
+    /// this works with the assumption in regard to the zellij host
     pub fn new(rows: u16, cols: u16) -> Self {
         Self::init(0, 0, rows, cols)
     }
