@@ -137,6 +137,11 @@ fn ui(frame: &mut Frame, index: usize, states: &[ButtonState]) {
             Constraint::Min(0), // ignore remaining space
         ])
         .split(frame.size());
+
+    let hint_line = Line::styled(
+        "←/→: select, Space: toggle, q: quit",
+        Style::default().add_modifier(Modifier::RAPID_BLINK),
+    );
     frame.render_widget(
         Paragraph::new("Custom Widget Example (mouse enabled)"),
         layout[0],
@@ -144,14 +149,17 @@ fn ui(frame: &mut Frame, index: usize, states: &[ButtonState]) {
     render_buttons(frame, layout[1], states);
     render_block(frame, layout[2], index);
     frame.render_widget(
-        Paragraph::new("←/→: select, Space: toggle, q: quit"),
+        Paragraph::new(hint_line).alignment(Alignment::Center),
         layout[3],
     );
 }
 
 fn render_block(frame: &mut Frame<'_>, area: Geometry, index: usize) {
     let block = Block::default()
-        .title("Block")
+        .title(Span::styled(
+            "Block",
+            Style::default().add_modifier(Modifier::ITALIC),
+        ))
         .title_alignment(Alignment::Center)
         .borders(Borders::ALL);
     let text = format!(
