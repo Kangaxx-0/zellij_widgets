@@ -7,6 +7,7 @@ use zellij_widgets::prelude::{Style as WStyle, *};
 struct State {
     is_loading: bool,
     pressed_key: char,
+    is_popup: bool,
 }
 
 register_plugin!(State);
@@ -23,6 +24,7 @@ impl ZellijPlugin for State {
             EventType::ModeUpdate,
         ]);
         self.is_loading = true;
+        self.is_popup = false;
     }
 
     fn update(&mut self, event: Event) -> bool {
@@ -37,16 +39,16 @@ impl ZellijPlugin for State {
         let mut pane = PluginPane::new(stdout, rows as u16, cols as u16);
 
         match self.pressed_key {
-            'c' => {
+            'c' | 'p' => {
                 // no loop for testing
-                let _ = pane.draw(ui);
+                let _ = pane.draw(|frame| ui(frame, self.is_popup));
             }
             _ => {}
         }
     }
 }
 
-fn ui(frame: &mut Frame) {
+fn ui(frame: &mut Frame, is_popup: bool) {
     let layouts = Layout::default()
         .direction(Orientation::Vertical)
         .constraints([Constraint::Percentage(15), Constraint::Percentage(85)].as_ref())
@@ -54,12 +56,17 @@ fn ui(frame: &mut Frame) {
 
     render_title(frame, layouts[0]);
 
+    let erase_part = calculate_area(layouts[1], 70, 30);
+
     render_content(frame, layouts[1]);
+    if is_popup {
+        render_popup(frame, erase_part);
+    }
 }
 
 fn render_title(frame: &mut Frame, area: Geometry) {
     frame.render_widget(
-        Paragraph::new("Block example. Press q to quit".slow_blink())
+        Paragraph::new("Popup example. Press p to toggle".slow_blink())
             .red()
             .alignment(Alignment::Center),
         area,
@@ -76,11 +83,39 @@ fn render_content(frame: &mut Frame, area: Geometry) {
     frame.render_widget(block, area);
 }
 
+fn render_popup(frame: &mut Frame, area: Geometry) {
+    let popup = Paragraph::new("Popup").style(WStyle::default().bg(Color::Red));
+    frame.render_widget(popup, area);
+}
+
+fn calculate_area(area: Geometry, percent_x: u16, percent_y: u16) -> Geometry {
+    let popup_layout = Layout::default()
+        .direction(Orientation::Vertical)
+        .constraints([
+            Constraint::Percentage((100 - percent_y) / 2),
+            Constraint::Percentage(percent_y),
+            Constraint::Percentage((100 - percent_y) / 2),
+        ])
+        .split(area);
+
+    Layout::default()
+        .direction(Orientation::Horizontal)
+        .constraints([
+            Constraint::Percentage((100 - percent_x) / 2),
+            Constraint::Percentage(percent_x),
+            Constraint::Percentage((100 - percent_x) / 2),
+        ])
+        .split(popup_layout[1])[1]
+}
+
 impl State {
     fn handle_key(&mut self, e: Key) {
-        match e {
-            Key::Char(c) => self.pressed_key = c,
-            _ => {}
+        if let Key::Char(c) = e {
+            if c == 'c' {
+                self.pressed_key = c;
+            } else if c == 'p' {
+                self.is_popup = !self.is_popup;
+            }
         }
     }
 }

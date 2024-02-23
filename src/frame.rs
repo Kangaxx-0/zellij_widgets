@@ -29,7 +29,8 @@ impl Frame<'_> {
         self.viewport_area
     }
 
-    /// Render a [`Widget`] to the current buffer using [`Widget::render`].
+    /// Render a [`Widget`] to the current buffer using [`Widget::render`], or you can think of it
+    /// as writing widget content to the buffer with the given area.
     ///
     /// Usually the area argument is the size of the current frame or a sub-area of the current
     /// frame (which can be obtained using [`Layout`] to split the total area).
