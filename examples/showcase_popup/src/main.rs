@@ -88,7 +88,10 @@ fn render_content(frame: &mut Frame, area: Geometry, is_popup: bool) {
 }
 
 fn render_popup(frame: &mut Frame, area: Geometry) {
-    let popup = Paragraph::new("Popup").style(WStyle::default().bg(Color::Red));
+    let popup = Block::default()
+        .title("Popup")
+        .style(WStyle::default().bg(Color::Red));
+    frame.render_widget(Erase, area);
     frame.render_widget(popup, area);
 }
 
