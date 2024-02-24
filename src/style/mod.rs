@@ -14,6 +14,8 @@ pub(crate) use self::ansi::{
     Print, ResetColor, SetAttribute, SetBackgroundColor, SetForegroundColor, SetUnderlineColor,
 };
 
+pub mod symbols;
+
 mod ansi;
 mod attributes;
 mod modifier;

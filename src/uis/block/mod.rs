@@ -1,196 +1,20 @@
-#![warn(missing_docs)]
 //! Elements related to the `Block` base widget.
 //!
 //! This holds everything needed to display and configure a [`Block`].
-//!
-//! In its simplest form, a `Block` is a [border](Borders) around another widget. It can have a
-//! [title](Block::title) and [padding](Block::padding).
-use strum::{Display, EnumString};
 
 use crate::{
     buffer::Buffer,
     layout::{Alignment, Geometry},
-    style::{Style, Styled},
-    symbols::border,
+    style::{symbols::border, Style, Styled},
     title::{Position, Title},
     widget::{Borders, Widget},
 };
 
-/// The type of border of a [`Block`].
-///
-/// See the [`borders`](Block::borders) method of `Block` to configure its borders.
-#[derive(Debug, Default, Display, EnumString, Clone, Copy, Eq, PartialEq, Hash)]
-pub enum BorderType {
-    /// A plain, simple border.
-    ///
-    /// This is the default
-    ///
-    /// # Example
-    ///
-    /// ```plain
-    /// ┌───────┐
-    /// │       │
-    /// └───────┘
-    /// ```
-    #[default]
-    Plain,
-    /// A plain border with rounded corners.
-    ///
-    /// # Example
-    ///
-    /// ```plain
-    /// ╭───────╮
-    /// │       │
-    /// ╰───────╯
-    /// ```
-    Rounded,
-    /// A doubled border.
-    ///
-    /// Note this uses one character that draws two lines.
-    ///
-    /// # Example
-    ///
-    /// ```plain
-    /// ╔═══════╗
-    /// ║       ║
-    /// ╚═══════╝
-    /// ```
-    Double,
-    /// A thick border.
-    ///
-    /// # Example
-    ///
-    /// ```plain
-    /// ┏━━━━━━━┓
-    /// ┃       ┃
-    /// ┗━━━━━━━┛
-    /// ```
-    Thick,
-    /// A border with a single line on the inside of a half block.
-    ///
-    /// # Example
-    ///
-    /// ```plain
-    /// ▗▄▄▄▄▄▄▄▖
-    /// ▐       ▌
-    /// ▐       ▌
-    /// ▝▀▀▀▀▀▀▀▘
-    QuadrantInside,
+pub use border_type::BorderType;
+pub use padding::Padding;
 
-    /// A border with a single line on the outside of a half block.
-    ///
-    /// # Example
-    ///
-    /// ```plain
-    /// ▛▀▀▀▀▀▀▀▜
-    /// ▌       ▐
-    /// ▌       ▐
-    /// ▙▄▄▄▄▄▄▄▟
-    QuadrantOutside,
-}
-
-impl BorderType {
-    /// Convert this `BorderType` into the corresponding [`Set`](border::Set) of border symbols.
-    pub const fn border_symbols(border_type: BorderType) -> border::Set {
-        match border_type {
-            BorderType::Plain => border::PLAIN,
-            BorderType::Rounded => border::ROUNDED,
-            BorderType::Double => border::DOUBLE,
-            BorderType::Thick => border::THICK,
-            BorderType::QuadrantInside => border::QUADRANT_INSIDE,
-            BorderType::QuadrantOutside => border::QUADRANT_OUTSIDE,
-        }
-    }
-
-    /// Convert this `BorderType` into the corresponding [`Set`](border::Set) of border symbols.
-    pub const fn to_border_set(self) -> border::Set {
-        Self::border_symbols(self)
-    }
-}
-
-/// Defines the padding of a [`Block`].
-///
-/// See the [`padding`](Block::padding) method of [`Block`] to configure its padding.
-///
-/// This concept is similar to [CSS padding](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_box_model/Introduction_to_the_CSS_box_model#padding_area).
-///
-/// # Example
-///
-/// ```
-/// # use zellij_widgets::prelude::*;
-///
-/// Padding::uniform(1);
-/// Padding::horizontal(2);
-/// ```
-#[derive(Debug, Default, Clone, Copy, Eq, PartialEq, Ord, PartialOrd, Hash)]
-pub struct Padding {
-    /// Left padding
-    pub left: u16,
-    /// Right padding
-    pub right: u16,
-    /// Top padding
-    pub top: u16,
-    /// Bottom padding
-    pub bottom: u16,
-}
-
-impl Padding {
-    /// Creates a new `Padding` by specifying every field individually.
-    pub const fn new(left: u16, right: u16, top: u16, bottom: u16) -> Self {
-        Padding {
-            left,
-            right,
-            top,
-            bottom,
-        }
-    }
-
-    /// Creates a `Padding` of 0.
-    ///
-    /// This is also the default.
-    pub const fn zero() -> Self {
-        Padding {
-            left: 0,
-            right: 0,
-            top: 0,
-            bottom: 0,
-        }
-    }
-
-    /// Defines the [`left`](Padding::left) and [`right`](Padding::right) padding.
-    ///
-    /// This leaves [`top`](Padding::top) and [`bottom`](Padding::bottom) to `0`.
-    pub const fn horizontal(value: u16) -> Self {
-        Padding {
-            left: value,
-            right: value,
-            top: 0,
-            bottom: 0,
-        }
-    }
-
-    /// Defines the [`top`](Padding::top) and [`bottom`](Padding::bottom) padding.
-    ///
-    /// This leaves [`left`](Padding::left) and [`right`](Padding::right) at `0`.
-    pub const fn vertical(value: u16) -> Self {
-        Padding {
-            left: 0,
-            right: 0,
-            top: value,
-            bottom: value,
-        }
-    }
-
-    /// Applies the same value to every `Padding` field.
-    pub const fn uniform(value: u16) -> Self {
-        Padding {
-            left: value,
-            right: value,
-            top: value,
-            bottom: value,
-        }
-    }
-}
+mod border_type;
+mod padding;
 
 /// Base widget to be used to display a box border around all [`Widget`]
 ///
@@ -278,9 +102,9 @@ impl<'a> Block<'a> {
     /// the left.
     ///
     /// ```plain
-    /// ┌With at least a left border───
+    /// ΓöîWith at least a left borderΓöÇΓöÇΓöÇ
     ///
-    /// Without left border───
+    /// Without left borderΓöÇΓöÇΓöÇ
     /// ```
     ///
     /// Note: If the block is too small and multiple titles overlap, the border might get cut off at
@@ -302,7 +126,7 @@ impl<'a> Block<'a> {
     ///     .title(Title::from("Right").alignment(Alignment::Right))
     ///     .title(Title::from("Center").alignment(Alignment::Center));
     /// // Renders
-    /// // ┌Title─Left────Center─────────Right┐
+    /// // ΓöîTitleΓöÇLeftΓöÇΓöÇΓöÇΓöÇCenterΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇRightΓöÉ
     /// ```
     ///
     /// # See also
@@ -445,9 +269,9 @@ impl<'a> Block<'a> {
     /// # use zellij_widgets::prelude::*;
     /// Block::default().title("Block").borders(Borders::ALL).border_type(BorderType::Rounded);
     /// // Renders
-    /// // ╭Block╮
-    /// // │     │
-    /// // ╰─────╯
+    /// // Γò¡BlockΓò«
+    /// // Γöé     Γöé
+    /// // Γò░ΓöÇΓöÇΓöÇΓöÇΓöÇΓò»
     /// ```
     pub const fn border_type(mut self, border_type: BorderType) -> Block<'a> {
         self.border_set = border_type.to_border_set();
@@ -464,9 +288,9 @@ impl<'a> Block<'a> {
     /// # use zellij_widgets::prelude::*;
     /// Block::default().title("Block").borders(Borders::ALL).border_set(symbols::border::DOUBLE);
     /// // Renders
-    /// // ╔Block╗
-    /// // ║     ║
-    /// // ╚═════╝
+    /// // ΓòöBlockΓòù
+    /// // Γòæ     Γòæ
+    /// // ΓòÜΓòÉΓòÉΓòÉΓòÉΓòÉΓò¥
     pub const fn border_set(mut self, border_set: border::Set) -> Block<'a> {
         self.border_set = border_set;
         self
@@ -490,11 +314,11 @@ impl<'a> Block<'a> {
     /// frame.render_widget(inner_block, inner_area);
     /// # }
     /// // Renders
-    /// // ┌Outer────────┐
-    /// // │┌Inner──────┐│
-    /// // ││           ││
-    /// // │└───────────┘│
-    /// // └─────────────┘
+    /// // ΓöîOuterΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÉ
+    /// // ΓöéΓöîInnerΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÉΓöé
+    /// // ΓöéΓöé           ΓöéΓöé
+    /// // ΓöéΓööΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÿΓöé
+    /// // ΓööΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÿ
     /// ```
     pub fn inner(&self, area: Geometry) -> Geometry {
         let mut inner = area;
@@ -539,9 +363,9 @@ impl<'a> Block<'a> {
     ///     .borders(Borders::ALL)
     ///     .padding(Padding::zero());
     /// // Renders
-    /// // ┌───────┐
-    /// // │content│
-    /// // └───────┘
+    /// // ΓöîΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÉ
+    /// // ΓöécontentΓöé
+    /// // ΓööΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÿ
     /// ```
     ///
     /// This example shows a `Block` with padding left and right ([`Padding::horizontal`]).
@@ -552,9 +376,9 @@ impl<'a> Block<'a> {
     ///     .borders(Borders::ALL)
     ///     .padding(Padding::horizontal(2));
     /// // Renders
-    /// // ┌───────────┐
-    /// // │  content  │
-    /// // └───────────┘
+    /// // ΓöîΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÉ
+    /// // Γöé  content  Γöé
+    /// // ΓööΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÿ
     /// ```
     pub const fn padding(mut self, padding: Padding) -> Block<'a> {
         self.padding = padding;

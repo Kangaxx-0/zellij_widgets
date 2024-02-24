@@ -4,8 +4,7 @@ pub use crate::{
     layout::Layout,
     layout::{self, Alignment, Constraint, Geometry, Orientation},
     plugin_pane::PluginPane,
-    style::{self, Color, Modifier, Style, Styled, Stylize},
-    symbols,
+    style::{self, symbols, Color, Modifier, Style, Styled, Stylize},
     text::{self, Line, Masked, Span, StyledGrapheme, Text},
     title::{self, Position, Title},
     uis::{
