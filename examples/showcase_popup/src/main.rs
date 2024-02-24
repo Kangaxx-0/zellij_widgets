@@ -1,4 +1,3 @@
-use itertools::Itertools;
 use std::collections::BTreeMap;
 use zellij_tile::prelude::*;
 use zellij_widgets::prelude::{Style as WStyle, *};
@@ -58,7 +57,7 @@ fn ui(frame: &mut Frame, is_popup: bool) {
 
     let erase_part = calculate_area(layouts[1], 70, 30);
 
-    render_content(frame, layouts[1]);
+    render_content(frame, layouts[1], is_popup);
     if is_popup {
         render_popup(frame, erase_part);
     }
@@ -73,9 +72,14 @@ fn render_title(frame: &mut Frame, area: Geometry) {
     );
 }
 
-fn render_content(frame: &mut Frame, area: Geometry) {
+fn render_content(frame: &mut Frame, area: Geometry, is_popup: bool) {
+    let title_content = if is_popup {
+        "popup is on"
+    } else {
+        "popup if off"
+    };
     let block = Block::default()
-        .title("Block")
+        .title(title_content)
         .style(WStyle::default().bg(Color::Blue))
         .borders(Borders::ALL)
         .border_type(BorderType::Rounded);
