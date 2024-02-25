@@ -1,7 +1,8 @@
+pub use block::{Block, BorderOptions, BorderType, Borders, Padding};
+pub use erase::Erase;
+pub use paragraph::{Paragraph, Wrap};
+
 mod block;
 mod erase;
-pub mod paragraph;
-pub mod reflow;
-
-pub use block::{Block, BorderType, Padding};
-pub use erase::Erase;
+mod paragraph;
+mod reflow;
