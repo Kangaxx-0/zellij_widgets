@@ -220,6 +220,17 @@ impl<'a> Block<'a> {
         self
     }
 
+    /// Defines the options with the given borders, border style and border set.
+    pub fn set_border_option_with_attrs(
+        mut self,
+        borders: Borders,
+        border_style: Style,
+        border_set: border::Set,
+    ) -> Block<'a> {
+        self.border_option = BorderOptions::new(borders, border_style, border_set);
+        self
+    }
+
     /// Defines the style of the borders.
     ///
     /// If a [`Block::style`] is defined, `border_style` will be applied on top of it.
