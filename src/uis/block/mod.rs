@@ -102,9 +102,9 @@ impl<'a> Block<'a> {
     /// the left.
     ///
     /// ```plain
-    /// ΓöîWith at least a left borderΓöÇΓöÇΓöÇ
+    /// ┌With at least a left border───
     ///
-    /// Without left borderΓöÇΓöÇΓöÇ
+    /// Without left border───
     /// ```
     ///
     /// Note: If the block is too small and multiple titles overlap, the border might get cut off at
@@ -126,7 +126,7 @@ impl<'a> Block<'a> {
     ///     .title(Title::from("Right").alignment(Alignment::Right))
     ///     .title(Title::from("Center").alignment(Alignment::Center));
     /// // Renders
-    /// // ΓöîTitleΓöÇLeftΓöÇΓöÇΓöÇΓöÇCenterΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇRightΓöÉ
+    /// // ┌Title─Left────Center─────────Right┐
     /// ```
     ///
     /// # See also
@@ -297,9 +297,9 @@ impl<'a> Block<'a> {
     /// # use zellij_widgets::prelude::*;
     /// Block::default().title("Block").borders(Borders::ALL).border_type(BorderType::Rounded);
     /// // Renders
-    /// // Γò¡BlockΓò«
-    /// // Γöé     Γöé
-    /// // Γò░ΓöÇΓöÇΓöÇΓöÇΓöÇΓò»
+    /// // ╭Block╮
+    /// // │     │
+    /// // ╰─────╯
     /// ```
     pub fn border_type(mut self, border_type: BorderType) -> Block<'a> {
         let set = border_type.to_border_set();
@@ -317,9 +317,9 @@ impl<'a> Block<'a> {
     /// # use zellij_widgets::prelude::*;
     /// Block::default().title("Block").borders(Borders::ALL).border_set(symbols::border::DOUBLE);
     /// // Renders
-    /// // ΓòöBlockΓòù
-    /// // Γòæ     Γòæ
-    /// // ΓòÜΓòÉΓòÉΓòÉΓòÉΓòÉΓò¥
+    /// // ╔Block╗
+    /// // ║     ║
+    /// // ╚═════╝
     pub fn border_set(mut self, border_set: border::Set) -> Block<'a> {
         self.border_option.set_border_set(border_set);
         self
@@ -343,11 +343,11 @@ impl<'a> Block<'a> {
     /// frame.render_widget(inner_block, inner_area);
     /// # }
     /// // Renders
-    /// // ΓöîOuterΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÉ
-    /// // ΓöéΓöîInnerΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÉΓöé
-    /// // ΓöéΓöé           ΓöéΓöé
-    /// // ΓöéΓööΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÿΓöé
-    /// // ΓööΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÿ
+    /// // ┌Outer────────┐
+    /// // │┌Inner──────┐│
+    /// // ││           ││
+    /// // │└───────────┘│
+    /// // └─────────────┘
     /// ```
     pub fn inner(&self, area: Geometry) -> Geometry {
         let mut inner = area;
@@ -393,9 +393,9 @@ impl<'a> Block<'a> {
     ///     .borders(Borders::ALL)
     ///     .padding(Padding::zero());
     /// // Renders
-    /// // ΓöîΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÉ
-    /// // ΓöécontentΓöé
-    /// // ΓööΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÿ
+    /// // ┌───────┐
+    /// // │content│
+    /// // └───────┘
     /// ```
     ///
     /// This example shows a `Block` with padding left and right ([`Padding::horizontal`]).
@@ -406,9 +406,9 @@ impl<'a> Block<'a> {
     ///     .borders(Borders::ALL)
     ///     .padding(Padding::horizontal(2));
     /// // Renders
-    /// // ΓöîΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÉ
-    /// // Γöé  content  Γöé
-    /// // ΓööΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÿ
+    /// // ┌───────────┐
+    /// // │  content  │
+    /// // └───────────┘
     /// ```
     pub const fn padding(mut self, padding: Padding) -> Block<'a> {
         self.padding = padding;
