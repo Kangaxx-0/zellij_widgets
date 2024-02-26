@@ -1,196 +1,26 @@
-#![warn(missing_docs)]
+#![allow(unused_imports)]
+
 //! Elements related to the `Block` base widget.
 //!
 //! This holds everything needed to display and configure a [`Block`].
-//!
-//! In its simplest form, a `Block` is a [border](Borders) around another widget. It can have a
-//! [title](Block::title) and [padding](Block::padding).
-use strum::{Display, EnumString};
 
 use crate::{
     buffer::Buffer,
     layout::{Alignment, Geometry},
-    style::{Style, Styled},
-    symbols::border,
+    style::{symbols::border, Style, Styled},
     title::{Position, Title},
-    widget::{Borders, Widget},
+    widget::Widget,
 };
 
-/// The type of border of a [`Block`].
-///
-/// See the [`borders`](Block::borders) method of `Block` to configure its borders.
-#[derive(Debug, Default, Display, EnumString, Clone, Copy, Eq, PartialEq, Hash)]
-pub enum BorderType {
-    /// A plain, simple border.
-    ///
-    /// This is the default
-    ///
-    /// # Example
-    ///
-    /// ```plain
-    /// ┌───────┐
-    /// │       │
-    /// └───────┘
-    /// ```
-    #[default]
-    Plain,
-    /// A plain border with rounded corners.
-    ///
-    /// # Example
-    ///
-    /// ```plain
-    /// ╭───────╮
-    /// │       │
-    /// ╰───────╯
-    /// ```
-    Rounded,
-    /// A doubled border.
-    ///
-    /// Note this uses one character that draws two lines.
-    ///
-    /// # Example
-    ///
-    /// ```plain
-    /// ╔═══════╗
-    /// ║       ║
-    /// ╚═══════╝
-    /// ```
-    Double,
-    /// A thick border.
-    ///
-    /// # Example
-    ///
-    /// ```plain
-    /// ┏━━━━━━━┓
-    /// ┃       ┃
-    /// ┗━━━━━━━┛
-    /// ```
-    Thick,
-    /// A border with a single line on the inside of a half block.
-    ///
-    /// # Example
-    ///
-    /// ```plain
-    /// ▗▄▄▄▄▄▄▄▖
-    /// ▐       ▌
-    /// ▐       ▌
-    /// ▝▀▀▀▀▀▀▀▘
-    QuadrantInside,
+pub use border_option::BorderOptions;
+pub use border_type::BorderType;
+pub use borders::Borders;
+pub use padding::Padding;
 
-    /// A border with a single line on the outside of a half block.
-    ///
-    /// # Example
-    ///
-    /// ```plain
-    /// ▛▀▀▀▀▀▀▀▜
-    /// ▌       ▐
-    /// ▌       ▐
-    /// ▙▄▄▄▄▄▄▄▟
-    QuadrantOutside,
-}
-
-impl BorderType {
-    /// Convert this `BorderType` into the corresponding [`Set`](border::Set) of border symbols.
-    pub const fn border_symbols(border_type: BorderType) -> border::Set {
-        match border_type {
-            BorderType::Plain => border::PLAIN,
-            BorderType::Rounded => border::ROUNDED,
-            BorderType::Double => border::DOUBLE,
-            BorderType::Thick => border::THICK,
-            BorderType::QuadrantInside => border::QUADRANT_INSIDE,
-            BorderType::QuadrantOutside => border::QUADRANT_OUTSIDE,
-        }
-    }
-
-    /// Convert this `BorderType` into the corresponding [`Set`](border::Set) of border symbols.
-    pub const fn to_border_set(self) -> border::Set {
-        Self::border_symbols(self)
-    }
-}
-
-/// Defines the padding of a [`Block`].
-///
-/// See the [`padding`](Block::padding) method of [`Block`] to configure its padding.
-///
-/// This concept is similar to [CSS padding](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_box_model/Introduction_to_the_CSS_box_model#padding_area).
-///
-/// # Example
-///
-/// ```
-/// # use zellij_widgets::prelude::*;
-///
-/// Padding::uniform(1);
-/// Padding::horizontal(2);
-/// ```
-#[derive(Debug, Default, Clone, Copy, Eq, PartialEq, Ord, PartialOrd, Hash)]
-pub struct Padding {
-    /// Left padding
-    pub left: u16,
-    /// Right padding
-    pub right: u16,
-    /// Top padding
-    pub top: u16,
-    /// Bottom padding
-    pub bottom: u16,
-}
-
-impl Padding {
-    /// Creates a new `Padding` by specifying every field individually.
-    pub const fn new(left: u16, right: u16, top: u16, bottom: u16) -> Self {
-        Padding {
-            left,
-            right,
-            top,
-            bottom,
-        }
-    }
-
-    /// Creates a `Padding` of 0.
-    ///
-    /// This is also the default.
-    pub const fn zero() -> Self {
-        Padding {
-            left: 0,
-            right: 0,
-            top: 0,
-            bottom: 0,
-        }
-    }
-
-    /// Defines the [`left`](Padding::left) and [`right`](Padding::right) padding.
-    ///
-    /// This leaves [`top`](Padding::top) and [`bottom`](Padding::bottom) to `0`.
-    pub const fn horizontal(value: u16) -> Self {
-        Padding {
-            left: value,
-            right: value,
-            top: 0,
-            bottom: 0,
-        }
-    }
-
-    /// Defines the [`top`](Padding::top) and [`bottom`](Padding::bottom) padding.
-    ///
-    /// This leaves [`left`](Padding::left) and [`right`](Padding::right) at `0`.
-    pub const fn vertical(value: u16) -> Self {
-        Padding {
-            left: 0,
-            right: 0,
-            top: value,
-            bottom: value,
-        }
-    }
-
-    /// Applies the same value to every `Padding` field.
-    pub const fn uniform(value: u16) -> Self {
-        Padding {
-            left: value,
-            right: value,
-            top: value,
-            bottom: value,
-        }
-    }
-}
+mod border_option;
+mod border_type;
+mod borders;
+mod padding;
 
 /// Base widget to be used to display a box border around all [`Widget`]
 ///
@@ -230,13 +60,9 @@ pub struct Block<'a> {
     /// The default position of the titles that don't have one
     titles_position: Position,
 
-    /// Visible borders
-    borders: Borders,
-    /// Border style
-    border_style: Style,
-    /// The symbols used to render the border. The default is plain lines but one can choose to
-    /// have rounded or doubled lines instead or a custom set of symbols
-    border_set: border::Set,
+    /// Border options
+    border_option: BorderOptions,
+
     /// Widget style
     style: Style,
     /// Block padding
@@ -245,15 +71,13 @@ pub struct Block<'a> {
 
 impl<'a> Block<'a> {
     /// Creates a new block with no [`Borders`] or [`Padding`].
-    pub const fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             titles: Vec::new(),
             titles_style: Style::new(),
             titles_alignment: Alignment::Left,
             titles_position: Position::Top,
-            borders: Borders::NONE,
-            border_style: Style::new(),
-            border_set: BorderType::Plain.to_border_set(),
+            border_option: BorderOptions::default(),
             style: Style::new(),
             padding: Padding::zero(),
         }
@@ -379,6 +203,34 @@ impl<'a> Block<'a> {
         self
     }
 
+    /// Defines the options of the borders.
+    ///
+    /// # Example
+    ///
+    /// This example shows a `Block` with blue borders.
+    /// ```
+    /// use zellij_widgets::prelude::*;
+    /// let mut border_option = BorderOptions::default();
+    /// border_option.set_border_style(Style::new().blue());
+    /// Block::default()
+    ///     .set_border_option(border_option);
+    /// ```
+    pub fn set_border_option(mut self, border_option: BorderOptions) -> Block<'a> {
+        self.border_option = border_option;
+        self
+    }
+
+    /// Defines the options with the given borders, border style and border set.
+    pub fn set_border_option_with_attrs(
+        mut self,
+        borders: Borders,
+        border_style: Style,
+        border_set: border::Set,
+    ) -> Block<'a> {
+        self.border_option = BorderOptions::new(borders, border_style, border_set);
+        self
+    }
+
     /// Defines the style of the borders.
     ///
     /// If a [`Block::style`] is defined, `border_style` will be applied on top of it.
@@ -393,7 +245,7 @@ impl<'a> Block<'a> {
     ///     .border_style(Style::new().blue());
     /// ```
     pub fn border_style(mut self, style: Style) -> Block<'a> {
-        self.border_style = style;
+        self.border_option.set_border_style(style);
         self
     }
 
@@ -427,8 +279,8 @@ impl<'a> Block<'a> {
     /// # use zellij_widgets::prelude::*;
     /// Block::default().borders(Borders::LEFT | Borders::RIGHT);
     /// ```
-    pub const fn borders(mut self, flag: Borders) -> Block<'a> {
-        self.borders = flag;
+    pub fn borders(mut self, flag: Borders) -> Block<'a> {
+        self.border_option.set_borders(flag);
         self
     }
 
@@ -449,8 +301,9 @@ impl<'a> Block<'a> {
     /// // │     │
     /// // ╰─────╯
     /// ```
-    pub const fn border_type(mut self, border_type: BorderType) -> Block<'a> {
-        self.border_set = border_type.to_border_set();
+    pub fn border_type(mut self, border_type: BorderType) -> Block<'a> {
+        let set = border_type.to_border_set();
+        self.border_option.set_border_set(set);
         self
     }
 
@@ -467,8 +320,8 @@ impl<'a> Block<'a> {
     /// // ╔Block╗
     /// // ║     ║
     /// // ╚═════╝
-    pub const fn border_set(mut self, border_set: border::Set) -> Block<'a> {
-        self.border_set = border_set;
+    pub fn border_set(mut self, border_set: border::Set) -> Block<'a> {
+        self.border_option.set_border_set(border_set);
         self
     }
 
@@ -498,18 +351,19 @@ impl<'a> Block<'a> {
     /// ```
     pub fn inner(&self, area: Geometry) -> Geometry {
         let mut inner = area;
-        if self.borders.intersects(Borders::LEFT) {
+        let border = self.border_option.borders;
+        if border.intersects(Borders::LEFT) {
             inner.x = inner.x.saturating_add(1).min(inner.right());
             inner.cols = inner.cols.saturating_sub(1);
         }
-        if self.borders.intersects(Borders::TOP) || !self.titles.is_empty() {
+        if border.intersects(Borders::TOP) || !self.titles.is_empty() {
             inner.y = inner.y.saturating_add(1).min(inner.bottom());
             inner.rows = inner.rows.saturating_sub(1);
         }
-        if self.borders.intersects(Borders::RIGHT) {
+        if border.intersects(Borders::RIGHT) {
             inner.cols = inner.cols.saturating_sub(1);
         }
-        if self.borders.intersects(Borders::BOTTOM) {
+        if border.intersects(Borders::BOTTOM) {
             inner.rows = inner.rows.saturating_sub(1);
         }
 
@@ -563,60 +417,64 @@ impl<'a> Block<'a> {
 
     fn render_borders(&self, area: Geometry, buf: &mut Buffer) {
         buf.set_style(area, self.style);
-        let symbols = self.border_set;
+        let BorderOptions {
+            borders,
+            border_style,
+            border_set: symbols,
+        } = self.border_option;
 
         // Sides
-        if self.borders.intersects(Borders::LEFT) {
+        if borders.intersects(Borders::LEFT) {
             for y in area.top()..area.bottom() {
                 buf.get_mut(area.left(), y)
                     .set_symbol(symbols.vertical_left)
-                    .set_style(self.border_style);
+                    .set_style(border_style);
             }
         }
-        if self.borders.intersects(Borders::TOP) {
+        if borders.intersects(Borders::TOP) {
             for x in area.left()..area.right() {
                 buf.get_mut(x, area.top())
                     .set_symbol(symbols.horizontal_top)
-                    .set_style(self.border_style);
+                    .set_style(border_style);
             }
         }
-        if self.borders.intersects(Borders::RIGHT) {
+        if borders.intersects(Borders::RIGHT) {
             let x = area.right() - 1;
             for y in area.top()..area.bottom() {
                 buf.get_mut(x, y)
                     .set_symbol(symbols.vertical_right)
-                    .set_style(self.border_style);
+                    .set_style(border_style);
             }
         }
-        if self.borders.intersects(Borders::BOTTOM) {
+        if borders.intersects(Borders::BOTTOM) {
             let y = area.bottom() - 1;
             for x in area.left()..area.right() {
                 buf.get_mut(x, y)
                     .set_symbol(symbols.horizontal_bottom)
-                    .set_style(self.border_style);
+                    .set_style(border_style);
             }
         }
 
         // Corners
-        if self.borders.contains(Borders::RIGHT | Borders::BOTTOM) {
+        if borders.contains(Borders::RIGHT | Borders::BOTTOM) {
             buf.get_mut(area.right() - 1, area.bottom() - 1)
                 .set_symbol(symbols.bottom_right)
-                .set_style(self.border_style);
+                .set_style(border_style);
         }
-        if self.borders.contains(Borders::RIGHT | Borders::TOP) {
+        if borders.contains(Borders::RIGHT | Borders::TOP) {
             buf.get_mut(area.right() - 1, area.top())
                 .set_symbol(symbols.top_right)
-                .set_style(self.border_style);
+                .set_style(border_style);
         }
-        if self.borders.contains(Borders::LEFT | Borders::BOTTOM) {
+        if borders.contains(Borders::LEFT | Borders::BOTTOM) {
             buf.get_mut(area.left(), area.bottom() - 1)
                 .set_symbol(symbols.bottom_left)
-                .set_style(self.border_style);
+                .set_style(border_style);
         }
-        if self.borders.contains(Borders::LEFT | Borders::TOP) {
+        if borders.contains(Borders::LEFT | Borders::TOP) {
             buf.get_mut(area.left(), area.top())
                 .set_symbol(symbols.top_left)
-                .set_style(self.border_style);
+                .set_style(border_style);
         }
     }
 
@@ -634,8 +492,9 @@ impl<'a> Block<'a> {
     }
 
     fn calculate_title_area_offsets(&self, area: Geometry) -> (u16, u16, u16) {
-        let left_border_dx = u16::from(self.borders.intersects(Borders::LEFT));
-        let right_border_dx = u16::from(self.borders.intersects(Borders::RIGHT));
+        let borders = self.border_option.borders;
+        let left_border_dx = u16::from(borders.intersects(Borders::LEFT));
+        let right_border_dx = u16::from(borders.intersects(Borders::RIGHT));
 
         let title_area_cols = area
             .cols
@@ -1118,25 +977,11 @@ mod tests {
                 titles_style: Style::new(),
                 titles_alignment: Alignment::Left,
                 titles_position: Position::Top,
-                borders: Borders::NONE,
-                border_style: Style::new(),
-                border_set: BorderType::Plain.to_border_set(),
+                border_option: BorderOptions::default(),
                 style: Style::new(),
                 padding: Padding::zero(),
             }
         )
-    }
-
-    #[test]
-    fn block_can_be_const() {
-        const _DEFAULT_STYLE: Style = Style::new();
-        const _DEFAULT_PADDING: Padding = Padding::uniform(1);
-        const _DEFAULT_BLOCK: Block = Block::new()
-            .title_style(_DEFAULT_STYLE)
-            .title_alignment(Alignment::Left)
-            .title_position(Position::Top)
-            .borders(Borders::ALL)
-            .padding(_DEFAULT_PADDING);
     }
 
     #[test]
