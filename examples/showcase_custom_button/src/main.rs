@@ -139,13 +139,10 @@ fn ui(frame: &mut Frame, index: usize, states: &[ButtonState]) {
         .split(frame.size());
 
     let hint_line = Line::styled(
-        "←/→: select, Space: toggle, q: quit",
+        "←/→: select, q: quit",
         Style::default().add_modifier(Modifier::RAPID_BLINK),
     );
-    frame.render_widget(
-        Paragraph::new("Custom Widget Example (mouse enabled)"),
-        layout[0],
-    );
+    frame.render_widget(Paragraph::new("Custom Widget Example"), layout[0]);
     render_buttons(frame, layout[1], states);
     render_block(frame, layout[2], index);
     frame.render_widget(
@@ -177,7 +174,7 @@ fn render_block(frame: &mut Frame<'_>, area: Geometry, index: usize) {
 }
 
 fn render_buttons(frame: &mut Frame<'_>, area: Geometry, states: &[ButtonState]) {
-    assert!(states.len() == 5, "This example only supports 3 buttons");
+    assert!(states.len() == 5, "This example only supports 5 buttons");
     let layout = Layout::default()
         .direction(Orientation::Horizontal)
         .constraints([
