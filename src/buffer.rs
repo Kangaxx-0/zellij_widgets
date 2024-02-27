@@ -299,6 +299,30 @@ impl Buffer {
         (x_offset as u16, y)
     }
 
+    /// Sets a line of text in the buffer starting at the specified position (x, y).
+    /// The line is represented by a `Line` struct, which contains one or more `Span` structs.
+    /// Each `Span` represents a contiguous segment of the line with a specific style.
+    /// The `cols` parameter specifies the maximum number of columns to fill with the line.
+    /// Returns the final position (x, y) after setting the line.
+    ///
+    /// # Arguments
+    ///
+    /// * `x` - The starting x-coordinate of the line.
+    /// * `y` - The starting y-coordinate of the line.
+    /// * `line` - The line of text to set in the buffer.
+    /// * `cols` - The maximum number of columns to fill with the line.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use zellij_widgets::prelude::*;
+    /// let mut buffer = Buffer::empty(Geometry::new(10, 10));
+    /// let line = Line::new(vec![
+    ///     Span::new("Hello", Style::default()),
+    ///     Span::new("World", Style::default()),
+    /// ]);
+    /// buffer.set_line(0, 0, &line, 10);
+    /// ```
     pub fn set_line(&mut self, x: u16, y: u16, line: &Line<'_>, cols: u16) -> (u16, u16) {
         let mut remaining_cols = cols;
         let mut x = x;
@@ -320,10 +344,51 @@ impl Buffer {
         (x, y)
     }
 
+    /// Sets a `Span` at the specified position in the buffer.
+    ///
+    /// This method writes the content of the `Span` to the buffer at the given coordinates (x, y). The `Span` includes both the string to be written and the style to be applied.
+    /// The `cols` parameter specifies the maximum number of columns that the `Span` can occupy.
+    ///
+    /// # Arguments
+    ///
+    /// * `x` - The x-coordinate (column) in the buffer where the `Span` should start.
+    /// * `y` - The y-coordinate (row) in the buffer where the `Span` should start.
+    /// * `span` - The `Span` to be written to the buffer.
+    /// * `cols` - The maximum number of columns that the `Span` can occupy.
+    ///
+    /// # Returns
+    ///
+    /// This method returns a tuple `(u16, u16)`, where the first element is the x-coordinate of the cursor after writing the `Span`, and the second element is the y-coordinate.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// let mut buffer = Buffer::empty((10, 10));
+    /// let span = Span::styled("Hello, world!", Style::default().fg(Color::White));
+    /// buffer.set_span(0, 0, &span, 10);
+    /// ```
     pub fn set_span(&mut self, x: u16, y: u16, span: &Span<'_>, cols: u16) -> (u16, u16) {
         self.set_stringn(x, y, span.content.as_ref(), cols as usize, span.style)
     }
 
+    /// Applies a `Style` to a specified area in the buffer.
+    ///
+    /// This method iterates over each cell in the given `Geometry` (area) and applies the provided `Style` to it. The `Style` can include properties like foreground color,
+    /// background color, and text attributes (bold, italic, underline, etc.).
+    ///
+    /// # Arguments
+    ///
+    /// * `area` - The `Geometry` defining the area in the buffer to which the `Style` should be applied.
+    /// * `style` - The `Style` to be applied to the specified area.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// let mut buffer = Buffer::empty((10, 10));
+    /// let area = Geometry::new(0, 0, 5, 5);
+    /// let style = Style::default().fg(Color::White).bg(Color::Black);
+    /// buffer.set_style(area, style);
+    /// ```
     pub fn set_style(&mut self, area: Geometry, style: Style) {
         for y in area.top()..area.bottom() {
             for x in area.left()..area.right() {

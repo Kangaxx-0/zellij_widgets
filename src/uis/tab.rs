@@ -17,19 +17,22 @@ pub struct Tab<'a> {
     /// The style of the tab that is selected.
     highlight_style: Style,
     /// The title of the tab.
-    title: Line<'a>,
+    title: Vec<Line<'a>>,
 }
 
 impl<'a> Tab<'a> {
     /// Create a new tab by providing a title.
-    pub fn new(title: impl Into<Line<'a>>) -> Self {
+    pub fn new<T>(title: Vec<T>) -> Self
+    where
+        T: Into<Line<'a>>,
+    {
         Self {
             block: None,
             divider: Span::raw(symbols::line::VERTICAL),
             selected: 0,
             style: Style::default(),
             highlight_style: DEFAULT_HIGHLIGHT_STYLE,
-            title: title.into(),
+            title: title.into_iter().map(Into::into).collect(),
         }
     }
 
@@ -64,6 +67,71 @@ impl<'a> Tab<'a> {
     }
 }
 
+impl<'a> Styled for Tab<'a> {
+    type Item = Tab<'a>;
+
+    fn style(&self) -> Style {
+        self.style
+    }
+
+    fn set_style(self, style: Style) -> Self::Item {
+        self.style(style)
+    }
+}
+
+impl<'a> Widget for Tab<'a> {
+    fn render(self, area: Geometry, buf: &mut Buffer) {
+        buf.set_style(area, self.style);
+
+        let tabs_area = match self.block {
+            Some(block) => {
+                let inner_tabs_area = block.inner(area);
+                block.render(area, buf);
+                inner_tabs_area
+            }
+            None => area,
+        };
+
+        if tabs_area.rows < 1 {
+            return;
+        }
+
+        let mut x = tabs_area.left();
+        let title_len = self.title.len();
+        for (idx, t) in self.title.into_iter().enumerate() {
+            let last_indx = title_len - 1 == idx;
+            let remaining_width = tabs_area.right().saturating_sub(x);
+
+            if remaining_width == 0 {
+                break;
+            }
+
+            // Title
+            let y = tabs_area.top();
+            let pos = buf.set_line(x, y, &t, remaining_width);
+            if idx == self.selected {
+                buf.set_style(
+                    Geometry {
+                        x,
+                        y,
+                        cols: pos.0.saturating_sub(x),
+                        rows: 1,
+                    },
+                    self.highlight_style,
+                );
+            }
+            x = pos.0;
+            let remaining_width = tabs_area.right().saturating_sub(x);
+            if remaining_width == 0 || last_indx {
+                break;
+            }
+
+            let pos = buf.set_span(x, tabs_area.top(), &self.divider, remaining_width);
+            x = pos.0;
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::borrow::Cow;
@@ -72,13 +140,13 @@ mod tests {
 
     #[test]
     fn tab_new_with_str() {
-        let tab = Tab::new("Tab");
+        let tab = Tab::new(Vec::from(["Tab"]));
         assert_eq!(tab.block, None);
         assert_eq!(tab.divider, Span::raw(symbols::line::VERTICAL));
         assert_eq!(tab.selected, 0);
         assert_eq!(tab.style, Style::default());
         assert_eq!(tab.highlight_style, DEFAULT_HIGHLIGHT_STYLE);
-        assert_eq!(tab.title, Line::raw("Tab"));
+        assert_eq!(tab.title, vec![Line::raw("Tab")]);
     }
 
     #[test]
@@ -90,64 +158,65 @@ mod tests {
         assert_eq!(tab.selected, 0);
         assert_eq!(tab.style, Style::default());
         assert_eq!(tab.highlight_style, DEFAULT_HIGHLIGHT_STYLE);
-        assert_eq!(
-            tab.title,
-            Line {
-                spans: Vec::from([
-                    Span {
-                        content: Cow::Borrowed("Tab"),
-                        style: Style {
-                            fg: None,
-                            bg: None,
-                            add_modifier: Modifier::empty(),
-                            sub_modifier: Modifier::empty()
-                        }
-                    },
-                    Span {
-                        content: Cow::Borrowed("Another Tab"),
-                        style: Style {
-                            fg: None,
-                            bg: None,
-                            add_modifier: Modifier::empty(),
-                            sub_modifier: Modifier::empty()
-                        }
-                    }
-                ]),
-                alignment: None
-            }
-        );
+
+        let line_1 = Line {
+            spans: Vec::from([Span {
+                content: Cow::Borrowed("Tab"),
+                style: Style {
+                    fg: None,
+                    bg: None,
+                    add_modifier: Modifier::empty(),
+                    sub_modifier: Modifier::empty(),
+                },
+            }]),
+            alignment: None,
+        };
+
+        let line_2 = Line {
+            spans: Vec::from([Span {
+                content: Cow::Borrowed("Another Tab"),
+                style: Style {
+                    fg: None,
+                    bg: None,
+                    add_modifier: Modifier::empty(),
+                    sub_modifier: Modifier::empty(),
+                },
+            }]),
+            alignment: None,
+        };
+        assert_eq!(tab.title, vec![line_1, line_2]);
     }
 
     #[test]
     fn tab_set_block() {
         let block = Block::default().title("Block");
-        let tab = Tab::new("Tab").block(block.clone());
+        let tab = Tab::new(vec!["Tab"]).block(block.clone());
         assert_eq!(tab.block, Some(block));
     }
 
     #[test]
     fn tab_set_divider() {
-        let tab = Tab::new("Tab").divider(Span::raw(" "));
+        let tab = Tab::new(vec!["Tab"]).divider(Span::raw(" "));
         assert_eq!(tab.divider, Span::raw(" "));
     }
 
     #[test]
     fn tab_set_style() {
         let style = Style::default().fg(Color::Red);
-        let tab = Tab::new("Tab").style(style);
+        let tab = Tab::new(vec!["Tab"]).style(style);
         assert_eq!(tab.style, style);
     }
 
     #[test]
     fn tab_set_highlight_style() {
         let style = Style::default().fg(Color::Red);
-        let tab = Tab::new("Tab").highlight_style(style);
+        let tab = Tab::new(vec!["Tab"]).highlight_style(style);
         assert_eq!(tab.highlight_style, style);
     }
 
     #[test]
     fn tab_set_selected() {
-        let tab = Tab::new("Tab").selected(1);
+        let tab = Tab::new(vec!["Tab"]).selected(1);
         assert_eq!(tab.selected, 1);
     }
 }
