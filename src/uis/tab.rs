@@ -61,7 +61,7 @@ impl<'a> Tab<'a> {
     }
 
     /// Set the index of the selected tab.
-    pub fn selected(mut self, selected: usize) -> Self {
+    pub fn select(mut self, selected: usize) -> Self {
         self.selected = selected;
         self
     }
@@ -216,7 +216,7 @@ mod tests {
 
     #[test]
     fn tab_set_selected() {
-        let tab = Tab::new(vec!["Tab"]).selected(1);
+        let tab = Tab::new(vec!["Tab"]).select(1);
         assert_eq!(tab.selected, 1);
     }
 }
