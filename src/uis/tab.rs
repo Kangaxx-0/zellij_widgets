@@ -1,8 +1,38 @@
 use crate::text::Span;
 
 use crate::prelude::*;
+use crate::widget::StateWidget;
 
 const DEFAULT_HIGHLIGHT_STYLE: Style = Style::new().add_modifier(Modifier::REVERSED);
+
+#[derive(Default, Debug, Clone, Eq, PartialEq, Hash)]
+pub struct TabState {
+    pub selected: usize,
+    pub len: usize,
+}
+
+impl TabState {
+    pub fn new(len: usize) -> Self {
+        assert!(len > 0, "TabState must have at least one tab");
+        Self { selected: 0, len }
+    }
+
+    pub fn current(&mut self, selected: usize) {
+        self.selected = selected;
+    }
+
+    pub fn next(&mut self) {
+        self.selected = (self.selected + 1) % self.len;
+    }
+
+    pub fn previous(&mut self) {
+        self.selected = (self.selected + self.len - 1) % self.len;
+    }
+
+    pub fn reset_index(&mut self) {
+        self.selected = 0;
+    }
+}
 
 #[derive(Debug, Default, Clone, Eq, PartialEq, Hash)]
 pub struct Tab<'a> {
@@ -10,8 +40,6 @@ pub struct Tab<'a> {
     block: Option<Block<'a>>,
     /// The dividers between the tabs.
     divider: Span<'a>,
-    /// The index of the selected tab.
-    selected: usize,
     /// The style of the tab.
     style: Style,
     /// The style of the tab that is selected.
@@ -29,7 +57,6 @@ impl<'a> Tab<'a> {
         Self {
             block: None,
             divider: Span::raw(symbols::line::VERTICAL),
-            selected: 0,
             style: Style::default(),
             highlight_style: DEFAULT_HIGHLIGHT_STYLE,
             title: title.into_iter().map(Into::into).collect(),
@@ -59,12 +86,6 @@ impl<'a> Tab<'a> {
         self.highlight_style = style;
         self
     }
-
-    /// Set the index of the selected tab.
-    pub fn select(mut self, selected: usize) -> Self {
-        self.selected = selected;
-        self
-    }
 }
 
 impl<'a> Styled for Tab<'a> {
@@ -79,8 +100,9 @@ impl<'a> Styled for Tab<'a> {
     }
 }
 
-impl<'a> Widget for Tab<'a> {
-    fn render(self, area: Geometry, buf: &mut Buffer) {
+impl<'a> StateWidget for Tab<'a> {
+    type State = TabState;
+    fn render(self, area: Geometry, buf: &mut Buffer, state: &mut Self::State) {
         buf.set_style(area, self.style);
 
         let tabs_area = match self.block {
@@ -109,7 +131,7 @@ impl<'a> Widget for Tab<'a> {
             // Title
             let y = tabs_area.top();
             let pos = buf.set_line(x, y, &t, remaining_width);
-            if idx == self.selected {
+            if idx == state.selected {
                 buf.set_style(
                     Geometry {
                         x,
@@ -143,7 +165,6 @@ mod tests {
         let tab = Tab::new(Vec::from(["Tab"]));
         assert_eq!(tab.block, None);
         assert_eq!(tab.divider, Span::raw(symbols::line::VERTICAL));
-        assert_eq!(tab.selected, 0);
         assert_eq!(tab.style, Style::default());
         assert_eq!(tab.highlight_style, DEFAULT_HIGHLIGHT_STYLE);
         assert_eq!(tab.title, vec![Line::raw("Tab")]);
@@ -155,7 +176,6 @@ mod tests {
         let tab = Tab::new(tab_title.iter().map(|s| Span::raw(*s)).collect::<Vec<_>>());
         assert_eq!(tab.block, None);
         assert_eq!(tab.divider, Span::raw(symbols::line::VERTICAL));
-        assert_eq!(tab.selected, 0);
         assert_eq!(tab.style, Style::default());
         assert_eq!(tab.highlight_style, DEFAULT_HIGHLIGHT_STYLE);
 
@@ -212,11 +232,5 @@ mod tests {
         let style = Style::default().fg(Color::Red);
         let tab = Tab::new(vec!["Tab"]).highlight_style(style);
         assert_eq!(tab.highlight_style, style);
-    }
-
-    #[test]
-    fn tab_set_selected() {
-        let tab = Tab::new(vec!["Tab"]).select(1);
-        assert_eq!(tab.selected, 1);
     }
 }

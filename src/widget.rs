@@ -27,3 +27,8 @@ use crate::{buffer::Buffer, layout::Geometry};
 pub trait Widget {
     fn render(self, area: Geometry, buf: &mut Buffer);
 }
+
+pub trait StateWidget {
+    type State;
+    fn render(self, area: Geometry, buf: &mut Buffer, state: &mut Self::State);
+}

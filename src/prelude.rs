@@ -7,6 +7,9 @@ pub use crate::{
     style::{self, symbols, Color, Modifier, Style, Styled, Stylize},
     text::{self, Line, Masked, Span, StyledGrapheme, Text},
     title::{self, Position, Title},
-    uis::{self, Block, BorderOptions, BorderType, Borders, Erase, Padding, Paragraph, Tab, Wrap},
+    uis::{
+        self, Block, BorderOptions, BorderType, Borders, Erase, Padding, Paragraph, Tab, TabState,
+        Wrap,
+    },
     widget::Widget,
 };
