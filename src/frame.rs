@@ -51,7 +51,7 @@ impl Frame<'_> {
     ///
     /// Usually the area argument is the size of the current frame or a sub-area of the current
     /// frame (which can be obtained using [`Layout`] to split the total area).
-    pub fn render_state_widget<W>(&mut self, widget: W, area: Geometry, state: &mut W::State)
+    pub fn render_state_widget<W>(&mut self, widget: W, area: Geometry, state: &W::State)
     where
         W: StateWidget,
     {

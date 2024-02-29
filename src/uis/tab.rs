@@ -5,6 +5,9 @@ use crate::widget::StateWidget;
 
 const DEFAULT_HIGHLIGHT_STYLE: Style = Style::new().add_modifier(Modifier::REVERSED);
 
+/// A state for the [`Tab`] widget.
+///
+/// It contains the index of the selected tab and the total number of tabs. The selected tab is the one that is currently highlighted.
 #[derive(Default, Debug, Clone, Eq, PartialEq, Hash)]
 pub struct TabState {
     pub selected: usize,
@@ -12,23 +15,28 @@ pub struct TabState {
 }
 
 impl TabState {
+    /// Create a new state with the given number of tabs.
     pub fn new(len: usize) -> Self {
         assert!(len > 0, "TabState must have at least one tab");
         Self { selected: 0, len }
     }
 
+    /// Get the current index position
     pub fn current(&mut self, selected: usize) {
         self.selected = selected;
     }
 
+    /// Go to the next tab where the index is wrapped around.
     pub fn next(&mut self) {
         self.selected = (self.selected + 1) % self.len;
     }
 
+    /// Go to the previous tab where the index is wrapped around.
     pub fn previous(&mut self) {
         self.selected = (self.selected + self.len - 1) % self.len;
     }
 
+    /// Reset the index to the first tab where the index is 0.
     pub fn reset_index(&mut self) {
         self.selected = 0;
     }
@@ -102,7 +110,7 @@ impl<'a> Styled for Tab<'a> {
 
 impl<'a> StateWidget for Tab<'a> {
     type State = TabState;
-    fn render(self, area: Geometry, buf: &mut Buffer, state: &mut Self::State) {
+    fn render(self, area: Geometry, buf: &mut Buffer, state: &Self::State) {
         buf.set_style(area, self.style);
 
         let tabs_area = match self.block {
