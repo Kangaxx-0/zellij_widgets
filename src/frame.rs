@@ -1,5 +1,10 @@
 #![allow(unused_imports, dead_code)]
-use crate::{buffer::Buffer, layout::Geometry, layout::Layout, widget::Widget};
+use crate::{
+    buffer::Buffer,
+    layout::Geometry,
+    layout::Layout,
+    widget::{StateWidget, Widget},
+};
 
 /// A consistent view into the terminal state for rendering a single frame, think of it as a big
 /// board that you can draw everything on, and everything will be rendered all at once.
@@ -39,5 +44,17 @@ impl Frame<'_> {
         W: Widget,
     {
         widget.render(area, self.buffer);
+    }
+
+    /// Render a [`Widget`] to the current buffer using [`Widget::render`], or you can think of it
+    /// as writing widget content to the buffer with the given area.
+    ///
+    /// Usually the area argument is the size of the current frame or a sub-area of the current
+    /// frame (which can be obtained using [`Layout`] to split the total area).
+    pub fn render_state_widget<W>(&mut self, widget: W, area: Geometry, state: &W::State)
+    where
+        W: StateWidget,
+    {
+        widget.render(area, self.buffer, state);
     }
 }

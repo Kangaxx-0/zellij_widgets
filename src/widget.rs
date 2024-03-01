@@ -27,3 +27,14 @@ use crate::{buffer::Buffer, layout::Geometry};
 pub trait Widget {
     fn render(self, area: Geometry, buf: &mut Buffer);
 }
+
+/// Essential trait for a User Interface (UI) component in Zellij that has a state.
+///
+/// This is another trait that represents a widget, but it's for widgets that have a state. This is crucial because it's the only way the Zellij host can understand what the actual ANSI code is for the UI component.
+///
+/// # Arguments
+/// * `state` - The State is not a mutable reference, so the widget can't change the state during render directly. Instead, state should be tracked by the zellij plugin state where you implement `ZellijPlugin` crate
+pub trait StateWidget {
+    type State;
+    fn render(self, area: Geometry, buf: &mut Buffer, state: &Self::State);
+}

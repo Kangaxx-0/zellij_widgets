@@ -6,8 +6,8 @@ use zellij_widgets::prelude::{Style as WStyle, *};
 struct State {
     is_loading: bool,
     pressed_key: char,
-    selected_tab_1: usize,
-    selected_tab_2: usize,
+    selected_tab_1: TabState,
+    selected_tab_2: TabState,
 }
 
 register_plugin!(State);
@@ -24,8 +24,8 @@ impl ZellijPlugin for State {
             EventType::ModeUpdate,
         ]);
         self.is_loading = true;
-        self.selected_tab_1 = 0;
-        self.selected_tab_2 = 0;
+        self.selected_tab_1 = TabState::new(3);
+        self.selected_tab_2 = TabState::new(3);
     }
 
     fn update(&mut self, event: Event) -> bool {
@@ -42,14 +42,14 @@ impl ZellijPlugin for State {
         match self.pressed_key {
             'c' => {
                 // no loop for testing
-                let _ = pane.draw(|frame| ui(frame, self.selected_tab_1, self.selected_tab_2));
+                let _ = pane.draw(|frame| ui(frame, &self.selected_tab_1, &self.selected_tab_2));
             }
             _ => {}
         }
     }
 }
 
-fn ui(frame: &mut Frame, selected_tab_1: usize, selected_tab_2: usize) {
+fn ui(frame: &mut Frame, selected_tab_1: &TabState, selected_tab_2: &TabState) {
     let layouts = Layout::default()
         .direction(Orientation::Vertical)
         .constraints(
@@ -78,7 +78,7 @@ fn render_paragraph(frame: &mut Frame, area: Geometry, text: &str) {
     frame.render_widget(paragraph, area);
 }
 
-fn render_tabs(frame: &mut Frame, area: Geometry, selected_tab: usize) {
+fn render_tabs(frame: &mut Frame, area: Geometry, selected_tab: &TabState) {
     let tabs = vec!["Tab1", "Tab2", "Tab3"];
     let tabs = tabs.iter().map(|t| Span::from(*t)).collect::<Vec<Span>>();
 
@@ -86,25 +86,23 @@ fn render_tabs(frame: &mut Frame, area: Geometry, selected_tab: usize) {
 
     let tab = Tab::new(tabs)
         .block(block)
-        .select(selected_tab)
         .style(WStyle::default().fg(Color::White).bg(Color::Blue))
         .divider(Span::raw("|"))
         .highlight_style(WStyle::default().fg(Color::Black).bg(Color::White));
 
-    frame.render_widget(tab, area);
+    frame.render_state_widget(tab, area, selected_tab);
 }
 
-fn render_tabs_without_block(frame: &mut Frame, area: Geometry, selected_tab: usize) {
+fn render_tabs_without_block(frame: &mut Frame, area: Geometry, selected_tab: &TabState) {
     let tabs = vec!["Tab1", "Tab2", "Tab3"];
     let tabs = tabs.iter().map(|t| Span::from(*t)).collect::<Vec<Span>>();
 
     let tab = Tab::new(tabs)
-        .select(selected_tab)
         .style(WStyle::default().fg(Color::White).bg(Color::Black))
         .divider(Span::raw("||"))
         .highlight_style(WStyle::default().fg(Color::Black).bg(Color::White));
 
-    frame.render_widget(tab, area);
+    frame.render_state_widget(tab, area, selected_tab);
 }
 
 impl State {
@@ -113,11 +111,14 @@ impl State {
             Key::Char(c) if c == 'c' => {
                 self.pressed_key = c;
             }
+            Key::Char(c) if c == 'r' => {
+                self.selected_tab_1.reset_index();
+            }
             Key::Right => {
-                self.selected_tab_1 = self.selected_tab_1.saturating_add(1) % 3;
+                self.selected_tab_1.next();
             }
             Key::Left => {
-                self.selected_tab_1 = (self.selected_tab_1.saturating_sub(1) + 2) % 3;
+                self.selected_tab_1.previous();
             }
             _ => {}
         }
