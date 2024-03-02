@@ -11,5 +11,5 @@ pub use crate::{
         self, Block, BorderOptions, BorderType, Borders, Erase, Padding, Paragraph, Tab, TabState,
         Wrap,
     },
-    widget::Widget,
+    widget::{StateWidget, Widget},
 };
