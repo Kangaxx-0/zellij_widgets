@@ -180,7 +180,7 @@ mod tests {
 
     #[test]
     fn tab_new_with_vec() {
-        let tab_title = vec!["Tab", "Another Tab"];
+        let tab_title = ["Tab", "Another Tab"];
         let tab = Tab::new(tab_title.iter().map(|s| Span::raw(*s)).collect::<Vec<_>>());
         assert_eq!(tab.block, None);
         assert_eq!(tab.divider, Span::raw(symbols::line::VERTICAL));
