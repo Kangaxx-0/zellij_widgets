@@ -301,7 +301,7 @@ impl<'a> Block<'a> {
         self
     }
 
-    /// Sets the symbols used to display the border as a [`crate::symbols::border::Set`].
+    /// Sets the symbols used to display the border as a [`crate::style::symbols::border::Set`].
     ///
     /// Setting this overwrites any [`border_type`](Block::border_type) that was set.
     ///

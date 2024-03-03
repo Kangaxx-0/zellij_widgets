@@ -1,3 +1,5 @@
+use crate::prelude::*;
+//
 /// Defines the padding of a [`Block`].
 ///
 /// See the [`padding`](Block::padding) method of [`Block`] to configure its padding.

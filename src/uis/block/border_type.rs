@@ -1,6 +1,7 @@
 use strum::{Display, EnumString};
 
 use crate::style::symbols::border;
+use crate::uis::Block;
 
 /// The type of border of a [`Block`].
 ///

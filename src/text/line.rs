@@ -1,7 +1,8 @@
+#[allow(unused_imports)]
 use std::borrow::Cow;
 
 use super::{Span, Style, StyledGrapheme};
-use crate::layout::Alignment;
+use crate::prelude::*;
 
 /// A line of text, consisting of one or more [`Span`]s.
 ///
@@ -36,7 +37,6 @@ use crate::layout::Alignment;
 /// These methods are fluent setters. They return a `Line` with the property set.
 ///
 /// - [`Line::spans`] sets the content of the line.
-/// - [`Line::style`] sets the style of the line.
 /// - [`Line::alignment`] sets the alignment of the line.
 ///
 /// # Other Methods
@@ -60,7 +60,6 @@ use crate::layout::Alignment;
 /// ]);
 /// ```
 ///
-/// [`Paragraph`]: crate::widgets::Paragraph
 #[derive(Debug, Default, Clone, Eq, PartialEq, Hash)]
 pub struct Line<'a> {
     pub spans: Vec<Span<'a>>,
