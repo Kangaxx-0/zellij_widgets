@@ -1,6 +1,6 @@
-This sample code provides a basic overview of how to use this crate to build a plugin system for Zellij. The key concept to understand is that it is your responsibility to manage the plugin state for rendering content through the WASM runtime. If you have experience with Ratatui, the primary distinction lies in this aspect of state management.
+This sample code provides a basic overview of how to use this crate to build a plugin system for Zellij. The key concept to understand is that it is your responsibility to manage the plugin state for rendering content through the WASM runtime.
 
-## How to use it
+## How to use ia
 Update your zellij config to bind the key
 
 ```
