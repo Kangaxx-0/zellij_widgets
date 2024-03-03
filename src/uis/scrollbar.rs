@@ -160,11 +160,11 @@ pub enum ScrollbarOrientation {
 ///     .orientation(ScrollbarOrientation::VerticalRight)
 ///     .begin_symbol(Some("↑"))
 ///     .end_symbol(Some("↓"));
-/// let mut scrollbar_state = ScrollbarState::new(items.iter().len()).position(vertical_scroll);
+/// let scrollbar_state = ScrollbarState::new(items.iter().len()).position(vertical_scroll);
 ///
 /// let area = frame.size();
 /// frame.render_widget(paragraph, area);
-/// frame.render_stateful_widget(
+/// frame.render_state_widget(
 ///     scrollbar,
 ///     area.inner(&Margin {
 ///         vertical: 1,

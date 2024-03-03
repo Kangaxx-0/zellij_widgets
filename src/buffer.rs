@@ -317,10 +317,7 @@ impl Buffer {
     /// ```
     /// # use zellij_widgets::prelude::*;
     /// let mut buffer = Buffer::empty(Geometry::new(10, 10));
-    /// let line = Line::new(vec![
-    ///     Span::new("Hello", Style::default()),
-    ///     Span::new("World", Style::default()),
-    /// ]);
+    /// let line = Line::raw("Hello");
     /// buffer.set_line(0, 0, &line, 10);
     /// ```
     pub fn set_line(&mut self, x: u16, y: u16, line: &Line<'_>, cols: u16) -> (u16, u16) {
@@ -363,7 +360,9 @@ impl Buffer {
     /// # Example
     ///
     /// ```
-    /// let mut buffer = Buffer::empty((10, 10));
+    /// # use zellij_widgets::prelude::*;
+    /// let area = Geometry::new(10, 10);
+    /// let mut buffer = Buffer::empty(area);
     /// let span = Span::styled("Hello, world!", Style::default().fg(Color::White));
     /// buffer.set_span(0, 0, &span, 10);
     /// ```
@@ -384,8 +383,9 @@ impl Buffer {
     /// # Example
     ///
     /// ```
-    /// let mut buffer = Buffer::empty((10, 10));
-    /// let area = Geometry::new(0, 0, 5, 5);
+    /// # use zellij_widgets::prelude::*;
+    /// let area = Geometry::new(5, 5);
+    /// let mut buffer = Buffer::empty(area);
     /// let style = Style::default().fg(Color::White).bg(Color::Black);
     /// buffer.set_style(area, style);
     /// ```
