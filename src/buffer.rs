@@ -259,8 +259,30 @@ impl Buffer {
         self.set_stringn(x, y, string, usize::MAX, style);
     }
 
-    /// Print at most the first n characters of a string if enough space is available
-    /// until the end of the line
+    /// Writes a substring of the given string to the buffer(`Cell`) at the specified coordinates, applying the specified style.
+    ///
+    /// This function attempts to write at most `cols` characters of the string to the buffer, starting from the specified `x` and `y` coordinates.
+    /// The actual number of characters written may be less than `cols` if the string is shorter or if writing the string would exceed the buffer's boundaries.
+    ///
+    /// Each character in the string is treated as a grapheme, which is a user-perceived character that may consist of multiple code points (e.g., emoji or combined characters).
+    /// Each grapheme is written to a separate cell in the buffer, and the specified style is applied to each cell. If a grapheme spans multiple columns (e.g., wide characters), it is treated as a single unit and occupies one cell, with subsequent cells being marked as "hidden" or "skip" cells.
+    ///
+    /// The function ensures that writing does not exceed the right boundary of the buffer or the specified `cols` limit. If a grapheme would extend beyond these limits, it is not written, and the function stops writing further characters.
+    ///
+    /// The function returns the new `x` and `y` coordinates after writing the string. These coordinates represent the position where the next character would be written in the buffer. If the end of the buffer is reached, the coordinates will correspond to the buffer's boundaries.
+    ///
+    /// # Arguments
+    ///
+    /// * `x` - The x-coordinate (column) at which to start writing the string.
+    /// * `y` - The y-coordinate (row) at which to start writing the string.
+    /// * `string` - The string to write to the buffer. Can be any type that implements `AsRef<str>`, such as `&str` or `String`.
+    /// * `cols` - The maximum number of characters to write. This limit helps prevent writing beyond the desired area in the buffer.
+    /// * `style` - The style to apply to each character in the string. This includes properties like foreground color, background color, and text modifiers (bold, italic, etc.).
+    ///
+    /// # Returns
+    ///
+    /// A tuple `(u16, u16)` representing the new `x` and `y` coordinates after writing the string. These coordinates can be used to determine where to write subsequent content in the buffer.
+    ///
     pub fn set_stringn<S>(
         &mut self,
         x: u16,
@@ -317,10 +339,7 @@ impl Buffer {
     /// ```
     /// # use zellij_widgets::prelude::*;
     /// let mut buffer = Buffer::empty(Geometry::new(10, 10));
-    /// let line = Line::new(vec![
-    ///     Span::new("Hello", Style::default()),
-    ///     Span::new("World", Style::default()),
-    /// ]);
+    /// let line = Line::raw("Hello");
     /// buffer.set_line(0, 0, &line, 10);
     /// ```
     pub fn set_line(&mut self, x: u16, y: u16, line: &Line<'_>, cols: u16) -> (u16, u16) {
@@ -363,7 +382,9 @@ impl Buffer {
     /// # Example
     ///
     /// ```
-    /// let mut buffer = Buffer::empty((10, 10));
+    /// # use zellij_widgets::prelude::*;
+    /// let area = Geometry::new(10, 10);
+    /// let mut buffer = Buffer::empty(area);
     /// let span = Span::styled("Hello, world!", Style::default().fg(Color::White));
     /// buffer.set_span(0, 0, &span, 10);
     /// ```
@@ -384,8 +405,9 @@ impl Buffer {
     /// # Example
     ///
     /// ```
-    /// let mut buffer = Buffer::empty((10, 10));
-    /// let area = Geometry::new(0, 0, 5, 5);
+    /// # use zellij_widgets::prelude::*;
+    /// let area = Geometry::new(5, 5);
+    /// let mut buffer = Buffer::empty(area);
     /// let style = Style::default().fg(Color::White).bg(Color::Black);
     /// buffer.set_style(area, style);
     /// ```

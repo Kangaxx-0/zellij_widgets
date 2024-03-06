@@ -1,0 +1,9 @@
+# configuration for https://github.com/crate-ci/typos
+
+[default.extend-words]
+ratatui = "ratatui"
+
+[type.md]
+extend-ignore-re = [
+  "\\[[[:xdigit:]]{7}\\]\\(https://github.com/Kangaxx-0/zellij_widgets/commit/[[:xdigit:]]{40}\\)",
+]

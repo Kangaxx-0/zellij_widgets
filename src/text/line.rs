@@ -1,8 +1,65 @@
+#[allow(unused_imports)]
 use std::borrow::Cow;
 
 use super::{Span, Style, StyledGrapheme};
-use crate::layout::Alignment;
+use crate::prelude::*;
 
+/// A line of text, consisting of one or more [`Span`]s.
+///
+/// [`Line`]s are used wherever text is displayed in the terminal and represent a single line of
+/// text. When a [`Line`] is rendered, it is rendered as a single line of text, with each [`Span`]
+/// being rendered in order (left to right).
+///
+/// [`Line`]s can be created from [`Span`]s, [`String`]s, and [`&str`]s. They can be styled with a
+/// [`Style`], and have an [`Alignment`].
+///
+/// The line's [`Alignment`] is used by the rendering widget to determine how to align the line
+/// within the available space. If the line is longer than the available space, the alignment is
+/// ignored and the line is truncated.
+///
+/// The line's [`Style`] is used by the rendering widget to determine how to style the line. If the
+/// line is longer than the available space, the style is applied to the entire line, and the line
+/// is truncated. Each [`Span`] in the line will be styled with the [`Style`] of the line, and then
+/// with its own [`Style`].
+///
+/// `Line` implements the [`Widget`] trait, which means it can be rendered to a [`Buffer`]. Usually
+/// apps will use the [`Paragraph`] widget instead of rendering a [`Line`] directly as it provides
+/// more functionality.
+///
+/// # Constructor Methods
+///
+/// - [`Line::default`] creates a line with empty content and the default style.
+/// - [`Line::raw`] creates a line with the given content and the default style.
+/// - [`Line::styled`] creates a line with the given content and style.
+///
+/// # Setter Methods
+///
+/// These methods are fluent setters. They return a `Line` with the property set.
+///
+/// - [`Line::spans`] sets the content of the line.
+/// - [`Line::alignment`] sets the alignment of the line.
+///
+/// # Other Methods
+///
+/// - [`Line::patch_style`] patches the style of the line, adding modifiers from the given style.
+/// - [`Line::reset_style`] resets the style of the line.
+/// - [`Line::width`] returns the unicode width of the content held by this line.
+/// - [`Line::styled_graphemes`] returns an iterator over the graphemes held by this line.
+///
+/// # Examples
+///
+/// ```rust
+/// use zellij_widgets::prelude::*;
+///
+/// Line::raw("unstyled");
+/// Line::styled("yellow text", Style::new().yellow());
+/// Line::from(String::from("unstyled"));
+/// Line::from(vec![
+///     Span::styled("Hello", Style::new().blue()),
+///     Span::raw(" world!"),
+/// ]);
+/// ```
+///
 #[derive(Debug, Default, Clone, Eq, PartialEq, Hash)]
 pub struct Line<'a> {
     pub spans: Vec<Span<'a>>,
