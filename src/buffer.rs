@@ -6,11 +6,7 @@ use std::{
 use unicode_segmentation::UnicodeSegmentation;
 use unicode_width::UnicodeWidthStr;
 
-use crate::{
-    layout::Geometry,
-    style::{Color, Modifier, Style},
-    text::{Line, Span},
-};
+use crate::prelude::*;
 
 /// A buffer cell
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]

@@ -1,6 +1,4 @@
-use crate::prelude::symbols::border;
-
-use super::{BorderType, Borders, Style};
+use crate::prelude::*;
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct BorderOptions {

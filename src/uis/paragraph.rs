@@ -4,13 +4,8 @@ use super::{
     reflow::{LineComposer, LineTruncator, WordWrapper},
     Block,
 };
-use crate::{
-    buffer::Buffer,
-    layout::{Alignment, Geometry},
-    style::{Style, Styled},
-    text::{StyledGrapheme, Text},
-    widget::Widget,
-};
+
+use crate::prelude::*;
 
 fn get_line_offset(line_width: u16, text_area_width: u16, alignment: Alignment) -> u16 {
     match alignment {

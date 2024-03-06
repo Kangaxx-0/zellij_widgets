@@ -1,4 +1,4 @@
-use crate::{buffer::Buffer, layout::Geometry, widget::Widget};
+use crate::prelude::*;
 
 /// A widget to erase/reset a certain area to allow overdrawing (e.g. for popups).
 ///
