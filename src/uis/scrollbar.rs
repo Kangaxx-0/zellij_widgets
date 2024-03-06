@@ -27,7 +27,6 @@ pub enum ScrollDirection {
 ///
 /// - the `content_length` is 4
 /// - the `position` is 0
-/// - the `viewport_content_length` is 2
 ///
 /// ```text
 /// ┌───────────────┐
@@ -37,17 +36,12 @@ pub enum ScrollDirection {
 /// │   second item ║
 /// └───────────────┘
 /// ```
-///
-/// If you don't have multi-line content, you can leave the `viewport_content_length` set to the
-/// default of 0 and it'll use the track size as a `viewport_content_length`.
 #[derive(Debug, Default, Clone, Copy, Eq, PartialEq, Hash)]
 pub struct ScrollbarState {
     // The total length of the scrollable content.
     content_length: usize,
     // The current position within the scrollable content.
     position: usize,
-    // The length of content in current viewport.
-    viewport_content_length: usize,
 }
 
 impl ScrollbarState {
@@ -69,13 +63,6 @@ impl ScrollbarState {
     #[must_use = "method moves the value of self and returns the modified value"]
     pub fn content_length(mut self, content_length: usize) -> Self {
         self.content_length = content_length;
-        self
-    }
-
-    /// Sets the length of the viewport content and returns the modified ScrollbarState.
-    #[must_use = "method moves the value of self and returns the modified value"]
-    pub fn viewport_content_length(mut self, viewport_content_length: usize) -> Self {
-        self.viewport_content_length = viewport_content_length;
         self
     }
 
@@ -430,9 +417,6 @@ impl<'a> Scrollbar<'a> {
     /// at which the scrollbar thumb begins, and `thumb_end` is the position at which the
     /// scrollbar thumb ends.
     ///
-    /// The size of the thumb (i.e., `thumb_end - thumb_start`) is proportional to the ratio of the
-    /// viewport content length to the total content length.
-    ///
     /// The position of the thumb (i.e., `thumb_start`) is proportional to the ratio of the current
     /// scroll position to the total content length.
     fn get_thumb_start_end(
@@ -440,22 +424,9 @@ impl<'a> Scrollbar<'a> {
         state: &ScrollbarState,
         track_start_end: (u16, u16),
     ) -> (u16, u16) {
-        // let (track_start, track_end) = track_start_end;
-        // let track_size = track_end - track_start;
-        // let thumb_size =
-        //     ((state.viewport_content_length / state.content_length) * track_size).max(1);
-        // let thumb_start = (state.position / state.content_length) *
-        //                    state.viewport_content_length;
-        // let thumb_end = thumb_size + thumb_start;
-        // (thumb_start, thumb_end)
-
         let (track_start, track_end) = track_start_end;
 
-        let viewport_content_length = if state.viewport_content_length == 0 {
-            (track_end - track_start) as usize
-        } else {
-            state.viewport_content_length
-        };
+        let viewport_content_length = (track_end - track_start) as usize;
 
         let scroll_position_ratio = (state.position as f64 / state.content_length as f64).min(1.0);
 
@@ -897,62 +868,6 @@ mod tests {
                 vec!["    ", "─██─"]
             } else {
                 vec!["    ", "──██"]
-            };
-            assert_buffer_eq!(buffer, Buffer::with_lines(expected.clone()));
-        }
-    }
-
-    #[test]
-    fn test_rendering_viewport_content_length() {
-        for i in 0..=16 {
-            let mut buffer = Buffer::empty(Geometry::new(2, 8));
-            let state = ScrollbarState::default()
-                .position(i)
-                .content_length(16)
-                .viewport_content_length(4);
-            Scrollbar::default()
-                .orientation(ScrollbarOrientation::HorizontalBottom)
-                .begin_symbol(Some(DOUBLE_HORIZONTAL.begin))
-                .end_symbol(Some(DOUBLE_HORIZONTAL.end))
-                .render(buffer.area, &mut buffer, &state);
-            let expected = if i <= 1 {
-                vec!["        ", "◄██════►"]
-            } else if i <= 5 {
-                vec!["        ", "◄═██═══►"]
-            } else if i <= 9 {
-                vec!["        ", "◄══██══►"]
-            } else if i <= 13 {
-                vec!["        ", "◄═══██═►"]
-            } else {
-                vec!["        ", "◄════██►"]
-            };
-            assert_buffer_eq!(buffer, Buffer::with_lines(expected.clone()));
-        }
-
-        for i in 0..=16 {
-            let mut buffer = Buffer::empty(Geometry::new(2, 8));
-            let state = ScrollbarState::default()
-                .position(i)
-                .content_length(16)
-                .viewport_content_length(1);
-            Scrollbar::default()
-                .orientation(ScrollbarOrientation::HorizontalBottom)
-                .begin_symbol(Some(DOUBLE_HORIZONTAL.begin))
-                .end_symbol(Some(DOUBLE_HORIZONTAL.end))
-                .render(buffer.area, &mut buffer, &state);
-            dbg!(i);
-            let expected = if i <= 1 {
-                vec!["        ", "◄█═════►"]
-            } else if i <= 4 {
-                vec!["        ", "◄═█════►"]
-            } else if i <= 7 {
-                vec!["        ", "◄══█═══►"]
-            } else if i <= 11 {
-                vec!["        ", "◄═══█══►"]
-            } else if i <= 14 {
-                vec!["        ", "◄════█═►"]
-            } else {
-                vec!["        ", "◄═════█►"]
             };
             assert_buffer_eq!(buffer, Buffer::with_lines(expected.clone()));
         }
