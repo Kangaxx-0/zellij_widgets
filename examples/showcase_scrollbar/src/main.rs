@@ -10,12 +10,20 @@ struct State {
     text: Vec<String>,
 }
 
+#[derive(Default, Clone, Eq, PartialEq)]
+enum CurrentScrollMode {
+    #[default]
+    Vertical,
+    Horizontal,
+}
+
 #[derive(Default, Clone)]
 struct ScrollbarStateInternal {
     pub vertical_scroll_state: ScrollbarState,
     pub horizontal_scroll_state: ScrollbarState,
     pub vertical_scroll: usize,
     pub horizontal_scroll: usize,
+    pub current_scroll_mode: CurrentScrollMode,
 }
 
 register_plugin!(State);
@@ -38,6 +46,7 @@ impl ZellijPlugin for State {
             horizontal_scroll_state: ScrollbarState::new(self.text[0].len()),
             vertical_scroll: 0,
             horizontal_scroll: 0,
+            current_scroll_mode: CurrentScrollMode::Vertical,
         };
     }
 
@@ -114,12 +123,17 @@ fn render_scrollbar(
     text: Vec<Line>,
     state: &ScrollbarStateInternal,
 ) {
-    frame.render_widget(
-        Paragraph::new(text.clone())
-            .block(Block::default().borders(Borders::ALL).title("paragraph"))
-            .green(),
-        area,
-    );
+    let mut parah = Paragraph::new(text.clone())
+        .block(Block::default().borders(Borders::ALL).title("paragraph"))
+        .green();
+
+    if state.current_scroll_mode == CurrentScrollMode::Vertical {
+        parah = parah.scroll((state.vertical_scroll as u16, 0));
+    } else if state.current_scroll_mode == CurrentScrollMode::Horizontal {
+        parah = parah.scroll((0, state.horizontal_scroll as u16));
+    }
+
+    frame.render_widget(parah, area);
     frame.render_state_widget(
         Scrollbar::default()
             .orientation(ScrollbarOrientation::VerticalRight)
@@ -152,6 +166,38 @@ impl State {
         if let Key::Char(c) = e {
             if c == 'c' {
                 self.pressed_key = c;
+            } else if c == 'j' {
+                self.scroll_state.vertical_scroll =
+                    self.scroll_state.vertical_scroll.saturating_add(1);
+                self.scroll_state.vertical_scroll_state = self
+                    .scroll_state
+                    .vertical_scroll_state
+                    .position(self.scroll_state.vertical_scroll);
+                self.scroll_state.current_scroll_mode = CurrentScrollMode::Vertical;
+            } else if c == 'k' {
+                self.scroll_state.vertical_scroll =
+                    self.scroll_state.vertical_scroll.saturating_sub(1);
+                self.scroll_state.vertical_scroll_state = self
+                    .scroll_state
+                    .vertical_scroll_state
+                    .position(self.scroll_state.vertical_scroll);
+                self.scroll_state.current_scroll_mode = CurrentScrollMode::Vertical;
+            } else if c == 'l' {
+                self.scroll_state.horizontal_scroll =
+                    self.scroll_state.horizontal_scroll.saturating_add(1);
+                self.scroll_state.horizontal_scroll_state = self
+                    .scroll_state
+                    .horizontal_scroll_state
+                    .position(self.scroll_state.horizontal_scroll);
+                self.scroll_state.current_scroll_mode = CurrentScrollMode::Horizontal;
+            } else if c == 'h' {
+                self.scroll_state.horizontal_scroll =
+                    self.scroll_state.horizontal_scroll.saturating_sub(1);
+                self.scroll_state.horizontal_scroll_state = self
+                    .scroll_state
+                    .horizontal_scroll_state
+                    .position(self.scroll_state.horizontal_scroll);
+                self.scroll_state.current_scroll_mode = CurrentScrollMode::Horizontal;
             }
         }
     }
