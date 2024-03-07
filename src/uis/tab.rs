@@ -1,7 +1,6 @@
 use crate::text::Span;
 
 use crate::prelude::*;
-use crate::widget::StateWidget;
 
 const DEFAULT_HIGHLIGHT_STYLE: Style = Style::new().add_modifier(Modifier::REVERSED);
 

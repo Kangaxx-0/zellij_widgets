@@ -3,7 +3,7 @@ use std::{collections::VecDeque, vec::IntoIter};
 use unicode_segmentation::UnicodeSegmentation;
 use unicode_width::UnicodeWidthStr;
 
-use crate::{layout::Alignment, text::StyledGrapheme};
+use crate::prelude::*;
 
 const NBSP: &str = "\u{00a0}";
 
