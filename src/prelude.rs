@@ -8,9 +8,8 @@ pub use crate::{
     text::{self, Line, Masked, Span, StyledGrapheme, Text},
     title::{self, Position, Title},
     uis::{
-        self,
-        scrollbar::{ScrollDirection, Scrollbar, ScrollbarOrientation, ScrollbarState},
-        Block, BorderOptions, BorderType, Borders, Erase, Padding, Paragraph, Tab, TabState, Wrap,
+        self, Block, BorderOptions, BorderType, Borders, Erase, List, ListItem, Padding, Paragraph,
+        ScrollDirection, Scrollbar, ScrollbarOrientation, ScrollbarState, Tab, TabState, Wrap,
     },
     widget::{StateWidget, Widget},
 };
