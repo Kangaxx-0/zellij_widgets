@@ -12,7 +12,8 @@ mod state;
 pub struct List<'a> {
     items: Vec<ListItem<'a>>,
     block: Option<Block<'a>>,
-    highlight_item: HighlightItem<'a>,
+    block_style: Option<Style>,
+    highlight_item: Option<HighlightItem<'a>>,
 }
 
 impl<'a> List<'a> {
@@ -20,9 +21,11 @@ impl<'a> List<'a> {
         Self::default()
     }
 
-    pub fn items(mut self, items: Vec<ListItem<'a>>) -> Self {
-        self.items = items;
-        self
+    pub fn new_with_items(items: Vec<ListItem<'a>>) -> Self {
+        Self {
+            items,
+            ..Self::default()
+        }
     }
 
     pub fn block(mut self, block: Block<'a>) -> Self {
@@ -30,26 +33,90 @@ impl<'a> List<'a> {
         self
     }
 
-    pub fn highlight_item(mut self, highlight_item: HighlightItem<'a>) -> Self {
+    pub fn block_style(mut self, block_style: Style) -> Self {
+        self.block_style = Some(block_style);
+        self
+    }
+
+    pub fn highlight_item(mut self, highlight_item: Option<HighlightItem<'a>>) -> Self {
         self.highlight_item = highlight_item;
         self
+    }
+
+    pub fn item_style(&mut self, style: Style) {
+        for item in &mut self.items {
+            item.set_style(style)
+        }
+    }
+
+    fn get_items_bounds(&self, max_length: usize, start_pos: usize) -> (usize, usize) {
+        let offset = start_pos.min(self.items.len() - 1);
+        let relative_start = offset;
+        let mut relative_end = offset;
+        let mut height = 0;
+        for item in self.items.iter().skip(start_pos) {
+            if relative_end - relative_start >= max_length {
+                break;
+            }
+            height += item.height();
+            relative_end += 1;
+        }
+
+        (relative_start, relative_end)
     }
 }
 
 impl<'a> StateWidget for List<'a> {
     type State = ListState;
-    fn render(self, area: Geometry, buf: &mut Buffer, _state: &ListState) {
-        let List {
-            items,
-            block,
-            highlight_item,
-        } = self;
-        let block = block.unwrap_or_default();
-        let inner = block.inner(area);
-        block.render(area, buf);
-        let mut offset = 0;
-        for item in items {
-            todo!()
+
+    fn render(self, area: Geometry, buf: &mut Buffer, state: &ListState) {
+        let block_style = self.block_style.unwrap_or_default();
+
+        buf.set_style(area, block_style);
+
+        let list_area = match self.block.clone() {
+            Some(b) => {
+                let inner_area = b.inner(area);
+                b.render(inner_area, buf);
+                inner_area
+            }
+            None => area,
+        };
+
+        if self.items.is_empty() {
+            return;
         }
+
+        let max_length = list_area.rows as usize;
+        let max_cols = list_area.cols;
+        let (start, end) = self.get_items_bounds(max_length, state.start_pos_to_display);
+
+        let mut current_height = 0;
+
+        self.items
+            .iter()
+            .skip(state.start_pos_to_display)
+            .take(end - start)
+            .enumerate()
+            .for_each(|(i, item)| {
+                let (x, y) = {
+                    let pos = (list_area.left(), list_area.top() + current_height);
+                    current_height += item.height() as u16;
+                    pos
+                };
+
+                let item_gemo = Geometry {
+                    x,
+                    y,
+                    cols: list_area.cols,
+                    rows: item.height() as u16,
+                };
+
+                buf.set_style(item_gemo, item.style);
+
+                for (j, line) in item.field.lines.iter().enumerate() {
+                    buf.set_line(item_gemo.x, item_gemo.y + j as u16, line, max_cols);
+                }
+            });
     }
 }

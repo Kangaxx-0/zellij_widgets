@@ -45,14 +45,14 @@ use crate::prelude::*;
 /// ```
 ///
 /// [`Stylize`]: crate::style::Stylize
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+#[derive(Default, Debug, Clone, Eq, PartialEq, Hash)]
 pub struct ListItem<'a> {
-    field: Text<'a>,
-    style: Style,
+    pub field: Text<'a>,
+    pub style: Style,
 }
 
 impl<'a> ListItem<'a> {
-    fn new<T>(text: T) -> ListItem<'a>
+    pub fn new<T>(text: T) -> ListItem<'a>
     where
         T: Into<Text<'a>>,
     {
@@ -62,17 +62,16 @@ impl<'a> ListItem<'a> {
         }
     }
 
-    pub fn set_style(mut self, style: Style) -> ListItem<'a> {
-        self.style = style;
-        self
-    }
-
     pub(crate) fn height(&self) -> usize {
         self.field.height()
     }
 
     pub(crate) fn width(&self) -> usize {
         self.field.width()
+    }
+
+    pub(crate) fn set_style(&mut self, style: Style) {
+        self.style = style;
     }
 }
 
@@ -89,7 +88,8 @@ mod tests {
 
     #[test]
     fn list_item_styled() {
-        let item = ListItem::new("Item 1").set_style(Style::default().fg(Color::Red));
+        let mut item = ListItem::new("Item 1");
+        item.set_style(Style::default().fg(Color::Red));
         assert_eq!(item.height(), 1);
         assert_eq!(item.width(), 6);
     }
