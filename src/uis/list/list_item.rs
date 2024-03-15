@@ -27,16 +27,16 @@ impl<'a> ListItem<'a> {
         }
     }
 
-    pub(crate) fn height(&self) -> usize {
+    pub fn height(&self) -> usize {
         self.field.height()
     }
 
     #[allow(dead_code)]
-    pub(crate) fn width(&self) -> usize {
+    pub fn width(&self) -> usize {
         self.field.width()
     }
 
-    pub(crate) fn set_style(&mut self, style: Style) {
+    pub fn set_style(&mut self, style: Style) {
         self.style = style;
     }
 }
