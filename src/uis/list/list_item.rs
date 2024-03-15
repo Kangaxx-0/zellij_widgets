@@ -31,6 +31,7 @@ impl<'a> ListItem<'a> {
         self.field.height()
     }
 
+    #[allow(dead_code)]
     pub(crate) fn width(&self) -> usize {
         self.field.width()
     }

@@ -117,8 +117,9 @@ impl<'a> StateWidget for List<'a> {
                         buf.set_style(item_gemo, self.highlight_style.style);
                         for (j, line) in item.field.lines.iter().enumerate() {
                             if j == 0 {
+                                let line_text: String = line.clone().into();
                                 let highlight_symbol =
-                                    format!("{} {}", self.highlight_style.symbol, line.to_string());
+                                    format!("{} {}", self.highlight_style.symbol, line_text);
                                 buf.set_string(x, y, highlight_symbol, self.highlight_style.style);
 
                                 let pos = self.highlight_style.symbol.len() as u16;
@@ -126,7 +127,7 @@ impl<'a> StateWidget for List<'a> {
                                 buf.set_line(
                                     item_gemo.x + pos + 1,
                                     item_gemo.y + j as u16,
-                                    &line,
+                                    line,
                                     max_cols,
                                 );
                             } else {
