@@ -228,6 +228,17 @@ impl<'a> Line<'a> {
     }
 }
 
+impl<'a> Line<'a> {
+    /// Convenient function to convert a &line back to a string, this is useful if you have a reference
+    /// of a line and you want a string
+    pub fn to_string(&self) -> String {
+        self.spans
+            .iter()
+            .map(|span| span.content.to_string())
+            .collect()
+    }
+}
+
 impl<'a> From<String> for Line<'a> {
     fn from(s: String) -> Self {
         Self::from(vec![Span::from(s)])

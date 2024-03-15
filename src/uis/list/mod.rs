@@ -1,19 +1,19 @@
 use crate::prelude::*;
 
-pub use highlight_item::HighlightItem;
+pub use highlight_style::HighlightStyle;
 pub use list_item::ListItem;
 pub use state::ListState;
 
-mod highlight_item;
+mod highlight_style;
 mod list_item;
 mod state;
 
 #[derive(Debug, Default, PartialEq, Hash)]
 pub struct List<'a> {
     items: Vec<ListItem<'a>>,
-    block: Option<Block<'a>>,
-    block_style: Option<Style>,
-    highlight_item: Option<HighlightItem<'a>>,
+    pub block: Option<Block<'a>>,
+    pub block_style: Option<Style>,
+    pub highlight_style: HighlightStyle,
 }
 
 impl<'a> List<'a> {
@@ -38,8 +38,8 @@ impl<'a> List<'a> {
         self
     }
 
-    pub fn highlight_item(mut self, highlight_item: Option<HighlightItem<'a>>) -> Self {
-        self.highlight_item = highlight_item;
+    pub fn highlight_style(mut self, style: HighlightStyle) -> Self {
+        self.highlight_style = style;
         self
     }
 
@@ -50,12 +50,12 @@ impl<'a> List<'a> {
     }
 
     fn get_items_bounds(&self, max_length: usize, start_pos: usize) -> (usize, usize) {
-        let offset = start_pos.min(self.items.len() - 1);
+        let offset = start_pos.min(self.items.len().saturating_sub(1));
         let relative_start = offset;
         let mut relative_end = offset;
         let mut height = 0;
         for item in self.items.iter().skip(start_pos) {
-            if relative_end - relative_start >= max_length {
+            if height + item.height() >= max_length {
                 break;
             }
             height += item.height();
@@ -69,7 +69,7 @@ impl<'a> List<'a> {
 impl<'a> StateWidget for List<'a> {
     type State = ListState;
 
-    fn render(self, area: Geometry, buf: &mut Buffer, state: &ListState) {
+    fn render(self, area: Geometry, buf: &mut Buffer, state: &mut ListState) {
         let block_style = self.block_style.unwrap_or_default();
 
         buf.set_style(area, block_style);
@@ -95,7 +95,7 @@ impl<'a> StateWidget for List<'a> {
 
         self.items
             .iter()
-            .skip(state.start_pos_to_display)
+            .skip(start)
             .take(end - start)
             .enumerate()
             .for_each(|(i, item)| {
@@ -112,10 +112,39 @@ impl<'a> StateWidget for List<'a> {
                     rows: item.height() as u16,
                 };
 
-                buf.set_style(item_gemo, item.style);
+                if let Some(index) = state.highlight_index() {
+                    if index == i {
+                        buf.set_style(item_gemo, self.highlight_style.style);
+                        for (j, line) in item.field.lines.iter().enumerate() {
+                            if j == 0 {
+                                let highlight_symbol =
+                                    format!("{} {}", self.highlight_style.symbol, line.to_string());
+                                buf.set_string(x, y, highlight_symbol, self.highlight_style.style);
 
-                for (j, line) in item.field.lines.iter().enumerate() {
-                    buf.set_line(item_gemo.x, item_gemo.y + j as u16, line, max_cols);
+                                let pos = self.highlight_style.symbol.len() as u16;
+
+                                buf.set_line(
+                                    item_gemo.x + pos + 1,
+                                    item_gemo.y + j as u16,
+                                    &line,
+                                    max_cols,
+                                );
+                            } else {
+                                let pos = self.highlight_style.symbol.len() as u16;
+                                buf.set_line(
+                                    item_gemo.x + pos,
+                                    item_gemo.y + j as u16,
+                                    line,
+                                    max_cols,
+                                );
+                            }
+                        }
+                    } else {
+                        buf.set_style(area, item.style);
+                        for (j, line) in item.field.lines.iter().enumerate() {
+                            buf.set_line(item_gemo.x, item_gemo.y + j as u16, line, max_cols);
+                        }
+                    }
                 }
             });
     }

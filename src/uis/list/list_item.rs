@@ -10,41 +10,6 @@ use crate::prelude::*;
 /// This [`Style`] will be combined with the [`Style`] of the inner [`Text`]. The [`Style`]
 /// of the [`Text`] will be added to the [`Style`] of the [`ListItem`].
 ///
-/// # Examples
-///
-/// You can create [`ListItem`]s from simple `&str`
-///
-/// ```rust
-/// # use ratatui::{prelude::*, widgets::*};
-/// let item = ListItem::new("Item 1");
-/// ```
-///
-/// Anything that can be converted to [`Text`] can be a [`ListItem`].
-///
-/// ```rust
-/// # use zellij_widgets::prelude::*;
-/// let item1: ListItem = "Item 1".into();
-/// let item2: ListItem = Line::raw("Item 2").into();
-/// ```
-///
-/// A [`ListItem`] styled with [`Stylize`]
-///
-/// ```rust
-/// # use zellij_widgets::prelude::*;
-/// let item = ListItem::new("Item 1").red().on_white();
-/// ```
-///
-/// If you need more control over the item's style, you can explicitly style the underlying
-/// [`Text`]
-///
-/// ```rust
-/// # use zellij_widgets::prelude::*;
-/// let mut text = Text::default();
-/// text.extend(["Item".blue(), Span::raw(" "), "1".bold().red()]);
-/// let item = ListItem::new(text);
-/// ```
-///
-/// [`Stylize`]: crate::style::Stylize
 #[derive(Default, Debug, Clone, Eq, PartialEq, Hash)]
 pub struct ListItem<'a> {
     pub field: Text<'a>,

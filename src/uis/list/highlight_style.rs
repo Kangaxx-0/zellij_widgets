@@ -1,24 +1,24 @@
 use crate::prelude::*;
 
 #[derive(Debug, PartialEq, Hash)]
-pub struct HighlightItem<'a> {
-    symbol: &'a str,
-    style: Style,
-    icon: Option<&'a str>,
+pub struct HighlightStyle {
+    pub symbol: String,
+    pub style: Style,
+    pub icon: Option<String>,
 }
 
-impl Default for HighlightItem<'_> {
+impl Default for HighlightStyle {
     fn default() -> Self {
         Self {
-            symbol: "-❯",
+            symbol: "-❯".to_string(),
             style: Style::default(),
             icon: None,
         }
     }
 }
 
-impl<'a> HighlightItem<'a> {
-    pub fn new(symbol: &'a str, style: Style, icon: Option<&'a str>) -> Self {
+impl HighlightStyle {
+    pub fn new(symbol: String, style: Style, icon: Option<String>) -> Self {
         Self {
             symbol,
             style,
@@ -26,7 +26,7 @@ impl<'a> HighlightItem<'a> {
         }
     }
 
-    pub fn icon(mut self, icon: &'a str) -> Self {
+    pub fn icon(mut self, icon: String) -> Self {
         self.icon = Some(icon);
         self
     }
@@ -36,7 +36,7 @@ impl<'a> HighlightItem<'a> {
         self
     }
 
-    pub fn symbol(mut self, symbol: &'a str) -> Self {
+    pub fn symbol(mut self, symbol: String) -> Self {
         self.symbol = symbol;
         self
     }
@@ -48,23 +48,24 @@ mod tests {
 
     #[test]
     fn test_highlight_item() {
-        let highlight_item = HighlightItem::default();
+        let highlight_item = HighlightStyle::default();
         assert_eq!(highlight_item.symbol, "-❯");
         assert_eq!(highlight_item.style, Style::default());
         assert_eq!(highlight_item.icon, None);
 
-        let highlight_item = HighlightItem::new(">", Style::default(), Some("*"));
+        let highlight_item =
+            HighlightStyle::new(">".to_string(), Style::default(), Some("*".to_string()));
         assert_eq!(highlight_item.symbol, ">");
         assert_eq!(highlight_item.style, Style::default());
-        assert_eq!(highlight_item.icon, Some("*"));
+        assert_eq!(highlight_item.icon, Some("*".to_string()));
 
-        let highlight_item = HighlightItem::default().icon("icon");
-        assert_eq!(highlight_item.icon, Some("icon"));
+        let highlight_item = HighlightStyle::default().icon("icon".to_string());
+        assert_eq!(highlight_item.icon, Some("icon".to_string()));
 
-        let highlight_item = HighlightItem::default().style(Style::default().fg(Color::Red));
+        let highlight_item = HighlightStyle::default().style(Style::default().fg(Color::Red));
         assert_eq!(highlight_item.style, Style::default().fg(Color::Red));
 
-        let highlight_item = HighlightItem::default().symbol(">");
+        let highlight_item = HighlightStyle::default().symbol(">".to_string());
         assert_eq!(highlight_item.symbol, ">");
     }
 }
