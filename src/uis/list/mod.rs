@@ -49,20 +49,59 @@ impl<'a> List<'a> {
         }
     }
 
-    fn get_items_bounds(&self, max_length: usize, start_pos: usize) -> (usize, usize) {
+    fn get_items_bounds(
+        &self,
+        max_length: usize,
+        start_pos: usize,
+        current_highlight: usize,
+    ) -> (usize, usize) {
         let offset = start_pos.min(self.items.len().saturating_sub(1));
-        let relative_start = offset;
-        let mut relative_end = offset;
+        let mut list_item_start_index = offset;
+        let mut list_item_end_index = offset;
         let mut height = 0;
         for item in self.items.iter().skip(start_pos) {
             if height + item.height() >= max_length {
                 break;
             }
             height += item.height();
-            relative_end += 1;
+            list_item_end_index += 1;
         }
 
-        (relative_start, relative_end)
+        height = 0;
+
+        // If the current selected item is greater than the relative_end, we need to adjust the start position,
+        // and recalculate the relative_end
+        //
+        // The new start position should be from the current selected item
+        if current_highlight >= list_item_end_index {
+            list_item_start_index = list_item_end_index;
+
+            for item in self.items.iter().skip(list_item_start_index) {
+                if height + item.height() >= max_length {
+                    break;
+                }
+                height += item.height();
+                list_item_end_index += 1;
+            }
+        }
+
+        // If the current selected item is less than the relative_start, we need to adjust the start and end position,
+        if start_pos > current_highlight {
+            list_item_end_index = current_highlight;
+            list_item_start_index = list_item_end_index;
+            height = 0;
+            for item in self.items.iter().take(list_item_end_index).rev() {
+                if height + item.height() >= max_length {
+                    break;
+                }
+                height += item.height();
+                list_item_start_index -= 1;
+            }
+
+            list_item_end_index = list_item_start_index + 1;
+        }
+
+        (list_item_start_index, list_item_end_index)
     }
 }
 
@@ -89,15 +128,19 @@ impl<'a> StateWidget for List<'a> {
 
         let max_length = list_area.rows as usize;
         let max_cols = list_area.cols;
-        let (start, end) = self.get_items_bounds(max_length, state.start_pos_to_display);
-
+        let (start, end) = self.get_items_bounds(
+            max_length,
+            state.start_position(),
+            state.highlight_index().unwrap_or(0),
+        );
+        state.set_start_position(start);
         let mut current_height = 0;
 
         self.items
             .iter()
+            .enumerate()
             .skip(start)
             .take(end - start)
-            .enumerate()
             .for_each(|(i, item)| {
                 let (x, y) = {
                     let pos = (list_area.left(), list_area.top() + current_height);

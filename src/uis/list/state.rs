@@ -1,17 +1,20 @@
 #[derive(Debug, Default, PartialEq, Hash)]
 pub struct ListState {
     /// The index of the currently selected / highlighted item index
-    pub highlight_index: Option<usize>,
+    highlight_index: Option<usize>,
 
     /// Sets the index of the first item to be displayed
     ///
     /// This is a fluent setter method which must be chained or used as it consumes self
-    pub start_pos_to_display: usize,
+    start_pos_to_display: usize,
 }
 
 impl ListState {
-    pub fn new() -> Self {
-        Self::default()
+    pub fn new(index: Option<usize>, start: usize) -> Self {
+        self::ListState {
+            highlight_index: index,
+            start_pos_to_display: start,
+        }
     }
 
     pub fn set_highlight_index(&mut self, index: usize) {
@@ -22,11 +25,11 @@ impl ListState {
         self.highlight_index
     }
 
-    pub fn set_start_pos(&mut self, start_pos: usize) {
+    pub fn set_start_position(&mut self, start_pos: usize) {
         self.start_pos_to_display = start_pos;
     }
 
-    pub fn start_pos_to_display(&self) -> usize {
+    pub fn start_position(&self) -> usize {
         self.start_pos_to_display
     }
 }

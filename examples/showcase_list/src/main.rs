@@ -54,10 +54,7 @@ impl ZellijPlugin for State {
             ("Item23".to_string(), 3),
             ("Item24".to_string(), 1),
         ];
-        self.list_state = ListState {
-            highlight_index: Some(2),
-            start_pos_to_display: 1,
-        };
+        self.list_state = ListState::new(Some(2), 1);
     }
 
     fn update(&mut self, event: Event) -> bool {
@@ -136,9 +133,14 @@ impl State {
             }
             Key::Down => {
                 let current_highlight_index = self.list_state.highlight_index();
+                // If index is greater than the length of the list, we need to reset the index to
+                // the last item in the list
                 if let Some(current_highlight_index) = current_highlight_index {
-                    self.list_state
-                        .set_highlight_index(current_highlight_index.saturating_add(1));
+                    self.list_state.set_highlight_index(
+                        current_highlight_index
+                            .saturating_add(1)
+                            .min(self.list.len() - 1),
+                    );
                 } else {
                     self.list_state.set_highlight_index(0);
                 }
