@@ -9,7 +9,7 @@ Zellij Widgets provides a set of widgets for the Zellij plugin system. It is des
 To use Zellij Widgets, developers should have a basic understanding of the Zellij plugin system. Zellij plugins communicate with the Zellij host via the Wasmer runtime, and Zellij provides interfaces such as the ZellijPlugin crate.
 
 ## Acknowledgments
-This project reuses a significant amount of code from the crossterm and ratatui projects. I would like to express our gratitude to the authors and contributors of these projects for their excellent work. The credit is not theirs.
+This project reuses a significant amount of code from the crossterm and ratatui projects. I would like to express our gratitude to the authors and contributors of these projects for their excellent work. All credits are theirs.
 
 ## License
 Zellij Widgets is licensed under the same terms as crossterm and ratatui. Please refer to their respective licenses for more details.
