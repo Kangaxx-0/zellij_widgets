@@ -109,7 +109,7 @@ impl<'a> Styled for Tab<'a> {
 
 impl<'a> StateWidget for Tab<'a> {
     type State = TabState;
-    fn render(self, area: Geometry, buf: &mut Buffer, state: &Self::State) {
+    fn render(self, area: Geometry, buf: &mut Buffer, state: &mut Self::State) {
         buf.set_style(area, self.style);
 
         let tabs_area = match self.block {
