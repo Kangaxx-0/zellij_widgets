@@ -78,7 +78,10 @@ impl ZellijPlugin for State {
 
         let highlight_style =
             HighlightStyle::new("->".to_string(), WStyle::default().fg(Color::Yellow), None);
-        let list = List::new_with_items(item_list).highlight_style(highlight_style);
+        let block = Block::default().borders(Borders::ALL).title("List").red();
+        let list = List::new_with_items(item_list)
+            .highlight_style(highlight_style)
+            .block(block);
 
         match self.pressed_key {
             'c' => {

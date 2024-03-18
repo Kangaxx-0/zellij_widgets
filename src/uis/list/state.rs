@@ -10,10 +10,10 @@ pub struct ListState {
 }
 
 impl ListState {
-    pub fn new(index: Option<usize>, start: usize) -> Self {
+    pub fn new(highlight_index: Option<usize>, start_pos: usize) -> Self {
         self::ListState {
-            highlight_index: index,
-            start_pos_to_display: start,
+            highlight_index,
+            start_pos_to_display: start_pos,
         }
     }
 

@@ -49,7 +49,7 @@ impl<'a> List<'a> {
         }
     }
 
-    fn get_items_bounds(
+    fn get_items_relateive_pos(
         &self,
         max_length: usize,
         start_pos: usize,
@@ -67,14 +67,13 @@ impl<'a> List<'a> {
             list_item_end_index += 1;
         }
 
-        height = 0;
-
         // If the current selected item is greater than the relative_end, we need to adjust the start position,
         // and recalculate the relative_end
         //
         // The new start position should be from the current selected item
         if current_highlight >= list_item_end_index {
             list_item_start_index = list_item_end_index;
+            height = 0;
 
             for item in self.items.iter().skip(list_item_start_index) {
                 if height + item.height() >= max_length {
@@ -98,7 +97,7 @@ impl<'a> List<'a> {
                 list_item_start_index -= 1;
             }
 
-            list_item_end_index = list_item_start_index + 1;
+            list_item_end_index = list_item_end_index + 1;
         }
 
         (list_item_start_index, list_item_end_index)
@@ -108,15 +107,15 @@ impl<'a> List<'a> {
 impl<'a> StateWidget for List<'a> {
     type State = ListState;
 
-    fn render(self, area: Geometry, buf: &mut Buffer, state: &mut ListState) {
+    fn render(mut self, area: Geometry, buf: &mut Buffer, state: &mut ListState) {
         let block_style = self.block_style.unwrap_or_default();
 
         buf.set_style(area, block_style);
 
-        let list_area = match self.block.clone() {
+        let list_area = match self.block.take() {
             Some(b) => {
                 let inner_area = b.inner(area);
-                b.render(inner_area, buf);
+                b.render(area, buf);
                 inner_area
             }
             None => area,
@@ -128,7 +127,7 @@ impl<'a> StateWidget for List<'a> {
 
         let max_length = list_area.rows as usize;
         let max_cols = list_area.cols;
-        let (start, end) = self.get_items_bounds(
+        let (start, end) = self.get_items_relateive_pos(
             max_length,
             state.start_position(),
             state.highlight_index().unwrap_or(0),
