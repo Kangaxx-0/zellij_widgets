@@ -97,7 +97,7 @@ impl<'a> List<'a> {
                 list_item_start_index -= 1;
             }
 
-            list_item_end_index = list_item_end_index + 1;
+            list_item_end_index += 1;
         }
 
         (list_item_start_index, list_item_end_index)
