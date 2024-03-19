@@ -76,9 +76,8 @@ impl<'a> List<'a> {
         //
         // The new start position should be from the current selected item
         while current >= list_item_end_index {
-            list_item_end_index += 1;
-            //FIXME - list_item_end_index will be out of range if the current selected item is the last one.
             height = height.saturating_add(self.items[list_item_end_index].height());
+            list_item_end_index += 1;
             while height > max_length {
                 height = height.saturating_sub(self.items[list_item_start_index].height());
                 list_item_start_index += 1;
@@ -88,8 +87,8 @@ impl<'a> List<'a> {
         // If the current selected item is less than the relative_start, we need to adjust the start and end position.
         // E.g - Hit `Up` to move highlight_index to previous.
         while list_item_start_index > current {
-            list_item_start_index -= 1;
             height = height.saturating_add(self.items[list_item_start_index].height());
+            list_item_start_index -= 1;
             while height > max_length {
                 list_item_end_index -= 1;
                 height = height.saturating_sub(self.items[list_item_end_index].height());
