@@ -53,7 +53,7 @@ impl<'a> List<'a> {
         &self,
         max_length: usize,
         start_pos: usize,
-        current_highlight: usize,
+        current_highlight: Option<usize>,
     ) -> (usize, usize) {
         let offset = start_pos.min(self.items.len().saturating_sub(1));
         let mut list_item_start_index = offset;
@@ -67,37 +67,32 @@ impl<'a> List<'a> {
             list_item_end_index += 1;
         }
 
+        let current = current_highlight
+            .unwrap_or(0)
+            .min(self.items.len().saturating_sub(1));
+
         // If the current selected item is greater than the relative_end, we need to adjust the start position,
-        // and recalculate the relative_end
+        // and recalculate the relative_end, e.g - Hit `Down` to move highlight_index to next.
         //
         // The new start position should be from the current selected item
-        if current_highlight >= list_item_end_index {
-            list_item_start_index = list_item_end_index;
-            height = 0;
-
-            for item in self.items.iter().skip(list_item_start_index) {
-                if height + item.height() >= max_length {
-                    break;
-                }
-                height += item.height();
-                list_item_end_index += 1;
+        while current >= list_item_end_index {
+            height = height.saturating_add(self.items[list_item_end_index].height());
+            list_item_end_index += 1;
+            while height > max_length {
+                height = height.saturating_sub(self.items[list_item_start_index].height());
+                list_item_start_index += 1;
             }
         }
 
-        // If the current selected item is less than the relative_start, we need to adjust the start and end position,
-        if start_pos > current_highlight {
-            list_item_end_index = current_highlight;
-            list_item_start_index = list_item_end_index;
-            height = 0;
-            for item in self.items.iter().take(list_item_end_index).rev() {
-                if height + item.height() >= max_length {
-                    break;
-                }
-                height += item.height();
-                list_item_start_index -= 1;
+        // If the current selected item is less than the relative_start, we need to adjust the start and end position.
+        // E.g - Hit `Up` to move highlight_index to previous.
+        while list_item_start_index > current {
+            height = height.saturating_add(self.items[list_item_start_index].height());
+            list_item_start_index -= 1;
+            while height > max_length {
+                list_item_end_index -= 1;
+                height = height.saturating_sub(self.items[list_item_end_index].height());
             }
-
-            list_item_end_index += 1;
         }
 
         (list_item_start_index, list_item_end_index)
@@ -130,7 +125,7 @@ impl<'a> StateWidget for List<'a> {
         let (start, end) = self.get_items_relateive_pos(
             max_length,
             state.start_position(),
-            state.highlight_index().unwrap_or(0),
+            state.highlight_index(),
         );
         state.set_start_position(start);
         let mut current_height = 0;
