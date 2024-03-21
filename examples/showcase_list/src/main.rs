@@ -1,9 +1,6 @@
 use std::collections::BTreeMap;
 use zellij_tile::prelude::*;
-use zellij_widgets::{
-    prelude::{Style as WStyle, Text, *},
-    uis::HighlightStyle,
-};
+use zellij_widgets::prelude::{Style as WStyle, Text, *};
 
 #[derive(Default)]
 struct State {
@@ -76,8 +73,11 @@ impl ZellijPlugin for State {
             })
             .collect();
 
-        let highlight_style =
-            HighlightStyle::new("->".to_string(), WStyle::default().fg(Color::Yellow), None);
+        let highlight_style = HighlightStyle::new(
+            HighlightSymbol::DoubleArrow,
+            WStyle::default().fg(Color::Yellow),
+            None,
+        );
         let block = Block::default().borders(Borders::ALL).title("List").red();
         let list = List::new_with_items(item_list)
             .highlight_style(highlight_style)
