@@ -1,6 +1,6 @@
 pub use block::{Block, BorderOptions, BorderType, Borders, Padding};
 pub use erase::Erase;
-pub use list::{HighlightStyle, List, ListItem, ListState};
+pub use list::{HighlightStyle, HighlightSymbol, List, ListItem, ListState};
 pub use paragraph::{Paragraph, Wrap};
 pub use scrollbar::{ScrollDirection, Scrollbar, ScrollbarOrientation, ScrollbarState};
 pub use tab::{Tab, TabState};

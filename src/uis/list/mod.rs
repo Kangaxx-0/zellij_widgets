@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub use highlight_style::HighlightStyle;
+pub use highlight_style::{HighlightStyle, HighlightSymbol};
 pub use list_item::ListItem;
 pub use state::ListState;
 
