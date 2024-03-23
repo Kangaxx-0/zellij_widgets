@@ -2,33 +2,6 @@ use std::fmt;
 use strum::EnumMessage;
 
 use crate::prelude::*;
-use strum::Display;
-
-#[derive(Default, Display, Debug, PartialEq, Hash)]
-pub enum HighlightSymbol {
-    #[strum(serialize = "->")]
-    #[default]
-    SingleArrow,
-    #[strum(serialize = "=>")]
-    DoubleArrow,
-    #[strum(serialize = "✓")]
-    Checkmark,
-    #[strum(serialize = "*")]
-    Asterisk,
-    Custom(String),
-}
-
-impl HighlightSymbol {
-    pub fn len(&self) -> usize {
-        match self {
-            HighlightSymbol::SingleArrow => 2,
-            HighlightSymbol::DoubleArrow => 2,
-            HighlightSymbol::Checkmark => 1,
-            HighlightSymbol::Asterisk => 1,
-            HighlightSymbol::Custom(s) => s.len(),
-        }
-    }
-}
 
 /// HighlightSymbol is an enum that represents the different symbols that can be used to highlight
 ///
