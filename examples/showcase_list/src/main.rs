@@ -1,9 +1,6 @@
 use std::collections::BTreeMap;
 use zellij_tile::prelude::*;
-use zellij_widgets::{
-    prelude::{Style as WStyle, Text, *},
-    uis::HighlightStyle,
-};
+use zellij_widgets::prelude::{Style as WStyle, Text, *};
 
 #[derive(Default)]
 struct State {
