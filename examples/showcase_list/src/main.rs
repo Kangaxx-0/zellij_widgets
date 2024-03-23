@@ -76,8 +76,10 @@ impl ZellijPlugin for State {
             })
             .collect();
 
-        let highlight_style =
-            HighlightStyle::new("->".to_string(), WStyle::default().fg(Color::Yellow), None);
+        let highlight_style = HighlightStyle::new(
+            HighlightSymbol::DoubleArrow,
+            WStyle::default().fg(Color::Yellow),
+        );
         let block = Block::default().borders(Borders::ALL).title("List").red();
         let list = List::new_with_items(item_list)
             .highlight_style(highlight_style)
@@ -98,6 +100,17 @@ fn ui(frame: &mut Frame, list: List, state: &mut ListState) {
         .direction(Orientation::Vertical)
         .constraints([Constraint::Percentage(15), Constraint::Percentage(85)].as_ref())
         .split(frame.size());
+
+    let list1 = List::new_with_items(vec![
+        ListItem::new("Item 1"),
+        ListItem::new("Item 2"),
+        ListItem::new("Item 3"),
+    ])
+    .block_style(WStyle::default().bg(Color::Red))
+    .highlight_style(HighlightStyle::new(
+        HighlightSymbol::SingleArrow,
+        WStyle::default().fg(Color::Yellow),
+    ));
 
     render_title(frame, layouts[0], state);
 

@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub use highlight_style::HighlightStyle;
+pub use highlight_style::{HighlightStyle, HighlightSymbol};
 pub use list_item::ListItem;
 pub use state::ListState;
 
@@ -8,6 +8,22 @@ mod highlight_style;
 mod list_item;
 mod state;
 
+/// A widget to display multiple items among which one can be selected
+///
+/// A list is a collection of [`ListItem`]s.
+///
+///
+/// # Examples
+/// ``` rust
+/// use zellij_widgets::prelude::*;
+///
+/// let list1 = List::new_with_items(vec![
+///     ListItem::new("Item 1"),
+///     ListItem::new("Item 2"),
+///     ListItem::new("Item 3")])
+/// .block_style(Style::default().bg(Color::Red))
+/// .highlight_style(HighlightStyle::new(HighlightSymbol::SingleArrow, Style::default().fg(Color::Yellow)));
+/// ```
 #[derive(Debug, Default, PartialEq, Hash)]
 pub struct List<'a> {
     items: Vec<ListItem<'a>>,
@@ -49,7 +65,7 @@ impl<'a> List<'a> {
         }
     }
 
-    fn get_items_relateive_pos(
+    fn get_items_relative_pos(
         &self,
         max_length: usize,
         start_pos: usize,
@@ -122,7 +138,7 @@ impl<'a> StateWidget for List<'a> {
 
         let max_length = list_area.rows as usize;
         let max_cols = list_area.cols;
-        let (start, end) = self.get_items_relateive_pos(
+        let (start, end) = self.get_items_relative_pos(
             max_length,
             state.start_position(),
             state.highlight_index(),
