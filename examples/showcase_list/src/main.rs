@@ -76,7 +76,6 @@ impl ZellijPlugin for State {
         let highlight_style = HighlightStyle::new(
             HighlightSymbol::DoubleArrow,
             WStyle::default().fg(Color::Yellow),
-            None,
         );
         let block = Block::default().borders(Borders::ALL).title("List").red();
         let list = List::new_with_items(item_list)
@@ -98,7 +97,6 @@ fn ui(frame: &mut Frame, list: List, state: &mut ListState) {
         .direction(Orientation::Vertical)
         .constraints([Constraint::Percentage(15), Constraint::Percentage(85)].as_ref())
         .split(frame.size());
-
     render_title(frame, layouts[0], state);
 
     render_list(frame, layouts[1], list, state);
