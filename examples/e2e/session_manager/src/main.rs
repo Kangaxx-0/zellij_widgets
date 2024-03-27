@@ -64,9 +64,10 @@ fn ui(frame: &mut Frame) {
         .margin(1)
         .constraints(
             [
-                Constraint::Percentage(20),
-                Constraint::Percentage(70),
-                Constraint::Percentage(10),
+                Constraint::Percentage(15),
+                Constraint::Percentage(80),
+                Constraint::Length(1),
+                Constraint::Min(0),
             ]
             .as_ref(),
         )
@@ -74,7 +75,6 @@ fn ui(frame: &mut Frame) {
 
     let sub_layout = Layout::default()
         .direction(Orientation::Horizontal)
-        .margin(1)
         .constraints([Constraint::Percentage(30), Constraint::Percentage(70)].as_ref())
         .split(layouts[1]);
 
@@ -101,6 +101,12 @@ fn handle_status_bar(layout: Geometry, frame: &mut Frame) {
 
 fn handle_session_pane(layout: Geometry, frame: &mut Frame) {
     let mut list_state = ListState::new(Some(3), 2);
+    let highlight_style = HighlightStyle::default().style(WStyle::default().fg(WColor::Rgb {
+        r: 255,
+        g: 255,
+        b: 153,
+    }));
+
     let list = List::new_with_items(vec![
         ListItem::new("Pane 1"),
         ListItem::new("Pane 2"),
@@ -114,15 +120,21 @@ fn handle_session_pane(layout: Geometry, frame: &mut Frame) {
             .borders(Borders::ALL)
             .title("Panes")
             .title_alignment(Alignment::Center)
-            .padding(Padding::uniform(1))
-            .border_type(BorderType::Rounded),
-    );
+            .border_type(BorderType::Thick),
+    )
+    .block_style(WStyle::default().fg(Color::Green))
+    .highlight_style(highlight_style);
 
     frame.render_state_widget(list, layout, &mut list_state);
 }
 
 fn handle_session_tabs(layout: Geometry, frame: &mut Frame) {
     let mut list_state = ListState::new(Some(1), 1);
+    let highlight_style = HighlightStyle::default().style(WStyle::default().fg(WColor::Rgb {
+        r: 255,
+        g: 255,
+        b: 153,
+    }));
     let list = List::new_with_items(vec![
         ListItem::new("Tab 1"),
         ListItem::new("Tab 2"),
@@ -136,9 +148,10 @@ fn handle_session_tabs(layout: Geometry, frame: &mut Frame) {
             .borders(Borders::ALL)
             .title("Tabs")
             .title_alignment(Alignment::Center)
-            .padding(Padding::uniform(1))
-            .border_type(BorderType::Rounded),
-    );
+            .border_type(BorderType::Thick),
+    )
+    .block_style(WStyle::default().fg(Color::Green))
+    .highlight_style(highlight_style);
 
     frame.render_state_widget(list, layout, &mut list_state);
 }
@@ -157,14 +170,17 @@ fn handle_session(layout: Geometry, frame: &mut Frame) {
             .borders(Borders::ALL)
             .title("Sessions")
             .title_alignment(Alignment::Center)
-            .padding(Padding::uniform(1))
+            .padding(Padding::horizontal(1))
             .border_type(BorderType::Rounded),
     )
-    .style(WStyle::default().fg(WColor::White).bg(Color::Black))
+    .style(WStyle::default().fg(WColor::Green).bg(Color::Black))
     .highlight_style(
         WStyle::default()
-            .fg(WColor::Green)
-            .bg(WColor::White)
+            .fg(WColor::Rgb {
+                r: 255,
+                g: 255,
+                b: 153,
+            })
             .add_modifier(Modifier::BOLD),
     );
 
