@@ -1,27 +1,39 @@
-use session::SessionList;
 use std::collections::BTreeMap;
 
 use zellij_tile::prelude::*;
 use zellij_widgets::prelude::{Color as WColor, Style as WStyle, *};
 
+use loading::LoadingDialog;
+use session::{Session, SessionList};
+
+mod loading;
 mod session;
 
 #[derive(Default)]
 struct State {
+    session_name: Option<String>,
     sessions: SessionList,
     error: Option<String>,
+    is_loading: bool,
 }
 
 register_plugin!(State);
 
 impl ZellijPlugin for State {
     fn load(&mut self, _configuration: BTreeMap<String, String>) {
+        request_permission(&[
+            PermissionType::ReadApplicationState,
+            PermissionType::ChangeApplicationState,
+        ]);
+
         subscribe(&[
             EventType::ModeUpdate,
             EventType::SessionUpdate,
             EventType::Key,
             EventType::RunCommandResult,
         ]);
+
+        self.is_loading = true;
     }
 
     fn update(&mut self, event: Event) -> bool {
@@ -31,15 +43,20 @@ impl ZellijPlugin for State {
                 should_render = true;
             }
             Event::Key(key) => {
-                // should_render = self.handle_key(key);
+                should_render = self.handle_key(key);
                 should_render = true;
             }
             Event::PermissionRequestResult(_result) => {
                 should_render = true;
             }
             Event::SessionUpdate(session_infos, resurrectable_session_list) => {
+                self.update_session_infos(session_infos);
+                if !self.sessions.is_empty() {
+                    self.is_loading = false;
+                }
                 should_render = true;
             }
+
             _ => (),
         };
         should_render
@@ -48,42 +65,141 @@ impl ZellijPlugin for State {
     fn render(&mut self, rows: usize, cols: usize) {
         let stdout = std::io::stdout();
         let mut pane = PluginPane::new(stdout, rows as u16, cols as u16);
-        let _ = pane.draw(|frame| ui(frame));
+        let _ = pane.draw(|frame| ui(frame, &self.sessions, self.is_loading));
     }
 }
 
 impl State {
     fn handle_key(&mut self, key: Key) -> bool {
-        todo!()
+        let mut should_render = false;
+        match key {
+            Key::BackTab => {
+                self.sessions.next_session();
+                should_render = true;
+            }
+            _ => (),
+        }
+
+        should_render
+    }
+
+    fn update_session_infos(&mut self, session_infos: Vec<SessionInfo>) {
+        let session_infos: Vec<Session> = session_infos
+            .iter()
+            .map(|s| Session::from_session_info(s))
+            .collect();
+        // let current_session_name = session_infos.iter().find_map(|s| {
+        //     if s.is_current_session {
+        //         Some(s.name.clone())
+        //     } else {
+        //         None
+        //     }
+        // });
+        // if let Some(current_session_name) = current_session_name {
+        //     self.session_name = Some(current_session_name);
+        // }
+        self.sessions.set_sessions(session_infos);
     }
 }
 
-fn ui(frame: &mut Frame) {
-    let layouts = Layout::default()
-        .direction(Orientation::Vertical)
-        .margin(1)
-        .constraints(
-            [
-                Constraint::Percentage(15),
-                Constraint::Percentage(80),
-                Constraint::Length(1),
-                Constraint::Min(0),
-            ]
-            .as_ref(),
-        )
-        .split(frame.size());
+fn break_down_session(session_list: &SessionList) -> (Vec<String>, Vec<String>, Vec<String>) {
+    let session_names = session_list
+        .sessions
+        .iter()
+        .map(|session| session.name.clone())
+        .collect::<Vec<String>>();
 
-    let sub_layout = Layout::default()
-        .direction(Orientation::Horizontal)
-        .constraints([Constraint::Percentage(30), Constraint::Percentage(70)].as_ref())
-        .split(layouts[1]);
+    let tab_names = session_list
+        .sessions
+        .get(session_list.selected_tab_index.unwrap_or(0))
+        .map_or_else(Vec::new, |session| {
+            session.tabs.iter().map(|tab| tab.name.clone()).collect()
+        });
+    let pane_names = session_list
+        .sessions
+        .get(session_list.selected_tab_index.unwrap_or(0))
+        .map_or_else(Vec::new, |session| {
+            session
+                .tabs
+                .get(session_list.selected_pane_index.unwrap_or(0))
+                .map_or_else(Vec::new, |tab| {
+                    tab.panes.iter().map(|pane| pane.name.clone()).collect()
+                })
+        });
 
-    handle_session(layouts[0], frame);
+    // for (index, session) in session_list.sessions.iter().enumerate() {
+    //     if let Some(selected_tab_index) = session_list.selected_tab_index {
+    //         if index == selected_tab_index {
+    //             for tab in session.tabs.iter() {
+    //                 tab_names.push(tab.name.clone());
+    //
+    //                 for pane in tab.panes.iter() {
+    //                     pane_names.push(pane.name.clone());
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 
-    handle_session_tabs(sub_layout[0], frame);
-    handle_session_pane(sub_layout[1], frame);
+    (session_names, tab_names, pane_names)
+}
 
-    handle_status_bar(layouts[2], frame);
+fn ui(frame: &mut Frame, sessions: &SessionList, is_loading: bool) {
+    if is_loading {
+        let loading = LoadingDialog::new("Loading...".to_string())
+            .with_block(Block::default().borders(Borders::ALL).bg(Color::Green))
+            .with_style(WStyle::default().fg(Color::Yellow).bg(Color::Black))
+            .with_label_style(WStyle::default().fg(Color::Blue).bg(Color::Black));
+        frame.render_widget(loading, frame.size());
+    } else {
+        let (session_names, tab_names, pane_names) = break_down_session(sessions);
+
+        let layouts = Layout::default()
+            .direction(Orientation::Vertical)
+            .margin(1)
+            .constraints(
+                [
+                    Constraint::Percentage(15),
+                    Constraint::Percentage(80),
+                    Constraint::Length(1),
+                    Constraint::Min(0),
+                ]
+                .as_ref(),
+            )
+            .split(frame.size());
+
+        let sub_layout = Layout::default()
+            .direction(Orientation::Horizontal)
+            .constraints([Constraint::Percentage(30), Constraint::Percentage(70)].as_ref())
+            .split(layouts[1]);
+        // let paragraph = Paragraph::new(format!(
+        //     "session x{}, tab x{}, pane x{}",
+        //     session_names.len(),
+        //     tab_names.len(),
+        //     pane_names.len()
+        // ))
+        // .style(
+        //     WStyle::default()
+        //         .fg(WColor::White)
+        //         .bg(Color::Black)
+        //         .slow_blink(),
+        // )
+        // .alignment(Alignment::Center);
+        //
+        // frame.render_widget(paragraph, layouts[0]);
+
+        handle_session(
+            layouts[0],
+            frame,
+            session_names,
+            sessions.selected_session_index,
+        );
+
+        handle_session_tabs(sub_layout[0], frame, tab_names);
+        handle_session_pane(sub_layout[1], frame, pane_names);
+
+        handle_status_bar(layouts[2], frame);
+    }
 }
 
 fn handle_status_bar(layout: Geometry, frame: &mut Frame) {
@@ -99,7 +215,7 @@ fn handle_status_bar(layout: Geometry, frame: &mut Frame) {
     frame.render_widget(status_bar, layout);
 }
 
-fn handle_session_pane(layout: Geometry, frame: &mut Frame) {
+fn handle_session_pane(layout: Geometry, frame: &mut Frame, pane_names: Vec<String>) {
     let mut list_state = ListState::new(Some(3), 2);
     let highlight_style = HighlightStyle::default().style(WStyle::default().fg(WColor::Rgb {
         r: 255,
@@ -107,82 +223,85 @@ fn handle_session_pane(layout: Geometry, frame: &mut Frame) {
         b: 153,
     }));
 
-    let list = List::new_with_items(vec![
-        ListItem::new("Pane 1"),
-        ListItem::new("Pane 2"),
-        ListItem::new("Pane 3"),
-        ListItem::new("Pane 4"),
-        ListItem::new("Pane 5"),
-        ListItem::new("Pane 6"),
-    ])
-    .block(
-        Block::default()
-            .borders(Borders::ALL)
-            .title("Panes")
-            .title_alignment(Alignment::Center)
-            .border_type(BorderType::Thick),
-    )
-    .block_style(WStyle::default().fg(Color::Green))
-    .highlight_style(highlight_style);
+    let panes: Vec<ListItem> = pane_names
+        .iter()
+        .map(|name| ListItem::new(name.clone()))
+        .collect();
+
+    let list = List::new_with_items(panes)
+        .block(
+            Block::default()
+                .borders(Borders::ALL)
+                .title("Panes")
+                .title_alignment(Alignment::Center)
+                .border_type(BorderType::Thick),
+        )
+        .block_style(WStyle::default().fg(Color::Green))
+        .highlight_style(highlight_style);
 
     frame.render_state_widget(list, layout, &mut list_state);
 }
 
-fn handle_session_tabs(layout: Geometry, frame: &mut Frame) {
+fn handle_session_tabs(layout: Geometry, frame: &mut Frame, session_tabs: Vec<String>) {
     let mut list_state = ListState::new(Some(1), 1);
     let highlight_style = HighlightStyle::default().style(WStyle::default().fg(WColor::Rgb {
         r: 255,
         g: 255,
         b: 153,
     }));
-    let list = List::new_with_items(vec![
-        ListItem::new("Tab 1"),
-        ListItem::new("Tab 2"),
-        ListItem::new("Tab 3"),
-        ListItem::new("Tab 4"),
-        ListItem::new("Tab 5"),
-        ListItem::new("Tab 6"),
-    ])
-    .block(
-        Block::default()
-            .borders(Borders::ALL)
-            .title("Tabs")
-            .title_alignment(Alignment::Center)
-            .border_type(BorderType::Thick),
-    )
-    .block_style(WStyle::default().fg(Color::Green))
-    .highlight_style(highlight_style);
+    let tabs: Vec<ListItem> = session_tabs
+        .iter()
+        .map(|name| ListItem::new(name.clone()))
+        .collect();
+
+    let list = List::new_with_items(tabs)
+        .block(
+            Block::default()
+                .borders(Borders::ALL)
+                .title("Tabs")
+                .title_alignment(Alignment::Center)
+                .border_type(BorderType::Thick),
+        )
+        .block_style(WStyle::default().fg(Color::Green))
+        .highlight_style(highlight_style);
 
     frame.render_state_widget(list, layout, &mut list_state);
 }
 
-fn handle_session(layout: Geometry, frame: &mut Frame) {
-    let mut tab_state = TabState::new(3);
-    let tabs = Tab::new(vec![
-        "Session 1",
-        "Session 2",
-        "Session 3",
-        "Session 4",
-        "Session 5",
-    ])
-    .block(
-        Block::default()
-            .borders(Borders::ALL)
-            .title("Sessions")
-            .title_alignment(Alignment::Center)
-            .padding(Padding::horizontal(1))
-            .border_type(BorderType::Rounded),
-    )
-    .style(WStyle::default().fg(WColor::Green).bg(Color::Black))
-    .highlight_style(
-        WStyle::default()
-            .fg(WColor::Rgb {
-                r: 255,
-                g: 255,
-                b: 153,
-            })
-            .add_modifier(Modifier::BOLD),
-    );
+fn handle_session(
+    layout: Geometry,
+    frame: &mut Frame,
+    session_names: Vec<String>,
+    selected_index: Option<usize>,
+) {
+    let mut tab_state = if session_names.is_empty() {
+        TabState::new(session_names.len())
+    } else {
+        TabState {
+            selected: selected_index.unwrap_or(0),
+            len: session_names.len(),
+        }
+    };
+
+    let tabs = Tab::new(session_names)
+        .block(
+            Block::default()
+                .borders(Borders::ALL)
+                .title("Sessions")
+                .title_alignment(Alignment::Center)
+                .padding(Padding::horizontal(1))
+                .border_type(BorderType::Rounded),
+        )
+        .style(WStyle::default().fg(WColor::Green).bg(Color::Black))
+        .highlight_style(
+            WStyle::default()
+                .fg(WColor::Rgb {
+                    r: 255,
+                    g: 255,
+                    b: 153,
+                })
+                .add_modifier(Modifier::BOLD),
+        );
 
     frame.render_state_widget(tabs, layout, &mut tab_state);
 }
