@@ -234,6 +234,12 @@ impl<'a> From<String> for Line<'a> {
     }
 }
 
+impl<'a> From<&'a String> for Line<'a> {
+    fn from(s: &'a String) -> Self {
+        Self::from(vec![Span::from(s)])
+    }
+}
+
 impl<'a> From<&'a str> for Line<'a> {
     fn from(s: &'a str) -> Self {
         Self::from(vec![Span::from(s)])
@@ -317,6 +323,13 @@ mod tests {
     fn test_from_string() {
         let s = String::from("Hello, world!");
         let line = Line::from(s);
+        assert_eq!(vec![Span::from("Hello, world!")], line.spans);
+    }
+
+    #[test]
+    fn test_from_string_ref() {
+        let s = String::from("Hello, world!");
+        let line = Line::from(&s);
         assert_eq!(vec![Span::from("Hello, world!")], line.spans);
     }
 
