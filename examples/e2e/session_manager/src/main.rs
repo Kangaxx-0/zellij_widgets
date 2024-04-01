@@ -15,6 +15,7 @@ struct State {
     sessions: SessionList,
     error: Option<String>,
     is_loading: bool,
+    tab_locked: bool,
 }
 
 register_plugin!(State);
@@ -75,6 +76,21 @@ impl State {
         match key {
             Key::BackTab => {
                 self.sessions.next_session();
+                self.tab_locked = false;
+                should_render = true;
+            }
+            Key::Down => {
+                self.sessions.next_tab();
+                self.tab_locked = false;
+                should_render = true;
+            }
+            Key::Up => {
+                self.sessions.previous_tab();
+                self.tab_locked = false;
+                should_render = true;
+            }
+            Key::Char('\n') => {
+                self.tab_locked = !self.tab_locked;
                 should_render = true;
             }
             _ => (),
@@ -111,13 +127,13 @@ fn break_down_session(session_list: &SessionList) -> (Vec<String>, Vec<String>, 
 
     let tab_names = session_list
         .sessions
-        .get(session_list.selected_tab_index.unwrap_or(0))
+        .get(session_list.selected_session_index.unwrap_or(0))
         .map_or_else(Vec::new, |session| {
             session.tabs.iter().map(|tab| tab.name.clone()).collect()
         });
     let pane_names = session_list
         .sessions
-        .get(session_list.selected_tab_index.unwrap_or(0))
+        .get(session_list.selected_session_index.unwrap_or(0))
         .map_or_else(Vec::new, |session| {
             session
                 .tabs
@@ -127,29 +143,16 @@ fn break_down_session(session_list: &SessionList) -> (Vec<String>, Vec<String>, 
                 })
         });
 
-    // for (index, session) in session_list.sessions.iter().enumerate() {
-    //     if let Some(selected_tab_index) = session_list.selected_tab_index {
-    //         if index == selected_tab_index {
-    //             for tab in session.tabs.iter() {
-    //                 tab_names.push(tab.name.clone());
-    //
-    //                 for pane in tab.panes.iter() {
-    //                     pane_names.push(pane.name.clone());
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
-
     (session_names, tab_names, pane_names)
 }
 
 fn ui(frame: &mut Frame, sessions: &SessionList, is_loading: bool) {
     if is_loading {
-        let loading = LoadingDialog::new("Loading...".to_string())
-            .with_block(Block::default().borders(Borders::ALL).bg(Color::Green))
-            .with_style(WStyle::default().fg(Color::Yellow).bg(Color::Black))
-            .with_label_style(WStyle::default().fg(Color::Blue).bg(Color::Black));
+        let loading =
+            LoadingDialog::new("Please wait, we are loading session information...".to_string())
+                .with_block(Block::default().borders(Borders::ALL).bg(Color::Green))
+                .with_style(WStyle::default().fg(Color::Yellow).bg(Color::Black))
+                .with_label_style(WStyle::default().fg(Color::Blue).bg(Color::Black));
         frame.render_widget(loading, frame.size());
     } else {
         let (session_names, tab_names, pane_names) = break_down_session(sessions);
@@ -195,7 +198,9 @@ fn ui(frame: &mut Frame, sessions: &SessionList, is_loading: bool) {
             sessions.selected_session_index,
         );
 
-        handle_session_tabs(sub_layout[0], frame, tab_names);
+        let mut tab_state = ListState::new(sessions.selected_tab_index, 0);
+
+        handle_session_tabs(sub_layout[0], frame, tab_names, &mut tab_state);
         handle_session_pane(sub_layout[1], frame, pane_names);
 
         handle_status_bar(layouts[2], frame);
@@ -242,8 +247,12 @@ fn handle_session_pane(layout: Geometry, frame: &mut Frame, pane_names: Vec<Stri
     frame.render_state_widget(list, layout, &mut list_state);
 }
 
-fn handle_session_tabs(layout: Geometry, frame: &mut Frame, session_tabs: Vec<String>) {
-    let mut list_state = ListState::new(Some(1), 1);
+fn handle_session_tabs(
+    layout: Geometry,
+    frame: &mut Frame,
+    session_tabs: Vec<String>,
+    tab_state: &mut ListState,
+) {
     let highlight_style = HighlightStyle::default().style(WStyle::default().fg(WColor::Rgb {
         r: 255,
         g: 255,
@@ -265,7 +274,7 @@ fn handle_session_tabs(layout: Geometry, frame: &mut Frame, session_tabs: Vec<St
         .block_style(WStyle::default().fg(Color::Green))
         .highlight_style(highlight_style);
 
-    frame.render_state_widget(list, layout, &mut list_state);
+    frame.render_state_widget(list, layout, tab_state);
 }
 
 fn handle_session(

@@ -35,6 +35,8 @@ impl SessionList {
         } else {
             self.selected_session_index = Some(0);
         }
+
+        self.selected_tab_index = Some(0);
     }
 
     pub fn previous_session(&mut self) {
@@ -46,6 +48,47 @@ impl SessionList {
             }
         } else {
             self.selected_session_index = Some(self.sessions.len() - 1);
+        }
+
+        self.selected_tab_index = Some(0);
+    }
+
+    pub fn next_tab(&mut self) {
+        if let Some(selected_tab) = self.selected_tab_index {
+            if selected_tab
+                < self.sessions[self.selected_session_index.unwrap()]
+                    .tabs
+                    .len()
+                    - 1
+            {
+                self.selected_tab_index = Some(selected_tab + 1);
+            } else {
+                self.selected_tab_index = Some(0);
+            }
+        } else {
+            self.selected_tab_index = Some(0);
+        }
+    }
+
+    pub fn previous_tab(&mut self) {
+        if let Some(selected_tab) = self.selected_tab_index {
+            if selected_tab > 0 {
+                self.selected_tab_index = Some(selected_tab - 1);
+            } else {
+                self.selected_tab_index = Some(
+                    self.sessions[self.selected_session_index.unwrap()]
+                        .tabs
+                        .len()
+                        - 1,
+                );
+            }
+        } else {
+            self.selected_tab_index = Some(
+                self.sessions[self.selected_session_index.unwrap()]
+                    .tabs
+                    .len()
+                    - 1,
+            );
         }
     }
 

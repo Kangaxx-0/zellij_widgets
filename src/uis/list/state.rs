@@ -12,6 +12,8 @@ pub struct ListState {
 impl ListState {
     /// Create a new list state
     ///
+    /// - `highlight_index` - The index of the currently selected / highlighted item index
+    /// - `start_pos` - Sets the index of the first item to be displayed
     /// Example:
     /// ```rust
     /// # use zellij_widgets::prelude::*;
