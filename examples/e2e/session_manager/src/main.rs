@@ -216,7 +216,7 @@ fn ui(frame: &mut Frame, sessions: &SessionList, is_loading: bool, tab_locked: b
 }
 
 fn handle_status_bar(layout: Geometry, frame: &mut Frame) {
-    let parah = "<TAB> to switch session, <UP/DOWN> to switch tab / switch pane if tab is locked, <ENTER> to lock/unlock tab, <CTRL + S> to switch pane";
+    let parah = "<TAB>-switch session, <UP/DOWN>-switch tab/switch pane(Tab is locked), <ENTER>-lock/unlock tab, <CTRL+S> - switch pane";
     let status_bar = Paragraph::new(parah)
         .style(
             WStyle::default()
