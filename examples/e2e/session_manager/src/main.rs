@@ -66,7 +66,7 @@ impl ZellijPlugin for State {
     fn render(&mut self, rows: usize, cols: usize) {
         let stdout = std::io::stdout();
         let mut pane = PluginPane::new(stdout, rows as u16, cols as u16);
-        let _ = pane.draw(|frame| ui(frame, &self.sessions, self.is_loading));
+        let _ = pane.draw(|frame| ui(frame, &self.sessions, self.is_loading, self.tab_locked));
     }
 }
 
@@ -146,7 +146,7 @@ fn break_down_session(session_list: &SessionList) -> (Vec<String>, Vec<String>, 
     (session_names, tab_names, pane_names)
 }
 
-fn ui(frame: &mut Frame, sessions: &SessionList, is_loading: bool) {
+fn ui(frame: &mut Frame, sessions: &SessionList, is_loading: bool, tab_locked: bool) {
     if is_loading {
         let loading =
             LoadingDialog::new("Please wait, we are loading session information...".to_string())
@@ -200,8 +200,12 @@ fn ui(frame: &mut Frame, sessions: &SessionList, is_loading: bool) {
 
         let mut tab_state = ListState::new(sessions.selected_tab_index, 0);
 
-        handle_session_tabs(sub_layout[0], frame, tab_names, &mut tab_state);
-        handle_session_pane(sub_layout[1], frame, pane_names);
+        handle_session_tabs(sub_layout[0], frame, tab_names, &mut tab_state, tab_locked);
+        if tab_locked {
+            handle_session_pane(sub_layout[1], frame, pane_names);
+        } else {
+            handle_session_pane_hint(sub_layout[1], frame);
+        }
 
         handle_status_bar(layouts[2], frame);
     }
@@ -218,6 +222,19 @@ fn handle_status_bar(layout: Geometry, frame: &mut Frame) {
         .alignment(Alignment::Center);
 
     frame.render_widget(status_bar, layout);
+}
+
+fn handle_session_pane_hint(layout: Geometry, frame: &mut Frame) {
+    let hint = Paragraph::new("Press Enter to lock the tab")
+        .block(
+            Block::default()
+                .borders(Borders::ALL)
+                .border_type(BorderType::Thick),
+        )
+        .style(WStyle::default().fg(WColor::White).bg(Color::Black))
+        .alignment(Alignment::Center);
+
+    frame.render_widget(hint, layout);
 }
 
 fn handle_session_pane(layout: Geometry, frame: &mut Frame, pane_names: Vec<String>) {
@@ -252,6 +269,7 @@ fn handle_session_tabs(
     frame: &mut Frame,
     session_tabs: Vec<String>,
     tab_state: &mut ListState,
+    tab_locked: bool,
 ) {
     let highlight_style = HighlightStyle::default().style(WStyle::default().fg(WColor::Rgb {
         r: 255,
@@ -263,16 +281,29 @@ fn handle_session_tabs(
         .map(|name| ListItem::new(name.clone()))
         .collect();
 
-    let list = List::new_with_items(tabs)
-        .block(
-            Block::default()
-                .borders(Borders::ALL)
-                .title("Tabs")
-                .title_alignment(Alignment::Center)
-                .border_type(BorderType::Thick),
-        )
-        .block_style(WStyle::default().fg(Color::Green))
+    let block = if tab_locked {
+        Block::default()
+            .borders(Borders::ALL)
+            .title("Tabs(locked)")
+            .title_alignment(Alignment::Center)
+            .border_type(BorderType::Thick)
+    } else {
+        Block::default()
+            .borders(Borders::ALL)
+            .title("Tabs")
+            .title_alignment(Alignment::Center)
+            .border_type(BorderType::Thick)
+    };
+
+    let mut list = List::new_with_items(tabs)
+        .block(block)
         .highlight_style(highlight_style);
+
+    list = if tab_locked {
+        list.block_style(WStyle::default().fg(Color::Red))
+    } else {
+        list.block_style(WStyle::default().fg(Color::Green))
+    };
 
     frame.render_state_widget(list, layout, tab_state);
 }
