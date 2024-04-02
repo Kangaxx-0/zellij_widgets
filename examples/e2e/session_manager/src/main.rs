@@ -11,9 +11,7 @@ mod session;
 
 #[derive(Default)]
 struct State {
-    session_name: Option<String>,
     sessions: SessionList,
-    error: Option<String>,
     is_loading: bool,
     tab_locked: bool,
 }
@@ -40,17 +38,16 @@ impl ZellijPlugin for State {
     fn update(&mut self, event: Event) -> bool {
         let mut should_render = false;
         match event {
-            Event::ModeUpdate(mode_info) => {
+            Event::ModeUpdate(_) => {
                 should_render = true;
             }
             Event::Key(key) => {
                 should_render = self.handle_key(key);
-                should_render = true;
             }
             Event::PermissionRequestResult(_result) => {
                 should_render = true;
             }
-            Event::SessionUpdate(session_infos, resurrectable_session_list) => {
+            Event::SessionUpdate(session_infos, _) => {
                 self.update_session_infos(session_infos);
                 if !self.sessions.is_empty() {
                     self.is_loading = false;
@@ -80,17 +77,29 @@ impl State {
                 should_render = true;
             }
             Key::Down => {
-                self.sessions.next_tab();
-                self.tab_locked = false;
+                if self.tab_locked {
+                    self.sessions.next_pane();
+                } else {
+                    self.sessions.next_tab();
+                    self.tab_locked = false;
+                }
                 should_render = true;
             }
             Key::Up => {
-                self.sessions.previous_tab();
-                self.tab_locked = false;
+                if self.tab_locked {
+                    self.sessions.previous_pane();
+                } else {
+                    self.sessions.previous_tab();
+                    self.tab_locked = false;
+                }
                 should_render = true;
             }
             Key::Char('\n') => {
                 self.tab_locked = !self.tab_locked;
+                should_render = true;
+            }
+            Key::Ctrl('s') => {
+                self.switch_session();
                 should_render = true;
             }
             _ => (),
@@ -102,19 +111,28 @@ impl State {
     fn update_session_infos(&mut self, session_infos: Vec<SessionInfo>) {
         let session_infos: Vec<Session> = session_infos
             .iter()
-            .map(|s| Session::from_session_info(s))
+            .map(Session::from_session_info)
             .collect();
-        // let current_session_name = session_infos.iter().find_map(|s| {
-        //     if s.is_current_session {
-        //         Some(s.name.clone())
-        //     } else {
-        //         None
-        //     }
-        // });
-        // if let Some(current_session_name) = current_session_name {
-        //     self.session_name = Some(current_session_name);
-        // }
         self.sessions.set_sessions(session_infos);
+    }
+
+    fn switch_session(&mut self) {
+        let is_current_session = self.sessions.selected_is_current_session();
+        if is_current_session {
+            if let Some(pane_id) = self.sessions.selected_pane_index {
+                focus_terminal_pane(pane_id.try_into().unwrap(), true);
+            } else if let Some(tab_position) = self.sessions.selected_tab_index {
+                go_to_tab(tab_position as u32);
+            }
+        } else {
+            let session_name = self.sessions.get_selected_session_name().unwrap();
+            let pane_id = self.sessions.selected_pane_index.unwrap_or(0);
+            switch_session_with_focus(
+                &session_name,
+                self.sessions.selected_tab_index,
+                Some((pane_id.try_into().unwrap(), false)),
+            );
+        }
     }
 }
 
@@ -137,7 +155,7 @@ fn break_down_session(session_list: &SessionList) -> (Vec<String>, Vec<String>, 
         .map_or_else(Vec::new, |session| {
             session
                 .tabs
-                .get(session_list.selected_pane_index.unwrap_or(0))
+                .get(session_list.selected_tab_index.unwrap_or(0))
                 .map_or_else(Vec::new, |tab| {
                     tab.panes.iter().map(|pane| pane.name.clone()).collect()
                 })
@@ -175,21 +193,6 @@ fn ui(frame: &mut Frame, sessions: &SessionList, is_loading: bool, tab_locked: b
             .direction(Orientation::Horizontal)
             .constraints([Constraint::Percentage(30), Constraint::Percentage(70)].as_ref())
             .split(layouts[1]);
-        // let paragraph = Paragraph::new(format!(
-        //     "session x{}, tab x{}, pane x{}",
-        //     session_names.len(),
-        //     tab_names.len(),
-        //     pane_names.len()
-        // ))
-        // .style(
-        //     WStyle::default()
-        //         .fg(WColor::White)
-        //         .bg(Color::Black)
-        //         .slow_blink(),
-        // )
-        // .alignment(Alignment::Center);
-        //
-        // frame.render_widget(paragraph, layouts[0]);
 
         handle_session(
             layouts[0],
@@ -202,7 +205,8 @@ fn ui(frame: &mut Frame, sessions: &SessionList, is_loading: bool, tab_locked: b
 
         handle_session_tabs(sub_layout[0], frame, tab_names, &mut tab_state, tab_locked);
         if tab_locked {
-            handle_session_pane(sub_layout[1], frame, pane_names);
+            let mut pane_state = ListState::new(sessions.selected_pane_index, 0);
+            handle_session_pane(sub_layout[1], frame, pane_names, &mut pane_state);
         } else {
             handle_session_pane_hint(sub_layout[1], frame);
         }
@@ -212,7 +216,8 @@ fn ui(frame: &mut Frame, sessions: &SessionList, is_loading: bool, tab_locked: b
 }
 
 fn handle_status_bar(layout: Geometry, frame: &mut Frame) {
-    let status_bar = Paragraph::new("Status Bar")
+    let parah = "<TAB> to switch session, <UP/DOWN> to switch tab / switch pane if tab is locked, <ENTER> to lock/unlock tab, <CTRL + S> to switch pane";
+    let status_bar = Paragraph::new(parah)
         .style(
             WStyle::default()
                 .fg(WColor::White)
@@ -237,8 +242,12 @@ fn handle_session_pane_hint(layout: Geometry, frame: &mut Frame) {
     frame.render_widget(hint, layout);
 }
 
-fn handle_session_pane(layout: Geometry, frame: &mut Frame, pane_names: Vec<String>) {
-    let mut list_state = ListState::new(Some(3), 2);
+fn handle_session_pane(
+    layout: Geometry,
+    frame: &mut Frame,
+    pane_names: Vec<String>,
+    pane_state: &mut ListState,
+) {
     let highlight_style = HighlightStyle::default().style(WStyle::default().fg(WColor::Rgb {
         r: 255,
         g: 255,
@@ -261,7 +270,7 @@ fn handle_session_pane(layout: Geometry, frame: &mut Frame, pane_names: Vec<Stri
         .block_style(WStyle::default().fg(Color::Green))
         .highlight_style(highlight_style);
 
-    frame.render_state_widget(list, layout, &mut list_state);
+    frame.render_state_widget(list, layout, pane_state);
 }
 
 fn handle_session_tabs(
