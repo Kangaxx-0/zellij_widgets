@@ -5,7 +5,7 @@ Zellij Widgets provides a set of widgets for the Zellij plugin system. It is des
 ## Key Features
 1. Reusable UI Components: Offers a collection of UI components that abstract away the complexity of dealing with ANSI codes, making it easier for Zellij plugin developers to create user interfaces.
 
-[demo](./assets/images/showcase_e2e.gif)
+![demo](./assets/images/showcase_e2e.gif)
 
 ## Prerequisites
 To use Zellij Widgets, developers should have a basic understanding of the Zellij plugin system. Zellij plugins communicate with the Zellij host via the Wasmer runtime, and Zellij provides interfaces such as the ZellijPlugin crate.
