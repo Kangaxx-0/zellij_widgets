@@ -127,7 +127,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_highligh_symbol() {
+    fn test_highlight_symbol() {
         let highlight_symbol_single = HighlightSymbol::SingleArrow;
         assert_eq!(format!("{}", highlight_symbol_single), String::from("->"));
 
@@ -145,7 +145,7 @@ mod tests {
     }
 
     #[test]
-    fn test_highligh_symbol_len() {
+    fn test_highlight_symbol_len() {
         let highlight_symbol_single = HighlightSymbol::SingleArrow;
         assert_eq!(highlight_symbol_single.len(), 2);
 
