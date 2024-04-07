@@ -152,7 +152,7 @@ pub enum Alignment {
 
 type Cache = LruCache<(Geometry, Layout), Rc<[Geometry]>>;
 thread_local! {
-    static LAYOUT_CACHE: OnceLock<RefCell<Cache>> = OnceLock::new();
+    static LAYOUT_CACHE: OnceLock<RefCell<Cache>> = const {OnceLock::new()}
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
