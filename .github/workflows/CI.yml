@@ -67,6 +67,29 @@ jobs:
       - name: Run cargo make clippy-all
         run: cargo make clippy
 
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: llvm-tools
+      - name: Install cargo-llvm-cov and cargo-make
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-llvm-cov,cargo-make
+      - name: Cache Cargo dependencies
+        uses: Swatinem/rust-cache@v2
+      - name: Generate coverage
+        run: cargo make coverage
+      - name: Upload to codecov.io
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+
   check:
     strategy:
       fail-fast: false
