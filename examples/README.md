@@ -17,7 +17,9 @@ This folder contains unreleased code, but before you try any of them, you need t
 Above sample config would allow you to interact with `custom_button` code, when you have plugin running, press `c`
 
 
-## You need to call `render` on demand
-Keep in mind, you are responsible to call [render](https://zellij.dev/documentation/plugin-lifecycle) function every time you want to redraw ui, there is no loop.
+## Come from `Ratatui`
+Keep in mind, there is no loop controls rendering like `Ratatui`, its your responsibility to **implicitly** call [render](https://zellij.dev/documentation/plugin-lifecycle) function when you want to redraw ui every time
+
+If you want to see more fundamental concepts in zellij, please refer to my another [repo](https://github.com/Kangaxx-0/first-zellij-plugin/tree/main)
 
 
