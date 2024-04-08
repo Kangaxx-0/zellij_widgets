@@ -1,3 +1,9 @@
+//! A prelude for conveniently writing applications using this library.
+//!
+//! ```rust,no_run
+//! use zellij_widgets::prelude::*;
+//! ```
+
 pub use crate::{
     buffer::Buffer,
     frame::Frame,

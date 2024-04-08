@@ -1,3 +1,4 @@
+//! A module for working with text, lines, spans, and graphemes.
 pub mod grapheme;
 pub mod line;
 pub mod masked;
