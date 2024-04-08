@@ -1,4 +1,5 @@
 #![allow(unused_imports)]
+//! A collection of widgets and utilities to build terminal applications.
 use cassowary::{
     strength::{MEDIUM, REQUIRED, STRONG, WEAK},
     AddConstraintError, Expression, Solver, Variable,

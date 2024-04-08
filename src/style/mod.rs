@@ -1,3 +1,4 @@
+//! This module provides the basic building blocks for styling the terminal output.
 use std::fmt::Debug;
 
 use crate::impl_display;

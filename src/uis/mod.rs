@@ -1,3 +1,4 @@
+//! This module contains all the widgets that are available in the library.
 pub use block::{Block, BorderOptions, BorderType, Borders, Padding};
 pub use erase::Erase;
 pub use list::{HighlightStyle, HighlightSymbol, List, ListItem, ListState};
