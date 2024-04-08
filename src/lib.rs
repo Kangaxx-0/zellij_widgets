@@ -7,12 +7,12 @@
 //! to provide a comprehensive set of widgets and utilities for building zellij plugin applications.
 //!
 //! [EXAMPLES]: https://github.com/Kangaxx-0/zellij_widgets/tree/main/examples
-//!  - [Block] : https://github.com/Kangaxx-0/zellij_widgets/tree/main/examples/showcase_block
-//!  - [list] : https://github.com/Kangaxx-0/zellij_widgets/tree/main/examples/showcase_list
-//!  - [tab] : https://github.com/Kangaxx-0/zellij_widgets/tree/main/examples/showcase_tabs
-//!  - [scrollbar] : https://github.com/Kangaxx-0/zellij_widgets/tree/main/examples/showcase_scrollbar
-//!  - [popup] : https://github.com/Kangaxx-0/zellij_widgets/tree/main/examples/showcase_popup
-//!  - [Custom component] : https://github.com/Kangaxx-0/zellij_widgets/tree/main/examples/showcase_custom_button
+//!  - Block : https://github.com/Kangaxx-0/zellij_widgets/tree/main/examples/showcase_block
+//!  - List : https://github.com/Kangaxx-0/zellij_widgets/tree/main/examples/showcase_list
+//!  - Tab : https://github.com/Kangaxx-0/zellij_widgets/tree/main/examples/showcase_tabs
+//!  - Scrollbar : https://github.com/Kangaxx-0/zellij_widgets/tree/main/examples/showcase_scrollbar
+//!  - Popup : https://github.com/Kangaxx-0/zellij_widgets/tree/main/examples/showcase_popup
+//!  - Custom component : https://github.com/Kangaxx-0/zellij_widgets/tree/main/examples/showcase_custom_button
 //!
 //! For an end-to-end demonstration, check out the [session_manager](https://github.com/Kangaxx-0/zellij_widgets/tree/main/examples/e2e/session_manager) example,
 //! which provides a complete rewrite of an existing zellij plugin using `zellij_widgets`.
