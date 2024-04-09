@@ -3,6 +3,16 @@
 //! The `cursor` module provides limited functionality to work with the terminal cursor, you can
 //! move the cursor position but you would not be able to see it since zellij plugin does not show cursor as
 //! a stylistic choice :)
+//!
+//!
+//! ## Assumptions:
+//! - Cursor position is 0 based, in other words, the top left cell is represented as `0,0`.
+//!
+//! ## Notes:
+//! - As a by-design implementation, the cursor is hidden in the zellij plugin, so this module
+//! should be used with caution.
+//! - Standard system calls or APS that work directly with the terminal cursor is not functional
+//! the same way as in a zellij plugin environment.
 
 use std::fmt;
 
@@ -269,3 +279,181 @@ impl_display!(for MoveLeft);
 impl_display!(for MoveRight);
 impl_display!(for SavePosition);
 impl_display!(for RestorePosition);
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_move_to() {
+        let command = MoveTo(1, 2);
+        let mut buffer = String::new();
+        command.write_ansi(&mut buffer).unwrap();
+        assert_eq!(buffer, "\x1B[3;2H");
+
+        let command = MoveTo(0, 0);
+        let mut buffer = String::new();
+        let _ = &command.write_ansi(&mut buffer).unwrap();
+        assert_eq!(buffer, "\x1B[1;1H");
+    }
+
+    #[test]
+    fn test_move_to_next_line() {
+        let command = MoveToNextLine(1);
+        let mut buffer = String::new();
+        command.write_ansi(&mut buffer).unwrap();
+        assert_eq!(buffer, "\x1B[1E");
+
+        let command = &MoveToNextLine(0);
+        let mut buffer = String::new();
+        command.write_ansi(&mut buffer).unwrap();
+        assert_eq!(buffer, "\x1B[0E");
+
+        let command = &MoveToNextLine(2);
+        let mut buffer = String::new();
+        command.write_ansi(&mut buffer).unwrap();
+        assert_eq!(buffer, "\x1B[2E");
+    }
+
+    #[test]
+    fn test_move_to_previous_line() {
+        let command = MoveToPreviousLine(1);
+        let mut buffer = String::new();
+        command.write_ansi(&mut buffer).unwrap();
+        assert_eq!(buffer, "\x1B[1F");
+
+        let command = &MoveToPreviousLine(0);
+        let mut buffer = String::new();
+        command.write_ansi(&mut buffer).unwrap();
+        assert_eq!(buffer, "\x1B[0F");
+
+        let command = &MoveToPreviousLine(2);
+        let mut buffer = String::new();
+        command.write_ansi(&mut buffer).unwrap();
+        assert_eq!(buffer, "\x1B[2F");
+    }
+
+    #[test]
+    fn test_move_to_column() {
+        let command = MoveToColumn(1);
+        let mut buffer = String::new();
+        command.write_ansi(&mut buffer).unwrap();
+        assert_eq!(buffer, "\x1B[2G");
+
+        let command = &MoveToColumn(0);
+        let mut buffer = String::new();
+        command.write_ansi(&mut buffer).unwrap();
+        assert_eq!(buffer, "\x1B[1G");
+
+        let command = &MoveToColumn(2);
+        let mut buffer = String::new();
+        command.write_ansi(&mut buffer).unwrap();
+        assert_eq!(buffer, "\x1B[3G");
+    }
+
+    #[test]
+    fn test_move_to_row() {
+        let command = MoveToRow(1);
+        let mut buffer = String::new();
+        command.write_ansi(&mut buffer).unwrap();
+        assert_eq!(buffer, "\x1B[2d");
+
+        let command = &MoveToRow(0);
+        let mut buffer = String::new();
+        command.write_ansi(&mut buffer).unwrap();
+        assert_eq!(buffer, "\x1B[1d");
+
+        let command = &MoveToRow(2);
+        let mut buffer = String::new();
+        command.write_ansi(&mut buffer).unwrap();
+        assert_eq!(buffer, "\x1B[3d");
+    }
+
+    #[test]
+    fn test_move_up() {
+        let command = MoveUp(1);
+        let mut buffer = String::new();
+        command.write_ansi(&mut buffer).unwrap();
+        assert_eq!(buffer, "\x1B[1A");
+
+        let command = &MoveUp(0);
+        let mut buffer = String::new();
+        command.write_ansi(&mut buffer).unwrap();
+        assert_eq!(buffer, "\x1B[0A");
+
+        let command = &MoveUp(2);
+        let mut buffer = String::new();
+        command.write_ansi(&mut buffer).unwrap();
+        assert_eq!(buffer, "\x1B[2A");
+    }
+
+    #[test]
+    fn test_move_down() {
+        let command = MoveDown(1);
+        let mut buffer = String::new();
+        command.write_ansi(&mut buffer).unwrap();
+        assert_eq!(buffer, "\x1B[1B");
+
+        let command = &MoveDown(0);
+        let mut buffer = String::new();
+        command.write_ansi(&mut buffer).unwrap();
+        assert_eq!(buffer, "\x1B[0B");
+
+        let command = &MoveDown(2);
+        let mut buffer = String::new();
+        command.write_ansi(&mut buffer).unwrap();
+        assert_eq!(buffer, "\x1B[2B");
+    }
+
+    #[test]
+    fn test_move_left() {
+        let command = MoveLeft(1);
+        let mut buffer = String::new();
+        command.write_ansi(&mut buffer).unwrap();
+        assert_eq!(buffer, "\x1B[1D");
+
+        let command = &MoveLeft(0);
+        let mut buffer = String::new();
+        command.write_ansi(&mut buffer).unwrap();
+        assert_eq!(buffer, "\x1B[0D");
+
+        let command = &MoveLeft(2);
+        let mut buffer = String::new();
+        command.write_ansi(&mut buffer).unwrap();
+        assert_eq!(buffer, "\x1B[2D");
+    }
+
+    #[test]
+    fn test_move_right() {
+        let command = MoveRight(1);
+        let mut buffer = String::new();
+        command.write_ansi(&mut buffer).unwrap();
+        assert_eq!(buffer, "\x1B[1C");
+
+        let command = &MoveRight(0);
+        let mut buffer = String::new();
+        command.write_ansi(&mut buffer).unwrap();
+        assert_eq!(buffer, "\x1B[0C");
+
+        let command = &MoveRight(2);
+        let mut buffer = String::new();
+        command.write_ansi(&mut buffer).unwrap();
+        assert_eq!(buffer, "\x1B[2C");
+    }
+
+    #[test]
+    fn test_save_position() {
+        let command = SavePosition;
+        let mut buffer = String::new();
+        command.write_ansi(&mut buffer).unwrap();
+        assert_eq!(buffer, "\x1B7");
+    }
+
+    #[test]
+    fn test_restore_position() {
+        let command = RestorePosition;
+        let mut buffer = String::new();
+        command.write_ansi(&mut buffer).unwrap();
+        assert_eq!(buffer, "\x1B8");
+    }
+}

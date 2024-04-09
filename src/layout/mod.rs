@@ -101,6 +101,7 @@ impl fmt::Display for Constraint {
 }
 
 impl Constraint {
+    ///
     pub fn apply(&self, length: u16) -> u16 {
         match *self {
             Constraint::Percentage(p) => {
@@ -497,4 +498,272 @@ fn try_split(area: Geometry, layout: &Layout) -> Result<Rc<[Geometry]>, AddConst
         })
         .collect::<Rc<[Geometry]>>();
     Ok(results)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_constraint_percentage() {
+        assert_eq!(0, Constraint::Percentage(50).apply(0));
+        assert_eq!(2, Constraint::Percentage(50).apply(4));
+        assert_eq!(5, Constraint::Percentage(50).apply(10));
+    }
+
+    #[test]
+    fn test_constraint_ratio() {
+        assert_eq!(0, Constraint::Ratio(4, 3).apply(0));
+        assert_eq!(4, Constraint::Ratio(4, 3).apply(4));
+
+        assert_eq!(0, Constraint::Ratio(3, 4).apply(0));
+        assert_eq!(3, Constraint::Ratio(3, 4).apply(4));
+    }
+
+    #[test]
+    fn test_constraint_length() {
+        assert_eq!(0, Constraint::Length(4).apply(0));
+        assert_eq!(4, Constraint::Length(4).apply(4));
+    }
+
+    #[test]
+    fn test_constraint_max() {
+        assert_eq!(0, Constraint::Max(4).apply(0));
+        assert_eq!(4, Constraint::Max(4).apply(4));
+        assert_eq!(4, Constraint::Max(4).apply(10));
+    }
+
+    #[test]
+    fn test_constraint_min() {
+        assert_eq!(4, Constraint::Min(4).apply(0));
+        assert_eq!(4, Constraint::Min(4).apply(4));
+        assert_eq!(10, Constraint::Min(4).apply(10));
+    }
+
+    #[test]
+    fn test_margin() {
+        assert_eq!("2x2", Margin::new(2, 2).to_string());
+    }
+
+    #[test]
+    fn test_layout() {
+        let layout = Layout::default()
+            .constraints([Constraint::Min(0)])
+            .margin(2)
+            .split(Geometry::new(10, 10));
+        assert_eq!(
+            layout[..],
+            [Geometry {
+                x: 2,
+                y: 2,
+                cols: 6,
+                rows: 0
+            }]
+        );
+    }
+
+    #[test]
+    fn test_layout_constraints() {
+        let layout = Layout::default()
+            .constraints([
+                Constraint::Percentage(20),
+                Constraint::Ratio(1, 5),
+                Constraint::Length(2),
+                Constraint::Min(2),
+                Constraint::Max(2),
+            ])
+            .split(Geometry::new(10, 10));
+        assert_eq!(
+            layout[..],
+            [
+                Geometry {
+                    x: 0,
+                    y: 0,
+                    cols: 10,
+                    rows: 2,
+                },
+                Geometry {
+                    x: 0,
+                    y: 2,
+                    cols: 10,
+                    rows: 2,
+                },
+                Geometry {
+                    x: 0,
+                    y: 4,
+                    cols: 10,
+                    rows: 2,
+                },
+                Geometry {
+                    x: 0,
+                    y: 6,
+                    cols: 10,
+                    rows: 2,
+                },
+                Geometry {
+                    x: 0,
+                    y: 8,
+                    cols: 10,
+                    rows: 2,
+                },
+            ]
+        );
+    }
+
+    #[test]
+    fn test_layout_margin() {
+        let layout = Layout::default()
+            .constraints([Constraint::Min(0)])
+            .margin(2)
+            .split(Geometry::new(10, 10));
+        assert_eq!(
+            layout[..],
+            [Geometry {
+                x: 2,
+                y: 2,
+                cols: 6,
+                rows: 0
+            }]
+        );
+    }
+
+    #[test]
+    fn test_layout_horizontal_margin() {
+        let layout = Layout::default()
+            .constraints([Constraint::Min(0)])
+            .horizontal_margin(2)
+            .split(Geometry::new(10, 10));
+        assert_eq!(
+            layout[..],
+            [Geometry {
+                x: 2,
+                y: 0,
+                cols: 6,
+                rows: 0
+            }]
+        );
+    }
+
+    #[test]
+    fn test_layout_vertical_margin() {
+        let layout = Layout::default()
+            .constraints([Constraint::Min(0)])
+            .vertical_margin(2)
+            .split(Geometry::new(10, 10));
+        assert_eq!(
+            layout[..],
+            [Geometry {
+                x: 0,
+                y: 2,
+                cols: 10,
+                rows: 0
+            }]
+        );
+    }
+
+    #[test]
+    fn test_layout_direction() {
+        let layout = Layout::default()
+            .direction(Orientation::Horizontal)
+            .constraints([Constraint::Length(5), Constraint::Min(0)])
+            .split(Geometry::new(10, 10));
+        assert_eq!(
+            layout[..],
+            [
+                Geometry {
+                    x: 0,
+                    y: 0,
+                    cols: 5,
+                    rows: 10
+                },
+                Geometry {
+                    x: 5,
+                    y: 0,
+                    cols: 0,
+                    rows: 10
+                }
+            ]
+        );
+
+        let layout = Layout::default()
+            .direction(Orientation::Vertical)
+            .constraints([Constraint::Length(5), Constraint::Min(0)])
+            .split(Geometry::new(10, 10));
+        assert_eq!(
+            layout[..],
+            [
+                Geometry {
+                    x: 0,
+                    y: 0,
+                    cols: 10,
+                    rows: 5
+                },
+                Geometry {
+                    x: 0,
+                    y: 5,
+                    cols: 10,
+                    rows: 0
+                }
+            ]
+        );
+    }
+
+    #[test]
+    fn test_layout_split() {
+        let layout = Layout::default()
+            .direction(Orientation::Horizontal)
+            .constraints([Constraint::Ratio(1, 3), Constraint::Ratio(2, 3)])
+            .split(Geometry::new(9, 2));
+        assert_eq!(
+            layout[..],
+            [
+                Geometry {
+                    x: 0,
+                    y: 0,
+                    cols: 1,
+                    rows: 9
+                },
+                Geometry {
+                    x: 1,
+                    y: 0,
+                    cols: 1,
+                    rows: 9
+                }
+            ]
+        );
+    }
+
+    #[test]
+    fn test_element() {
+        let element = Element {
+            start: Variable::new(),
+            end: Variable::new(),
+        };
+    }
+
+    #[test]
+    fn test_try_split() {
+        let layout = Layout::default()
+            .direction(Orientation::Horizontal)
+            .constraints([Constraint::Ratio(1, 3), Constraint::Ratio(2, 3)]);
+        let area = Geometry::new(9, 2);
+        let result = try_split(area, &layout).unwrap();
+        assert_eq!(
+            result[..],
+            [
+                Geometry {
+                    x: 0,
+                    y: 0,
+                    cols: 1,
+                    rows: 9
+                },
+                Geometry {
+                    x: 1,
+                    y: 0,
+                    cols: 1,
+                    rows: 9
+                }
+            ]
+        );
+    }
 }
