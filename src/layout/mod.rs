@@ -734,14 +734,6 @@ mod tests {
     }
 
     #[test]
-    fn test_element() {
-        let element = Element {
-            start: Variable::new(),
-            end: Variable::new(),
-        };
-    }
-
-    #[test]
     fn test_try_split() {
         let layout = Layout::default()
             .direction(Orientation::Horizontal)
