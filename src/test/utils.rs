@@ -1,4 +1,9 @@
 #[macro_export]
+/// This macro is useful for asserting that two buffers are equal.
+///
+/// # Parameters
+/// - `$actual_expr` - The actual buffer to compare
+/// - `$expected_expr` - The expected buffer to compare
 macro_rules! assert_buffer_eq {
     ($actual_expr:expr, $expected_expr:expr) => {
         match (&$actual_expr, &$expected_expr) {
