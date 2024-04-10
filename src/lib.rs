@@ -21,17 +21,16 @@
 //! - Like the [ratatui](https://docs.rs/ratatui/latest/ratatui/index.html) crate, zellij_widgets is also based on immediate mode GUI, that being said, for each frame, you need to re-render the entire UI.
 //! For most cases, use zellij [update](https://docs.rs/zellij-tile/latest/zellij_tile/trait.ZellijPlugin.html#method.update) is the best way.
 
-mod buffer;
-mod frame;
-mod plugin_pane;
-mod widget;
-
+pub mod buffer;
 pub mod core;
+pub mod frame;
 pub mod layout;
+pub mod plugin_pane;
 pub mod style;
 pub mod text;
 pub mod title;
 pub mod uis;
+pub mod widget;
 
 pub(crate) mod test;
 

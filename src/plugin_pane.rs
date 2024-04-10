@@ -16,6 +16,7 @@
 //! }
 //!
 //! ```
+//!
 
 use crate::{
     buffer::Buffer,
@@ -73,11 +74,6 @@ where
             buffer: Buffer::empty(Geometry::new(rows, cols)),
         }
     }
-
-    // /// Write the given buffer to the host via wasm runtime
-    // pub fn write(&mut self, buf: &[u8]) -> io::Result<()> {
-    //     self.writer.write_all(buf)
-    // }
 
     /// An important function that flushes the buffer, and it is also where the magic happens,
     /// such as setting foreground and background colors
@@ -163,7 +159,7 @@ where
     }
 
     /// Finish writing to the host via wasm runtime
-    fn flush(&mut self) -> io::Result<()> {
+    pub fn flush(&mut self) -> io::Result<()> {
         self.writer.flush()
     }
 }
@@ -236,5 +232,68 @@ impl ModifierDiff {
         }
 
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::uis::Paragraph;
+
+    #[test]
+    fn test_plugin_pane_new() {
+        let mut plugin_pane = PluginPane::new(io::stdout(), 20, 20);
+        let result = plugin_pane.draw(|f| {
+            f.render_widget(Paragraph::new("Hello World"), f.size());
+        });
+        // render should be successful
+        assert!(result.is_ok());
+
+        // validate the buffer size
+        assert_eq!(plugin_pane.buffer.content().len(), 400);
+        assert_eq!(plugin_pane.buffer.pos_of(0), (0, 0));
+        assert_eq!(plugin_pane.buffer.pos_of(99), (19, 4));
+        //validate buffer contents
+        assert_eq!(plugin_pane.buffer.content()[0].symbol(), "H");
+        assert_eq!(plugin_pane.buffer.content()[1].symbol(), "e");
+        assert_eq!(plugin_pane.buffer.content()[2].symbol(), "l");
+        assert_eq!(plugin_pane.buffer.content()[3].symbol(), "l");
+        assert_eq!(plugin_pane.buffer.content()[4].symbol(), "o");
+        assert_eq!(plugin_pane.buffer.content()[5].symbol(), " ");
+        assert_eq!(plugin_pane.buffer.content()[6].symbol(), "W");
+        assert_eq!(plugin_pane.buffer.content()[7].symbol(), "o");
+        assert_eq!(plugin_pane.buffer.content()[8].symbol(), "r");
+        assert_eq!(plugin_pane.buffer.content()[9].symbol(), "l");
+        assert_eq!(plugin_pane.buffer.content()[10].symbol(), "d");
+        // the rest of the buffer should be empty
+        assert_eq!(plugin_pane.buffer.content()[11].symbol(), " ");
+    }
+
+    #[test]
+    fn test_get_frame() {
+        let mut plugin_pane = PluginPane::new(io::stdout(), 20, 20);
+        let frame = plugin_pane.get_frame();
+        assert_eq!(frame.viewport_area, Geometry::new(20, 20));
+        assert_eq!(frame.cursor_position, None);
+        assert_eq!(frame.buffer.content().len(), 400);
+    }
+
+    #[test]
+    fn test_current_buffer_mut() {
+        let mut plugin_pane = PluginPane::new(io::stdout(), 20, 20);
+        let buffer = plugin_pane.current_buffer_mut();
+        assert_eq!(buffer.content().len(), 400);
+    }
+
+    #[test]
+    fn test_modifier_diff_queue() {
+        let diff = ModifierDiff {
+            from: Modifier::empty(),
+            to: Modifier::BOLD,
+        };
+        let mut w = Vec::new();
+        let result = diff.queue(&mut w);
+        assert!(result.is_ok());
+        assert_eq!(w, b"\x1B[1m");
     }
 }
