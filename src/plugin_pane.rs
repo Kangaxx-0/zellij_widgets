@@ -1,3 +1,22 @@
+//! [`PluginPane`] as it's name suggests, is a pane that is used to render the plugin's buffer to the host via wasm runtime.
+//!
+//! It acts the main interface that zellij plugin uses to communicate with the host.
+//!
+//! # Example
+//! ```rust
+//! use zellij_widgets::prelude::*;
+//!
+//! fn main() {
+//!    let mut plugin_pane = PluginPane::new(std::io::stdout(), 10, 10);
+//!    plugin_pane.draw(|f| { ui(f); });
+//! }
+//!
+//! fn ui(frame: &mut Frame){
+//!    frame.render_widget(Paragraph::new("Hello World"), frame.size());
+//! }
+//!
+//! ```
+
 use crate::{
     buffer::Buffer,
     core::cursor::MoveTo,
@@ -23,6 +42,12 @@ pub struct CompletedFrame<'a> {
 
 ///PluginPane presents a view of the plugin's buffer to the host
 ///
+/// # Fields
+///The `PluginPane` struct has 3 main components:
+///1. `writer` - The writer that is used to write to the host via wasm runtime
+///2. `geom` - The total rectangle size of the plugin pane
+///3. `buffer` - The buffer that is used to render the plugin's content
+///
 /// # NOTE
 ///Always keep in mind that your code talks to the host via wasm runtime.
 ///That having been said, a lot of interfaces you familiar with are not available.
@@ -39,7 +64,8 @@ impl<W> PluginPane<W>
 where
     W: Write,
 {
-    /// Always starts at (0, 0) with rows and cols from `ZellijPlugin::render`
+    /// Set up a new `PluginPane` with the given writer and dimensions.
+    /// You can assume that it starts at (0, 0) with rows and cols from `ZellijPlugin::render`
     pub fn new(writer: W, rows: u16, cols: u16) -> Self {
         Self {
             writer,
@@ -48,10 +74,13 @@ where
         }
     }
 
-    pub fn write(&mut self, buf: &[u8]) -> io::Result<()> {
-        self.writer.write_all(buf)
-    }
+    // /// Write the given buffer to the host via wasm runtime
+    // pub fn write(&mut self, buf: &[u8]) -> io::Result<()> {
+    //     self.writer.write_all(buf)
+    // }
 
+    /// An important function that flushes the buffer, and it is also where the magic happens,
+    /// such as setting foreground and background colors
     pub fn flush_buffer(&mut self) -> io::Result<()> {
         let mut fg = Color::Reset;
         let mut bg = Color::Reset;
@@ -102,6 +131,7 @@ where
         )
     }
 
+    /// Draw the given content to the plugin pane.
     pub fn draw<F>(&mut self, f: F) -> io::Result<CompletedFrame>
     where
         F: FnOnce(&mut Frame),
@@ -118,6 +148,7 @@ where
         })
     }
 
+    /// Get the current frame of the plugin pane.
     fn get_frame(&mut self) -> Frame {
         Frame {
             cursor_position: None,
@@ -126,11 +157,12 @@ where
         }
     }
 
+    /// Get a mutable reference to the current buffer.
     fn current_buffer_mut(&mut self) -> &mut Buffer {
         &mut self.buffer
     }
 
-    // Flush everything to wasmer runtime stdout
+    /// Finish writing to the host via wasm runtime
     fn flush(&mut self) -> io::Result<()> {
         self.writer.flush()
     }
@@ -146,6 +178,7 @@ struct ModifierDiff {
 }
 
 impl ModifierDiff {
+    /// Queue the necessary terminal escape sequences to update the terminal display
     fn queue<W>(&self, mut w: W) -> io::Result<()>
     where
         W: io::Write,
