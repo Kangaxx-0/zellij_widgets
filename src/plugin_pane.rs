@@ -1,3 +1,23 @@
+//! [`PluginPane`] as it's name suggests, is a pane that is used to render the plugin's buffer to the host via wasm runtime.
+//!
+//! It acts the main interface that zellij plugin uses to communicate with the host.
+//!
+//! # Example
+//! ```rust
+//! use zellij_widgets::prelude::*;
+//!
+//! fn main() {
+//!    let mut plugin_pane = PluginPane::new(std::io::stdout(), 10, 10);
+//!    plugin_pane.draw(|f| { ui(f); });
+//! }
+//!
+//! fn ui(frame: &mut Frame){
+//!    frame.render_widget(Paragraph::new("Hello World"), frame.size());
+//! }
+//!
+//! ```
+//!
+
 use crate::{
     buffer::Buffer,
     core::cursor::MoveTo,
@@ -23,6 +43,12 @@ pub struct CompletedFrame<'a> {
 
 ///PluginPane presents a view of the plugin's buffer to the host
 ///
+/// # Fields
+///The `PluginPane` struct has 3 main components:
+///1. `writer` - The writer that is used to write to the host via wasm runtime
+///2. `geom` - The total rectangle size of the plugin pane
+///3. `buffer` - The buffer that is used to render the plugin's content
+///
 /// # NOTE
 ///Always keep in mind that your code talks to the host via wasm runtime.
 ///That having been said, a lot of interfaces you familiar with are not available.
@@ -39,7 +65,8 @@ impl<W> PluginPane<W>
 where
     W: Write,
 {
-    /// Always starts at (0, 0) with rows and cols from `ZellijPlugin::render`
+    /// Set up a new `PluginPane` with the given writer and dimensions.
+    /// You can assume that it starts at (0, 0) with rows and cols from `ZellijPlugin::render`
     pub fn new(writer: W, rows: u16, cols: u16) -> Self {
         Self {
             writer,
@@ -48,10 +75,8 @@ where
         }
     }
 
-    pub fn write(&mut self, buf: &[u8]) -> io::Result<()> {
-        self.writer.write_all(buf)
-    }
-
+    /// An important function that flushes the buffer, and it is also where the magic happens,
+    /// such as setting foreground and background colors
     pub fn flush_buffer(&mut self) -> io::Result<()> {
         let mut fg = Color::Reset;
         let mut bg = Color::Reset;
@@ -102,6 +127,7 @@ where
         )
     }
 
+    /// Draw the given content to the plugin pane.
     pub fn draw<F>(&mut self, f: F) -> io::Result<CompletedFrame>
     where
         F: FnOnce(&mut Frame),
@@ -118,20 +144,21 @@ where
         })
     }
 
+    /// Get the current frame of the plugin pane.
     fn get_frame(&mut self) -> Frame {
         Frame {
-            cursor_position: None,
             viewport_area: self.geom,
             buffer: self.current_buffer_mut(),
         }
     }
 
+    /// Get a mutable reference to the current buffer.
     fn current_buffer_mut(&mut self) -> &mut Buffer {
         &mut self.buffer
     }
 
-    // Flush everything to wasmer runtime stdout
-    fn flush(&mut self) -> io::Result<()> {
+    /// Finish writing to the host via wasm runtime
+    pub fn flush(&mut self) -> io::Result<()> {
         self.writer.flush()
     }
 }
@@ -146,6 +173,7 @@ struct ModifierDiff {
 }
 
 impl ModifierDiff {
+    /// Queue the necessary terminal escape sequences to update the terminal display
     fn queue<W>(&self, mut w: W) -> io::Result<()>
     where
         W: io::Write,
@@ -203,5 +231,101 @@ impl ModifierDiff {
         }
 
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::uis::{List, ListItem, ListState, Paragraph};
+
+    #[test]
+    fn test_plugin_pane_stateless_render() {
+        let mut plugin_pane = PluginPane::new(io::stdout(), 20, 20);
+        let result = plugin_pane.draw(|f| {
+            f.render_widget(Paragraph::new("Hello World"), f.size());
+        });
+        // render should be successful
+        assert!(result.is_ok());
+
+        // validate the buffer size
+        assert_eq!(plugin_pane.buffer.content().len(), 400);
+        assert_eq!(plugin_pane.buffer.pos_of(0), (0, 0));
+        assert_eq!(plugin_pane.buffer.pos_of(99), (19, 4));
+        //validate buffer contents
+        assert_eq!(plugin_pane.buffer.content()[0].symbol(), "H");
+        assert_eq!(plugin_pane.buffer.content()[1].symbol(), "e");
+        assert_eq!(plugin_pane.buffer.content()[2].symbol(), "l");
+        assert_eq!(plugin_pane.buffer.content()[3].symbol(), "l");
+        assert_eq!(plugin_pane.buffer.content()[4].symbol(), "o");
+        assert_eq!(plugin_pane.buffer.content()[5].symbol(), " ");
+        assert_eq!(plugin_pane.buffer.content()[6].symbol(), "W");
+        assert_eq!(plugin_pane.buffer.content()[7].symbol(), "o");
+        assert_eq!(plugin_pane.buffer.content()[8].symbol(), "r");
+        assert_eq!(plugin_pane.buffer.content()[9].symbol(), "l");
+        assert_eq!(plugin_pane.buffer.content()[10].symbol(), "d");
+        // the rest of the buffer should be empty
+        assert_eq!(plugin_pane.buffer.content()[11].symbol(), " ");
+    }
+
+    #[test]
+    fn test_plugin_pane_state_render() {
+        let mut plugin_pane = PluginPane::new(io::stdout(), 20, 20);
+        let list = List::new_with_items(vec![ListItem::new("Hello World")]);
+        // default state, highlight the first item with '-> '
+        let mut list_state = ListState::new(Some(0), 0);
+        let result = plugin_pane.draw(|f| {
+            f.render_state_widget(list, f.size(), &mut list_state);
+        });
+
+        assert!(result.is_ok());
+        // validate the buffer size
+        assert_eq!(plugin_pane.buffer.content().len(), 400);
+        assert_eq!(plugin_pane.buffer.pos_of(0), (0, 0));
+        assert_eq!(plugin_pane.buffer.pos_of(99), (19, 4));
+        //validate buffer contents
+        assert_eq!(plugin_pane.buffer.content()[0].symbol(), "-");
+        assert_eq!(plugin_pane.buffer.content()[1].symbol(), ">");
+        assert_eq!(plugin_pane.buffer.content()[2].symbol(), " ");
+        assert_eq!(plugin_pane.buffer.content()[3].symbol(), "H");
+        assert_eq!(plugin_pane.buffer.content()[4].symbol(), "e");
+        assert_eq!(plugin_pane.buffer.content()[5].symbol(), "l");
+        assert_eq!(plugin_pane.buffer.content()[6].symbol(), "l");
+        assert_eq!(plugin_pane.buffer.content()[7].symbol(), "o");
+        assert_eq!(plugin_pane.buffer.content()[8].symbol(), " ");
+        assert_eq!(plugin_pane.buffer.content()[9].symbol(), "W");
+        assert_eq!(plugin_pane.buffer.content()[10].symbol(), "o");
+        assert_eq!(plugin_pane.buffer.content()[11].symbol(), "r");
+        assert_eq!(plugin_pane.buffer.content()[12].symbol(), "l");
+        assert_eq!(plugin_pane.buffer.content()[13].symbol(), "d");
+        // the rest of the buffer should be empty
+        assert_eq!(plugin_pane.buffer.content()[14].symbol(), " ");
+    }
+
+    #[test]
+    fn test_get_frame() {
+        let mut plugin_pane = PluginPane::new(io::stdout(), 20, 20);
+        let frame = plugin_pane.get_frame();
+        assert_eq!(frame.viewport_area, Geometry::new(20, 20));
+        assert_eq!(frame.buffer.content().len(), 400);
+    }
+
+    #[test]
+    fn test_current_buffer_mut() {
+        let mut plugin_pane = PluginPane::new(io::stdout(), 20, 20);
+        let buffer = plugin_pane.current_buffer_mut();
+        assert_eq!(buffer.content().len(), 400);
+    }
+
+    #[test]
+    fn test_modifier_diff_queue() {
+        let diff = ModifierDiff {
+            from: Modifier::empty(),
+            to: Modifier::BOLD,
+        };
+        let mut w = Vec::new();
+        let result = diff.queue(&mut w);
+        assert!(result.is_ok());
+        assert_eq!(w, b"\x1B[1m");
     }
 }

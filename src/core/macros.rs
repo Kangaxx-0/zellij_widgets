@@ -5,6 +5,24 @@ macro_rules! csi {
     ($( $l:expr ),*) => { concat!("\x1B[", $( $l ),*) };
 }
 
+/// Queues one or more command(s) for further execution.
+///
+/// Queued commands must be flushed(.) to the wasm runtime to be executed.
+/// This generally happens in the following cases:
+///
+/// * When `flush` is called manually on the given type implementing `io::Write`.
+/// * Each line is flushed in case of `stdout`, because it is line buffered.
+///
+/// # Arguments
+///
+/// - [std::io::Writer](std::io::Write)
+///
+///     ANSI escape codes are written on the given 'writer', after which they are flushed.
+///
+/// - [`Command`](./plugin_pane/struct.PluginPane.html#method.flush)
+///
+///     One or more commands
+///
 #[macro_export]
 macro_rules! queue {
     ($writer:expr $(, $command:expr)* $(,)?) => {{

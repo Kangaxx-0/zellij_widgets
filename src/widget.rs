@@ -1,3 +1,4 @@
+//! Provides the `Widget` and `StateWidget` traits, they define how widgets are rendered in the terminal.
 use crate::{buffer::Buffer, layout::Geometry};
 
 /// Essential trait for a User Interface (UI) component in Zellij.
