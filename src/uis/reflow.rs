@@ -482,17 +482,17 @@ mod test {
         assert_eq!(line_truncator, vec!["a"]);
     }
 
-    // #[test]
-    // fn line_composer_max_line_width_of_1_double_width_characters() {
-    //     let width = 1;
-    //     let text =
-    //         "πé│πâ│πâöπâÑπâ╝πé┐Σ╕èπüºµûçσ¡ùπéÆµë▒πüåσá┤σÉêπÇüσà╕σ₧ïτÜäπü½πü»µûçσ¡ù\naaa\naπü½πéêπéïΘÇÜΣ┐íπéÆΦíîπüåσá┤σÉêπü½πü¥πü«\
-    //                 Σ╕íτ½»τé╣πüºπü»πÇü";
-    //     let (word_wrapper, _, _) = run_composer(Composer::WordWrapper { trim: true }, text, width);
-    //     let (line_truncator, _, _) = run_composer(Composer::LineTruncator, text, width);
-    //     assert_eq!(word_wrapper, vec!["", "a", "a", "a", "a"]);
-    //     assert_eq!(line_truncator, vec!["", "a", "a"]);
-    // }
+    #[test]
+    fn line_composer_max_line_width_of_1_double_width_characters() {
+        let width = 1;
+        let text =
+            "コンピュータ上で文字を扱う場合、典型的には文字\naaa\naによる通信を行う場合にその\
+                    両端点では、";
+        let (word_wrapper, _, _) = run_composer(Composer::WordWrapper { trim: true }, text, width);
+        let (line_truncator, _, _) = run_composer(Composer::LineTruncator, text, width);
+        assert_eq!(word_wrapper, vec!["", "a", "a", "a", "a"]);
+        assert_eq!(line_truncator, vec!["", "a", "a"]);
+    }
 
     /// Tests `WordWrapper` with words some of which exceed line length and some not.
     #[test]
@@ -512,25 +512,25 @@ mod test {
         );
     }
 
-    // #[test]
-    // fn line_composer_double_width_chars() {
-    //     let width = 20;
-    //     let text = "πé│πâ│πâöπâÑπâ╝πé┐Σ╕èπüºµûçσ¡ùπéÆµë▒πüåσá┤σÉêπÇüσà╕σ₧ïτÜäπü½πü»µûçσ¡ùπü½πéêπéïΘÇÜΣ┐íπéÆΦíîπüåσá┤σÉêπü½πü¥πü«Σ╕íτ½»τé╣\
-    //                 πüºπü»πÇü";
-    //     let (word_wrapper, word_wrapper_width, _) =
-    //         run_composer(Composer::WordWrapper { trim: true }, text, width);
-    //     let (line_truncator, _, _) = run_composer(Composer::LineTruncator, text, width);
-    //     assert_eq!(line_truncator, vec!["πé│πâ│πâöπâÑπâ╝πé┐Σ╕èπüºµûçσ¡ù"]);
-    //     let wrapped = vec![
-    //         "πé│πâ│πâöπâÑπâ╝πé┐Σ╕èπüºµûçσ¡ù",
-    //         "πéÆµë▒πüåσá┤σÉêπÇüσà╕σ₧ïτÜäπü½",
-    //         "πü»µûçσ¡ùπü½πéêπéïΘÇÜΣ┐íπéÆΦíî",
-    //         "πüåσá┤σÉêπü½πü¥πü«Σ╕íτ½»τé╣πüº",
-    //         "πü»πÇü",
-    //     ];
-    //     assert_eq!(word_wrapper, wrapped);
-    //     assert_eq!(word_wrapper_width, vec![width, width, width, width, 4]);
-    // }
+    #[test]
+    fn line_composer_double_width_chars() {
+        let width = 20;
+        let text = "コンピュータ上で文字を扱う場合、典型的には文字による通信を行う場合にその両端点\
+                    では、";
+        let (word_wrapper, word_wrapper_width, _) =
+            run_composer(Composer::WordWrapper { trim: true }, text, width);
+        let (line_truncator, _, _) = run_composer(Composer::LineTruncator, text, width);
+        assert_eq!(line_truncator, vec!["コンピュータ上で文字"]);
+        let wrapped = vec![
+            "コンピュータ上で文字",
+            "を扱う場合、典型的に",
+            "は文字による通信を行",
+            "う場合にその両端点で",
+            "は、",
+        ];
+        assert_eq!(word_wrapper, wrapped);
+        assert_eq!(word_wrapper_width, vec![width, width, width, width, 4]);
+    }
 
     #[test]
     fn line_composer_leading_whitespace_removal() {
@@ -569,32 +569,32 @@ mod test {
         assert_eq!(line_truncator, vec!["a                   "]);
     }
 
-    // #[test]
-    // fn line_composer_word_wrapper_double_width_chars_mixed_with_spaces() {
-    //     let width = 20;
-    //     // Japanese seems not to use spaces but we should break on spaces anyway... We're using it
-    //     // to test double-width chars.
-    //     // You are more than welcome to add word boundary detection based of alterations of
-    //     // hiragana and katakana...
-    //     // This happens to also be a test case for mixed width because regular spaces are single
-    //     // width.
-    //     let text = "πé│πâ│πâöπâÑ πâ╝πé┐Σ╕èπüºµûçσ¡ùπéÆµë▒πüåσá┤σÉêπÇü σà╕σ₧ïτÜäπü½πü»µûç σ¡ùπü½πéêπéï ΘÇÜΣ┐íπéÆΦíî πüåσá┤σÉêπü½πü¥πü«Σ╕íτ½»τé╣πüºπü»πÇü";
-    //     let (word_wrapper, word_wrapper_width, _) =
-    //         run_composer(Composer::WordWrapper { trim: true }, text, width);
-    //     assert_eq!(
-    //         word_wrapper,
-    //         vec![
-    //             "πé│πâ│πâöπâÑ",
-    //             "πâ╝πé┐Σ╕èπüºµûçσ¡ùπéÆµë▒πüåσá┤",
-    //             "σÉêπÇü σà╕σ₧ïτÜäπü½πü»µûç",
-    //             "σ¡ùπü½πéêπéï ΘÇÜΣ┐íπéÆΦíî",
-    //             "πüåσá┤σÉêπü½πü¥πü«Σ╕íτ½»τé╣πüº",
-    //             "πü»πÇü",
-    //         ]
-    //     );
-    //     // Odd-sized lines have a space in them.
-    //     assert_eq!(word_wrapper_width, vec![8, 20, 17, 17, 20, 4]);
-    // }
+    #[test]
+    fn line_composer_word_wrapper_double_width_chars_mixed_with_spaces() {
+        let width = 20;
+        // Japanese seems not to use spaces but we should break on spaces anyway... We're using it
+        // to test double-width chars.
+        // You are more than welcome to add word boundary detection based of alterations of
+        // hiragana and katakana...
+        // This happens to also be a test case for mixed width because regular spaces are single
+        // width.
+        let text = "コンピュ ータ上で文字を扱う場合、 典型的には文 字による 通信を行 う場合にその両端点では、";
+        let (word_wrapper, word_wrapper_width, _) =
+            run_composer(Composer::WordWrapper { trim: true }, text, width);
+        assert_eq!(
+            word_wrapper,
+            vec![
+                "コンピュ",
+                "ータ上で文字を扱う場",
+                "合、 典型的には文",
+                "字による 通信を行",
+                "う場合にその両端点で",
+                "は、",
+            ]
+        );
+        // Odd-sized lines have a space in them.
+        assert_eq!(word_wrapper_width, vec![8, 20, 17, 17, 20, 4]);
+    }
 
     /// Ensure words separated by nbsp are wrapped as if they were a single one.
     #[test]
