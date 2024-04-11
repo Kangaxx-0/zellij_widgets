@@ -147,7 +147,6 @@ where
     /// Get the current frame of the plugin pane.
     fn get_frame(&mut self) -> Frame {
         Frame {
-            cursor_position: None,
             viewport_area: self.geom,
             buffer: self.current_buffer_mut(),
         }
@@ -238,10 +237,10 @@ impl ModifierDiff {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::uis::Paragraph;
+    use crate::uis::{List, ListItem, ListState, Paragraph};
 
     #[test]
-    fn test_plugin_pane_new() {
+    fn test_plugin_pane_stateless_render() {
         let mut plugin_pane = PluginPane::new(io::stdout(), 20, 20);
         let result = plugin_pane.draw(|f| {
             f.render_widget(Paragraph::new("Hello World"), f.size());
@@ -270,11 +269,44 @@ mod tests {
     }
 
     #[test]
+    fn test_plugin_pane_state_render() {
+        let mut plugin_pane = PluginPane::new(io::stdout(), 20, 20);
+        let list = List::new_with_items(vec![ListItem::new("Hello World")]);
+        // default state, highlight the first item with '-> '
+        let mut list_state = ListState::new(Some(0), 0);
+        let result = plugin_pane.draw(|f| {
+            f.render_state_widget(list, f.size(), &mut list_state);
+        });
+
+        assert!(result.is_ok());
+        // validate the buffer size
+        assert_eq!(plugin_pane.buffer.content().len(), 400);
+        assert_eq!(plugin_pane.buffer.pos_of(0), (0, 0));
+        assert_eq!(plugin_pane.buffer.pos_of(99), (19, 4));
+        //validate buffer contents
+        assert_eq!(plugin_pane.buffer.content()[0].symbol(), "-");
+        assert_eq!(plugin_pane.buffer.content()[1].symbol(), ">");
+        assert_eq!(plugin_pane.buffer.content()[2].symbol(), " ");
+        assert_eq!(plugin_pane.buffer.content()[3].symbol(), "H");
+        assert_eq!(plugin_pane.buffer.content()[4].symbol(), "e");
+        assert_eq!(plugin_pane.buffer.content()[5].symbol(), "l");
+        assert_eq!(plugin_pane.buffer.content()[6].symbol(), "l");
+        assert_eq!(plugin_pane.buffer.content()[7].symbol(), "o");
+        assert_eq!(plugin_pane.buffer.content()[8].symbol(), " ");
+        assert_eq!(plugin_pane.buffer.content()[9].symbol(), "W");
+        assert_eq!(plugin_pane.buffer.content()[10].symbol(), "o");
+        assert_eq!(plugin_pane.buffer.content()[11].symbol(), "r");
+        assert_eq!(plugin_pane.buffer.content()[12].symbol(), "l");
+        assert_eq!(plugin_pane.buffer.content()[13].symbol(), "d");
+        // the rest of the buffer should be empty
+        assert_eq!(plugin_pane.buffer.content()[14].symbol(), " ");
+    }
+
+    #[test]
     fn test_get_frame() {
         let mut plugin_pane = PluginPane::new(io::stdout(), 20, 20);
         let frame = plugin_pane.get_frame();
         assert_eq!(frame.viewport_area, Geometry::new(20, 20));
-        assert_eq!(frame.cursor_position, None);
         assert_eq!(frame.buffer.content().len(), 400);
     }
 

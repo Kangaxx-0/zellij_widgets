@@ -1,3 +1,4 @@
+//! A set of utilities for managing the terminal buffer
 use std::{
     cmp::min,
     fmt::{Debug, Formatter, Result},
@@ -8,7 +9,9 @@ use unicode_width::UnicodeWidthStr;
 
 use crate::prelude::*;
 
-/// A buffer cell
+/// A buffer cell, a [`Cell`] struct is the smallest renderable unit of code. Each
+/// cell tracks symbol and style information (foreground color, background color, modifiers etc).
+/// Cells are similar to a "pixel" in a graphical UI
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Cell {
     pub fg: Color,
@@ -97,7 +100,7 @@ impl Default for Cell {
     }
 }
 
-/// A buffer that maps to all desired contents of the terminal after the draw call
+/// A buffer that maps to all desired contents of the terminal to a rectangular area after the draw call
 ///
 /// No widget in the library interacts directly with the terminal. Instead each of them is required
 /// to draw their state to an intermediate buffer. It is basically a grid where each cell contains
