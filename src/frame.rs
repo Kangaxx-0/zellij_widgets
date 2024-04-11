@@ -2,7 +2,7 @@
 //! Provides the [`Frame`] type.
 //!
 //! The [`Frame`] is a consistent view into the terminal state for rendering a single frame. It is obtained via
-//! the closure argument of [`Terminal::draw`]. It is used to render widgets to the zellij host
+//! the closure argument of [`draw`](../plugin_pane/struct.PluginPane.html#method.draw). It is used to render widgets to the zellij host
 //!
 use crate::{
     buffer::Buffer,
