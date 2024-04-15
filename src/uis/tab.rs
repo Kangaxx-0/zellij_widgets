@@ -240,4 +240,21 @@ mod tests {
         let tab = Tab::new(vec!["Tab"]).highlight_style(style);
         assert_eq!(tab.highlight_style, style);
     }
+
+    #[test]
+    fn tab_state_widget() {
+        let tab = Tab::new(vec!["Tab1", "Tab2"]);
+        let mut state = TabState::new(1);
+        let mut buf = Buffer::empty(Geometry::new(20, 20));
+        tab.render(Geometry::new(20, 20), &mut buf, &mut state);
+        assert_eq!(buf.content()[0].symbol, String::from("T"));
+        assert_eq!(buf.content()[1].symbol, String::from("a"));
+        assert_eq!(buf.content()[2].symbol, String::from("b"));
+        assert_eq!(buf.content()[3].symbol, String::from("1"));
+        assert_eq!(buf.content()[4].symbol, String::from("|"));
+        assert_eq!(buf.content()[5].symbol, String::from("T"));
+        assert_eq!(buf.content()[6].symbol, String::from("a"));
+        assert_eq!(buf.content()[7].symbol, String::from("b"));
+        assert_eq!(buf.content()[8].symbol, String::from("2"));
+    }
 }
