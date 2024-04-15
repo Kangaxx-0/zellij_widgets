@@ -251,7 +251,7 @@ mod tests {
         assert_eq!(buf.content()[1].symbol, String::from("a"));
         assert_eq!(buf.content()[2].symbol, String::from("b"));
         assert_eq!(buf.content()[3].symbol, String::from("1"));
-        assert_eq!(buf.content()[4].symbol, String::from("|"));
+        assert_eq!(buf.content()[4].symbol, String::from("│"));
         assert_eq!(buf.content()[5].symbol, String::from("T"));
         assert_eq!(buf.content()[6].symbol, String::from("a"));
         assert_eq!(buf.content()[7].symbol, String::from("b"));
