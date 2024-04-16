@@ -237,7 +237,10 @@ impl ModifierDiff {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::uis::{List, ListItem, ListState, Paragraph};
+    use crate::{
+        assert_buffer_content,
+        uis::{List, ListItem, ListState, Paragraph},
+    };
 
     #[test]
     fn test_plugin_pane_stateless_render() {
@@ -253,19 +256,9 @@ mod tests {
         assert_eq!(plugin_pane.buffer.pos_of(0), (0, 0));
         assert_eq!(plugin_pane.buffer.pos_of(99), (19, 4));
         //validate buffer contents
-        assert_eq!(plugin_pane.buffer.content()[0].symbol(), "H");
-        assert_eq!(plugin_pane.buffer.content()[1].symbol(), "e");
-        assert_eq!(plugin_pane.buffer.content()[2].symbol(), "l");
-        assert_eq!(plugin_pane.buffer.content()[3].symbol(), "l");
-        assert_eq!(plugin_pane.buffer.content()[4].symbol(), "o");
-        assert_eq!(plugin_pane.buffer.content()[5].symbol(), " ");
-        assert_eq!(plugin_pane.buffer.content()[6].symbol(), "W");
-        assert_eq!(plugin_pane.buffer.content()[7].symbol(), "o");
-        assert_eq!(plugin_pane.buffer.content()[8].symbol(), "r");
-        assert_eq!(plugin_pane.buffer.content()[9].symbol(), "l");
-        assert_eq!(plugin_pane.buffer.content()[10].symbol(), "d");
-        // the rest of the buffer should be empty
-        assert_eq!(plugin_pane.buffer.content()[11].symbol(), " ");
+        let expect = ["H", "e", "l", "l", "o", " ", "W", "o", "r", "l", "d", " "];
+
+        assert_buffer_content!(plugin_pane.buffer, expect);
     }
 
     #[test]
@@ -284,22 +277,11 @@ mod tests {
         assert_eq!(plugin_pane.buffer.pos_of(0), (0, 0));
         assert_eq!(plugin_pane.buffer.pos_of(99), (19, 4));
         //validate buffer contents
-        assert_eq!(plugin_pane.buffer.content()[0].symbol(), "-");
-        assert_eq!(plugin_pane.buffer.content()[1].symbol(), ">");
-        assert_eq!(plugin_pane.buffer.content()[2].symbol(), " ");
-        assert_eq!(plugin_pane.buffer.content()[3].symbol(), "H");
-        assert_eq!(plugin_pane.buffer.content()[4].symbol(), "e");
-        assert_eq!(plugin_pane.buffer.content()[5].symbol(), "l");
-        assert_eq!(plugin_pane.buffer.content()[6].symbol(), "l");
-        assert_eq!(plugin_pane.buffer.content()[7].symbol(), "o");
-        assert_eq!(plugin_pane.buffer.content()[8].symbol(), " ");
-        assert_eq!(plugin_pane.buffer.content()[9].symbol(), "W");
-        assert_eq!(plugin_pane.buffer.content()[10].symbol(), "o");
-        assert_eq!(plugin_pane.buffer.content()[11].symbol(), "r");
-        assert_eq!(plugin_pane.buffer.content()[12].symbol(), "l");
-        assert_eq!(plugin_pane.buffer.content()[13].symbol(), "d");
-        // the rest of the buffer should be empty
-        assert_eq!(plugin_pane.buffer.content()[14].symbol(), " ");
+        let epxect = [
+            "-", ">", " ", "H", "e", "l", "l", "o", " ", "W", "o", "r", "l", "d", " ",
+        ];
+
+        assert_buffer_content!(plugin_pane.buffer, epxect);
     }
 
     #[test]

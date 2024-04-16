@@ -165,6 +165,8 @@ impl<'a> StateWidget for Tab<'a> {
 mod tests {
     use std::borrow::Cow;
 
+    use crate::assert_buffer_content;
+
     use super::*;
 
     #[test]
@@ -239,5 +241,16 @@ mod tests {
         let style = Style::default().fg(Color::Red);
         let tab = Tab::new(vec!["Tab"]).highlight_style(style);
         assert_eq!(tab.highlight_style, style);
+    }
+
+    #[test]
+    fn tab_state_widget() {
+        let tab = Tab::new(vec!["Tab1", "Tab2"]);
+        let mut state = TabState::new(1);
+        let mut buf = Buffer::empty(Geometry::new(20, 20));
+        tab.render(Geometry::new(20, 20), &mut buf, &mut state);
+
+        let expect = ["T", "a", "b", "1", "│", "T", "a", "b", "2"];
+        assert_buffer_content!(buf, expect);
     }
 }
