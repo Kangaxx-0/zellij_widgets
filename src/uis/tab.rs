@@ -248,7 +248,7 @@ mod tests {
         let mut buf = Buffer::empty(Geometry::new(20, 20));
         tab.render(Geometry::new(20, 20), &mut buf, &mut state);
 
-        let expect = vec!["T", "a", "b", "1", "│", "T", "a", "b", "2"];
+        let expect = ["T", "a", "b", "1", "│", "T", "a", "b", "2"];
         for (i, symbol) in expect.iter().enumerate() {
             assert_eq!(buf.content()[i].symbol, String::from(*symbol));
         }
