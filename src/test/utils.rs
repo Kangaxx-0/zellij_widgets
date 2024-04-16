@@ -42,3 +42,17 @@ macro_rules! debug_line {
         $buf.set_line($x, $y, &line, $max_cols);
     }};
 }
+
+#[macro_export]
+/// This macro is useful for asserting that the content of a buffer is equal to a slice of strings.
+///
+/// # Parameters
+/// - `$buf` - The buffer to compare
+/// - `$slice_str` - The slice of strings to compare
+macro_rules! assert_buffer_content {
+    ($buf:expr, $slice_str:expr) => {
+        for (i, symbol) in $slice_str.iter().enumerate() {
+            assert_eq!($buf.content()[i].symbol, String::from(*symbol));
+        }
+    };
+}

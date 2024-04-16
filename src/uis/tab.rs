@@ -165,6 +165,8 @@ impl<'a> StateWidget for Tab<'a> {
 mod tests {
     use std::borrow::Cow;
 
+    use crate::assert_buffer_content;
+
     use super::*;
 
     #[test]
@@ -249,8 +251,6 @@ mod tests {
         tab.render(Geometry::new(20, 20), &mut buf, &mut state);
 
         let expect = ["T", "a", "b", "1", "│", "T", "a", "b", "2"];
-        for (i, symbol) in expect.iter().enumerate() {
-            assert_eq!(buf.content()[i].symbol, String::from(*symbol));
-        }
+        assert_buffer_content!(buf, expect);
     }
 }
