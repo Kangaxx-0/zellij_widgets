@@ -1054,4 +1054,22 @@ mod tests {
             .title_style(Style::new().red());
         assert_eq!(block.titles_style, Style::new().red());
     }
+
+    #[test]
+    fn title_alignment() {
+        let block_center = Block::default()
+            .title("Title")
+            .title_alignment(Alignment::Center);
+        assert_eq!(block_center.titles_alignment, Alignment::Center);
+
+        let block_left = Block::default()
+            .title("Title")
+            .title_alignment(Alignment::Left);
+        assert_eq!(block_left.titles_alignment, Alignment::Left);
+
+        let block_right = Block::default()
+            .title("Title")
+            .title_alignment(Alignment::Right);
+        assert_eq!(block_right.titles_alignment, Alignment::Right);
+    }
 }
