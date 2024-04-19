@@ -10,6 +10,15 @@ Zellij Widgets provides a set of widgets for the Zellij plugin system. It is des
 ## Prerequisites
 To use Zellij Widgets, developers should have a basic understanding of the Zellij plugin system. Zellij plugins communicate with the Zellij host via the Wasmer runtime, and Zellij provides interfaces such as the ZellijPlugin crate.
 
+## Useful Links
+- [WASI_io](https://github.com/WebAssembly/wasi-io)
+- [WASI Implementation](https://docs.rs/wasmer-wasi/latest/wasmer_wasi/)
+  - [Wasi_state](https://docs.rs/wasmer-wasi/latest/wasmer_wasi/struct.WasiState.html)
+  - [VirtualFile](https://docs.rs/wasmer-wasi/latest/wasmer_wasi/trait.VirtualFile.html)
+  - [Write](https://doc.rust-lang.org/nightly/std/io/trait.Write.html)
+  - [Read](https://doc.rust-lang.org/nightly/std/io/trait.Read.html)
+  - [Seek](https://doc.rust-lang.org/nightly/std/io/trait.Seek.html)
+
 ## Acknowledgments
 This project reuses a significant amount of code from the crossterm and ratatui projects. I would like to express our gratitude to the authors and contributors of these projects for their excellent work. All credits are theirs.
 
