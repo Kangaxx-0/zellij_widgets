@@ -624,6 +624,7 @@ mod tests {
     use crate::{
         layout::Geometry,
         style::{Color, Modifier, Stylize},
+        text::Line,
     };
 
     #[test]
@@ -1016,5 +1017,59 @@ mod tests {
         // auto-convert from (Color, Color, Modifier)
         let block = Block::default().style((Color::Red, Color::Blue, Modifier::BOLD));
         assert_eq!(block.style, Style::new().red().on_blue().bold());
+    }
+
+    #[test]
+    fn block_padding() {
+        let block = Block::default().padding(Padding::new(1, 2, 3, 4));
+        assert_eq!(block.padding, Padding::new(1, 2, 3, 4));
+    }
+
+    #[test]
+    fn block_borders() {
+        let block = Block::default().borders(Borders::ALL);
+        assert_eq!(block.border_option.borders, Borders::ALL);
+    }
+
+    #[test]
+    fn block_border_type() {
+        let block = Block::default().border_type(BorderType::Rounded);
+        assert_eq!(
+            block.border_option.border_set,
+            BorderType::Rounded.to_border_set()
+        );
+    }
+
+    #[test]
+    fn title() {
+        let block = Block::default().title("Title");
+        assert_eq!(block.titles.len(), 1);
+        assert_eq!(block.titles[0].content, Line::raw("Title"));
+    }
+
+    #[test]
+    fn title_style() {
+        let block = Block::default()
+            .title("Title")
+            .title_style(Style::new().red());
+        assert_eq!(block.titles_style, Style::new().red());
+    }
+
+    #[test]
+    fn title_alignment() {
+        let block_center = Block::default()
+            .title("Title")
+            .title_alignment(Alignment::Center);
+        assert_eq!(block_center.titles_alignment, Alignment::Center);
+
+        let block_left = Block::default()
+            .title("Title")
+            .title_alignment(Alignment::Left);
+        assert_eq!(block_left.titles_alignment, Alignment::Left);
+
+        let block_right = Block::default()
+            .title("Title")
+            .title_alignment(Alignment::Right);
+        assert_eq!(block_right.titles_alignment, Alignment::Right);
     }
 }

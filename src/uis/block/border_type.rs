@@ -94,3 +94,29 @@ impl BorderType {
         Self::border_symbols(self)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_border_type() {
+        let plain = BorderType::Plain;
+        assert_eq!(plain.to_border_set(), border::PLAIN);
+
+        let rounded = BorderType::Rounded;
+        assert_eq!(rounded.to_border_set(), border::ROUNDED);
+
+        let double = BorderType::Double;
+        assert_eq!(double.to_border_set(), border::DOUBLE);
+
+        let thick = BorderType::Thick;
+        assert_eq!(thick.to_border_set(), border::THICK);
+
+        let quadrant_inside = BorderType::QuadrantInside;
+        assert_eq!(quadrant_inside.to_border_set(), border::QUADRANT_INSIDE);
+
+        let quadrant_outside = BorderType::QuadrantOutside;
+        assert_eq!(quadrant_outside.to_border_set(), border::QUADRANT_OUTSIDE);
+    }
+}

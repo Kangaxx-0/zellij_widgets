@@ -49,3 +49,42 @@ impl Debug for Borders {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_none() {
+        let borders = Borders::NONE;
+        assert_eq!(format!("{:?}", borders), "NONE");
+    }
+
+    #[test]
+    fn test_all() {
+        let borders = Borders::ALL;
+        assert_eq!(format!("{:?}", borders), "ALL");
+    }
+
+    #[test]
+    fn test_individual_flags() {
+        let top = Borders::TOP;
+        let right = Borders::RIGHT;
+        let bottom = Borders::BOTTOM;
+        let left = Borders::LEFT;
+
+        assert_eq!(format!("{:?}", top), "TOP");
+        assert_eq!(format!("{:?}", right), "RIGHT");
+        assert_eq!(format!("{:?}", bottom), "BOTTOM");
+        assert_eq!(format!("{:?}", left), "LEFT");
+    }
+
+    #[test]
+    fn test_combinations() {
+        let top_right = Borders::TOP | Borders::RIGHT;
+        let top_bottom_left = Borders::TOP | Borders::BOTTOM | Borders::LEFT;
+
+        assert_eq!(format!("{:?}", top_right), "TOP | RIGHT");
+        assert_eq!(format!("{:?}", top_bottom_left), "TOP | BOTTOM | LEFT");
+    }
+}
