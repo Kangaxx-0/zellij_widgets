@@ -6,8 +6,6 @@ license = "MIT"
 description = "A wiget library for zellij"
 repository = "https://github.com/Kangaxx-0/zellij_widgets"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 bitflags = {version = "2.3" }
 parking_lot = "0.12"
@@ -19,6 +17,3 @@ paste = "1.0.14"
 strum = { version = "0.25", features = ["derive"] }
 lru = "0.12.0"
 indoc = "2.0.4"
-
-
-
