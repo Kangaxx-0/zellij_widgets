@@ -135,6 +135,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "23b62fc65de8e4e7f52534fb52b0f3ed04746ae267519eef2a83941e8085068b"
 
 [[package]]
+name = "async-attributes"
+version = "1.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a3203e79f4dd9bdda415ed03cf14dae5a2bf775c683a00f94e9cd1faf0f596e5"
+dependencies = [
+ "quote",
+ "syn 1.0.109",
+]
+
+[[package]]
 name = "async-channel"
 version = "1.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -287,6 +297,7 @@ version = "1.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "62565bb4402e926b29953c785397c6dc0391b7b446e45008b0049eb43cec6f5d"
 dependencies = [
+ "async-attributes",
  "async-channel 1.9.0",
  "async-global-executor",
  "async-io 1.13.0",
@@ -1795,9 +1806,9 @@ dependencies = [
 
 [[package]]
 name = "mio"
-version = "0.8.10"
+version = "0.8.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8f3d0b296e374a4e6f3c7b0a1f5a51d748a0d34c85e7dc48fc3fa9a87657fe09"
+checksum = "a4a650543ca06a924e8b371db273b2756685faae30f8487da1b56505a8f78b0c"
 dependencies = [
  "libc",
  "log",
@@ -3837,9 +3848,9 @@ dependencies = [
 
 [[package]]
 name = "zellij-tile"
-version = "0.39.2"
+version = "0.40.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bee5e07b2425d3135e162740f99fe1594f43e5f0a62fe09e3002a8356c6a90cc"
+checksum = "58471198b62771e4387ac00c072e9b1d8ebd87db2568bdb5fbb60dd99d8552bd"
 dependencies = [
  "clap",
  "serde",
@@ -3851,9 +3862,9 @@ dependencies = [
 
 [[package]]
 name = "zellij-utils"
-version = "0.39.2"
+version = "0.40.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a2b8f21edd42f679b1aa3440add0c6a6539f91d81c6eee5f41e105d84342c037"
+checksum = "5289f6ff643db4f7f772f090cede454cd1be276a3a5654464c402094b625524f"
 dependencies = [
  "anyhow",
  "async-channel 1.9.0",
@@ -3904,7 +3915,7 @@ dependencies = [
 
 [[package]]
 name = "zellij_widgets"
-version = "0.1.0"
+version = "0.1.2"
 dependencies = [
  "bitflags 2.4.2",
  "cassowary",
