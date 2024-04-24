@@ -19,6 +19,9 @@ To use Zellij Widgets, developers should have a basic understanding of the Zelli
   - [Read](https://doc.rust-lang.org/nightly/std/io/trait.Read.html)
   - [Seek](https://doc.rust-lang.org/nightly/std/io/trait.Seek.html)
 
+## Notes:
+1. [zellij](https://github.com/zellij-org/zellij/blob/main/zellij-server/Cargo.toml#L22) is using old version of wasmer, don't get confused if you see the standard I/O steam interfaces are different from latest wasmer which leverages the power of the async from tokio
+
 ## Acknowledgments
 This project reuses a significant amount of code from the crossterm and ratatui projects. I would like to express our gratitude to the authors and contributors of these projects for their excellent work. All credits are theirs.
 
