@@ -10,6 +10,10 @@ use super::Block;
 /// The associated label is always centered horizontally and vertically. If not set with
 /// [`Gauge::label`], the label is the percentage of the bar filled.
 ///
+///   "  ┌block─────────────────────────────┐  ",
+///   "  │███████   [ratio]/[label]         │  ",
+///   "  └──────────────────────────────────┘  ",
+///
 /// # Example
 ///
 pub struct Gauge<'a> {
