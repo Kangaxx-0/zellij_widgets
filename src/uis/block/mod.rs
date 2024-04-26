@@ -206,16 +206,15 @@ impl<'a> Block<'a> {
     /// use zellij_widgets::prelude::*;
     /// let mut border_option = BorderOptions::default();
     /// border_option.set_border_style(Style::new().blue());
-    /// Block::default()
-    ///     .set_border_option(border_option);
+    /// Block::default().border_option(border_option);
     /// ```
-    pub fn set_border_option(mut self, border_option: BorderOptions) -> Block<'a> {
+    pub fn border_option(mut self, border_option: BorderOptions) -> Block<'a> {
         self.border_option = border_option;
         self
     }
 
     /// Defines the options with the given borders, border style and border set.
-    pub fn set_border_option_with_attrs(
+    pub fn border_option_with_attrs(
         mut self,
         borders: Borders,
         border_style: Style,

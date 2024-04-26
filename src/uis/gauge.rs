@@ -1,6 +1,6 @@
-use crate::prelude::{Span, Style};
+use core::f64;
 
-use super::Block;
+use crate::prelude::{Block, Buffer, Color, Geometry, Span, Style, Widget};
 
 /// A widget to display a progress bar.
 ///
@@ -10,9 +10,11 @@ use super::Block;
 /// The associated label is always centered horizontally and vertically. If not set with
 /// [`Gauge::label`], the label is the percentage of the bar filled.
 ///
-///   "  ┌block─────────────────────────────┐  ",
-///   "  │███████   [ratio]/[label]         │  ",
-///   "  └──────────────────────────────────┘  ",
+/// Below is how the ratio/label is rendered:
+///
+///  ┌block─────────────────────────────┐
+///  │███████     ratio/label           │
+///  └──────────────────────────────────┘
 ///
 /// # Example
 ///
@@ -21,6 +23,17 @@ pub struct Gauge<'a> {
     ratio: f64,
     label: Option<Span<'a>>,
     style: Style,
+}
+
+impl<'a> Default for Gauge<'a> {
+    fn default() -> Self {
+        Self {
+            block: Default::default(),
+            ratio: 0.0,
+            label: None,
+            style: Style::default(),
+        }
+    }
 }
 
 impl<'a> Gauge<'a> {
@@ -35,7 +48,9 @@ impl<'a> Gauge<'a> {
 
     /// Sets the ratio of the filled part of the gauge.
     ///
-    /// Note that the ratio should be between 0.0 and 1.0.
+    /// NOTE
+    ///
+    /// The ratio should be between 0.0 and 1.0.
     ///
     /// # Example
     /// ```
@@ -50,6 +65,29 @@ impl<'a> Gauge<'a> {
             "ratio should be between 0.0 and 1.0"
         );
         self.ratio = ratio;
+        self
+    }
+
+    /// Sets the percentage of the filled part of the gauge.
+    ///
+    /// NOTE
+    ///
+    /// The percentage should be between 0 and 100.
+    ///
+    /// # Example
+    /// ```
+    /// use zellij_widgets::prelude::*;
+    /// let gauge = Gauge::new(Block::default()).ratio(0.5);
+    /// ```
+    ///
+    #[must_use = "function consumes self and returns a new instance"]
+    pub fn percent(mut self, percent: u8) -> Self {
+        assert!(
+            percent > 0 && percent <= 100,
+            "percent should be between 0 and 100"
+        );
+
+        self.ratio = f64::from(percent) / 100 as f64;
         self
     }
 
@@ -79,6 +117,41 @@ impl<'a> Gauge<'a> {
     pub fn style(mut self, style: Style) -> Self {
         self.style = style;
         self
+    }
+}
+
+impl<'a> Widget for Gauge<'a> {
+    fn render(self, area: Geometry, buf: &mut Buffer) {
+        // Render Block
+        let inner_area = self.block.inner(area);
+        self.block.render(area, buf);
+
+        // Render ratio/label. We begin with the ratio and label position in the inner_area,
+        // we know this is because the label is always centered horizontally and vertically
+        if let Some(label) = self.label {
+            let label_len = label.width();
+            // We format the ratio to have one decimal place
+            let ratio = format!("{:.1}", self.ratio * 100.0);
+            let ratio_len = ratio.len();
+            let total_len = label_len + ratio_len;
+
+            let x = inner_area.left() + (inner_area.cols - total_len as u16) / 2;
+            let y = inner_area.top() + inner_area.rows / 2;
+
+            // Render the label
+            buf.set_span(x, y, &label, inner_area.cols);
+            // Render the ratio
+            buf.set_span(x - label_len as u16, y, &Span::raw(ratio), inner_area.cols);
+        } else {
+            // If the label is not set, then we display "xx%" where xx is the ratio
+            let ratio = format!("{:.0}%", self.ratio * 100.0);
+            let x = inner_area.left() + (inner_area.cols - ratio.len() as u16) / 2;
+            let y = inner_area.top() + inner_area.rows / 2;
+
+            buf.set_span(x, y, &Span::raw(ratio), inner_area.cols);
+        }
+
+        buf.set_style(inner_area, self.style);
     }
 }
 
