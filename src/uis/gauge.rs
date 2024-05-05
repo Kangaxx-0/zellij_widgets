@@ -1,6 +1,6 @@
 use core::f64;
 
-use crate::prelude::{Block, Buffer, Color, Geometry, Span, Style, Widget};
+use crate::prelude::*;
 
 /// A widget to display a progress bar.
 ///
@@ -61,7 +61,7 @@ impl<'a> Gauge<'a> {
     #[must_use = "function consumes self and returns a new instance"]
     pub fn ratio(mut self, ratio: f64) -> Self {
         assert!(
-            ratio >= 0.0 && ratio <= 1.0,
+            (0.0..=1.0).contains(&ratio),
             "ratio should be between 0.0 and 1.0"
         );
         self.ratio = ratio;
@@ -87,7 +87,7 @@ impl<'a> Gauge<'a> {
             "percent should be between 0 and 100"
         );
 
-        self.ratio = f64::from(percent) / 100 as f64;
+        self.ratio = f64::from(percent) / 100_f64;
         self
     }
 
