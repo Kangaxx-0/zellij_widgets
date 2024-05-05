@@ -34,6 +34,15 @@ impl Geometry {
     }
 
     /// Returns the left coordinate of the gemo.
+    ///
+    /// # Visual representation:
+    /// ```
+    /// (left, y)-> +-----------------+
+    ///             |                 |
+    ///             |                 |
+    ///             +-----------------+
+    /// ```
+    ///
     pub const fn left(self) -> u16 {
         self.x
     }
@@ -42,11 +51,28 @@ impl Geometry {
     ///
     /// If the right coordinate is larger than the maximum value of u16, it will be clamped to
     /// u16::MAX.
+    ///
+    /// # Visual representation:
+    /// ```
+    /// +-----------------+ <--- (right, y)
+    /// |                 |
+    /// |                 |
+    /// +-----------------+
+    /// Right coordinate is the first outside the rectangle at (x + cols)
+    /// ```
     pub const fn right(self) -> u16 {
         self.x.saturating_add(self.cols)
     }
 
     /// Returns the top coordinate of the gemo.
+    ///
+    /// # Visual representation:
+    /// ```
+    /// (x, top) -> +-----------------+
+    ///             |                 |
+    ///             |                 |
+    ///             +-----------------+
+    /// ```
     pub const fn top(self) -> u16 {
         self.y
     }
@@ -55,6 +81,14 @@ impl Geometry {
     ///
     /// If the bottom coordinate is larger than the maximum value of u16, it will be clamped to
     /// u16::MAX.
+    ///
+    /// # Visual representation:
+    /// ```
+    ///              +-----------------+
+    ///              |                 |
+    ///              |                 |
+    /// (x,bottom)-> +-----------------+
+    /// ```
     pub const fn bottom(self) -> u16 {
         self.y.saturating_add(self.rows)
     }

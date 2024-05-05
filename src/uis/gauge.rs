@@ -151,7 +151,13 @@ impl<'a> Widget for Gauge<'a> {
             buf.set_span(x, y, &Span::raw(ratio), inner_area.cols);
         }
 
-        buf.set_style(inner_area, self.style);
+        // Fill the gauge style(mostly for the color) with ratio
+        let filled = (self.ratio * f64::from(inner_area.cols)).round() as u16;
+        for x in inner_area.left()..inner_area.left() + filled {
+            for y in inner_area.top()..inner_area.bottom() {
+                buf.get_mut(x, y).set_style(self.style);
+            }
+        }
     }
 }
 
