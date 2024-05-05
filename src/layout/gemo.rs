@@ -36,7 +36,7 @@ impl Geometry {
     /// Returns the left coordinate of the gemo.
     ///
     /// # Visual representation:
-    /// ```
+    /// ```no_run
     /// (left, y)-> +-----------------+
     ///             |                 |
     ///             |                 |
@@ -53,7 +53,7 @@ impl Geometry {
     /// u16::MAX.
     ///
     /// # Visual representation:
-    /// ```
+    /// ```no_run
     /// +-----------------+ <--- (right, y)
     /// |                 |
     /// |                 |
@@ -67,7 +67,7 @@ impl Geometry {
     /// Returns the top coordinate of the gemo.
     ///
     /// # Visual representation:
-    /// ```
+    /// ```no_run
     /// (x, top) -> +-----------------+
     ///             |                 |
     ///             |                 |
@@ -83,7 +83,7 @@ impl Geometry {
     /// u16::MAX.
     ///
     /// # Visual representation:
-    /// ```
+    /// ```no_run
     ///              +-----------------+
     ///              |                 |
     ///              |                 |
