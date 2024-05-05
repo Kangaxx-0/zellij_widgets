@@ -14,8 +14,8 @@ pub use crate::{
     text::{self, Line, Masked, Span, StyledGrapheme, Text},
     title::{self, Position, Title},
     uis::{
-        self, Block, BorderOptions, BorderType, Borders, Erase, HighlightStyle, HighlightSymbol,
-        List, ListItem, ListState, Padding, Paragraph, ScrollDirection, Scrollbar,
+        self, Block, BorderOptions, BorderType, Borders, Erase, Gauge, HighlightStyle,
+        HighlightSymbol, List, ListItem, ListState, Padding, Paragraph, ScrollDirection, Scrollbar,
         ScrollbarOrientation, ScrollbarState, Tab, TabState, Wrap,
     },
     widget::{StateWidget, Widget},

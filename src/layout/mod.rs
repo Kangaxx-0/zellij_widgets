@@ -101,7 +101,6 @@ impl fmt::Display for Constraint {
 }
 
 impl Constraint {
-    ///
     pub fn apply(&self, length: u16) -> u16 {
         match *self {
             Constraint::Percentage(p) => {
