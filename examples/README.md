@@ -18,7 +18,7 @@ Above sample config would allow you to interact with `custom_button` code, when 
 
 
 ## Come from `Ratatui`
-Keep in mind, there is no loop controls rendering like `Ratatui`, its your responsibility to **implicitly** call [render](https://zellij.dev/documentation/plugin-lifecycle) function when you want to redraw ui every time
+Keep in mind, there is no loop controls rendering like `Ratatui`, its your responsibility to **implicitly** call [render](https://zellij.dev/documentation/plugin-lifecycle) function when you want to redraw ui every time,e.g - by registering event [SessionUpdate](https://docs.rs/zellij-tile/latest/zellij_tile/prelude/enum.Event.html#variant.SessionUpdate),we can achieve somewhat auto re-render when session is updated, but this does not guarantee a consistent render experience, you can refer to [Gauge example](./showcase_gauge) for more details.
 
 If you want to see more fundamental concepts in zellij, please refer to my another [repo](https://github.com/Kangaxx-0/first-zellij-plugin/tree/main)
 
