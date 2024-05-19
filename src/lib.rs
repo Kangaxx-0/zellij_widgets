@@ -9,7 +9,7 @@
 //! ## Important Concepts
 //! Zellij does not have a continuous rendering loop like some UI frameworks,
 //! instead, rendering in Zellij typically occurs in response to user input or when the something has changes,
-//! this means that designing animations or expecting continuous rendering for dynamic UI updates is not feasible with zellij_widgets.
+//! this means that designing animations or expecting continuous rendering for dynamic UI updates is not feasible with zellij_widgets
 //! Take a look at zellij's [update](https://docs.rs/zellij-tile/latest/zellij_tile/trait.ZellijPlugin.html#method.update) interface
 //!
 //! [EXAMPLES]: <https://github.com/Kangaxx-0/zellij_widgets/tree/main/examples>
@@ -18,6 +18,7 @@
 //!  - Tab : <https://github.com/Kangaxx-0/zellij_widgets/tree/main/examples/showcase_tabs>
 //!  - Scrollbar : <https://github.com/Kangaxx-0/zellij_widgets/tree/main/examples/showcase_scrollbar>
 //!  - Popup : <https://github.com/Kangaxx-0/zellij_widgets/tree/main/examples/showcase_popup>
+//!  - Gauge : <https://github.com/Kangaxx-0/zellij_widgets/tree/main/examples/showcase_gauge>
 //!  - Custom component : <https://github.com/Kangaxx-0/zellij_widgets/tree/main/examples/showcase_custom_button>
 //!
 //! For an end-to-end demonstration, check out the [session_manager](https://github.com/Kangaxx-0/zellij_widgets/tree/main/examples/e2e/session_manager)
